@@ -1,0 +1,1803 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>🐧 PINGÜIM - OPERAÇÃO PORTO</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* =========================================== */
+        /* BATMAN HUD SYSTEM - VERSÃO SIMPLIFICADA */
+        /* =========================================== */
+        :root {
+            --primary: #00d9ff;
+            --primary-dark: #0066cc;
+            --success: #00ff88;
+            --warning: #ffaa00;
+            --danger: #ff0040;
+            --info: #bb86fc;
+            --purple: #9d4edd;
+            --penguin: #34495e;
+            --penguin-light: #5d6d7e;
+            --penguin-dark: #1e2b3a;
+            --bg-dark: #000;
+            --bg-panel: rgba(10, 20, 40, 0.75);
+            --bg-card: rgba(10, 20, 40, 0.65);
+            --text: #ffffff;
+            --text-dim: #e0e0e0;
+            --border: rgba(52, 73, 94, 0.3);
+            --border-strong: rgba(52, 73, 94, 0.6);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            --shadow-glow: 0 0 20px rgba(52, 73, 94, 0.3);
+            --font-mono: 'Courier New', monospace;
+            --safe-area-inset: env(safe-area-inset-top, 0px);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Remoção completa das barras de rolagem */
+        html,
+        body {
+            overflow: hidden !important;
+            height: 100%;
+            width: 100%;
+            position: fixed;
+            overscroll-behavior: none;
+        }
+
+        body {
+            background: #000000;
+            /* Fundo preto sólido */
+            color: var(--text);
+            font-family: 'Arial', sans-serif;
+            height: 100vh;
+            width: 100vw;
+            position: relative;
+            overflow-y: auto !important;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Scrollbar invisível mas funcional */
+        body::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+
+        .hub-back-link {
+            position: fixed;
+            top: max(15px, env(safe-area-inset-top));
+            left: 15px;
+            z-index: 10001;
+            color: var(--penguin-light);
+            text-decoration: none;
+            padding: clamp(6px, 2vw, 8px) clamp(12px, 3vw, 16px);
+            border: 2px solid var(--penguin);
+            border-radius: 8px;
+            background: var(--bg-card);
+            font-size: clamp(0.75rem, 2vw, 0.85rem);
+            font-weight: bold;
+            letter-spacing: 1px;
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-glow);
+            transition: all 0.3s ease;
+        }
+
+        .points-display {
+            position: fixed;
+            top: max(15px, env(safe-area-inset-top));
+            right: 15px;
+            background: var(--bg-card);
+            border: 2px solid var(--penguin);
+            border-radius: 8px;
+            padding: clamp(6px, 2vw, 8px) clamp(12px, 3vw, 16px);
+            color: var(--penguin-light);
+            font-weight: bold;
+            font-size: clamp(0.85rem, 2.5vw, 1rem);
+            z-index: 10001;
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        /* ===== LOADING ANIMATION ===== */
+        .loading-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(15px);
+            z-index: 20000;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loading-container.active {
+            display: flex;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .loading-icon {
+            font-size: clamp(3rem, 15vw, 5rem);
+            margin-bottom: 20px;
+            animation: spin 1s linear infinite;
+            filter: drop-shadow(0 0 30px var(--penguin));
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-text {
+            color: #fff;
+            font-size: clamp(1rem, 4vw, 1.2rem);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: bold;
+            text-shadow: 0 0 10px var(--penguin);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        .loading-progress {
+            width: min(200px, 80%);
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            margin-top: 30px;
+            overflow: hidden;
+        }
+
+        .loading-progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, transparent, var(--penguin), transparent);
+            animation: progress 2s infinite;
+        }
+
+        /* ===== SISTEMA DE MODAIS GLASSMORPH ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 9999;
+            display: none;
+        }
+
+        .modal-overlay.active {
+            display: block;
+        }
+
+        .intro-overlay {
+            background: url('https://wallpapers.com/images/featured/pubg-joker-625ulcvfqg17mzwi.jpg') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        .phase-overlay {
+            background: url('https://images6.alphacoders.com/419/419798.jpg') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        .result-overlay {
+            background: url('https://tse3.mm.bing.net/th/id/OIP.C90BN08rF0g0x3BiClj2zQHaEK?w=1280&h=720&rs=1&pid=ImgDetMain&o=7&rm=3') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        .modal-overlay::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(5px);
+            z-index: -1;
+        }
+
+        .modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--bg-card);
+            border: 3px solid var(--penguin);
+            border-radius: 20px;
+            padding: clamp(15px, 4vw, 30px);
+            width: min(95%, 500px);
+            max-height: 90vh;
+            overflow-y: auto;
+            z-index: 10000;
+            backdrop-filter: blur(15px);
+            box-shadow: var(--shadow), 0 0 50px var(--penguin);
+            display: none;
+            animation: modalAppear 0.4s ease-out;
+        }
+
+        .modal.active {
+            display: block;
+        }
+
+        /* Esconder scrollbar do modal mas manter funcional */
+        .modal::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+
+        @keyframes modalAppear {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -45%);
+            }
+
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--penguin);
+        }
+
+        .modal-title {
+            color: var(--penguin-light);
+            font-size: clamp(1.1rem, 4vw, 1.3rem);
+            font-weight: bold;
+            letter-spacing: 1px;
+            line-height: 1.2;
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            font-size: clamp(1.5rem, 5vw, 1.8rem);
+            cursor: pointer;
+            transition: color 0.3s;
+            padding: 0 8px;
+            line-height: 1;
+        }
+
+        .modal-icon {
+            font-size: clamp(2.5rem, 10vw, 3.5rem);
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        .modal-content {
+            margin: 15px 0;
+        }
+
+        .modal-text {
+            color: var(--text);
+            line-height: 1.5;
+            font-size: clamp(0.9rem, 3vw, 1rem);
+        }
+
+        .modal-text-secondary {
+            color: var(--text-dim);
+            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+            margin-top: 10px;
+        }
+
+        .modal-stats {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--penguin);
+            border-radius: 8px;
+            padding: clamp(10px, 3vw, 15px);
+            margin: 15px 0;
+        }
+
+        .modal-stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(52, 73, 94, 0.2);
+            font-size: clamp(0.85rem, 2.5vw, 0.9rem);
+        }
+
+        .modal-stat-label {
+            color: var(--text-dim);
+        }
+
+        .modal-stat-value {
+            color: var(--penguin-light);
+            font-weight: bold;
+        }
+
+        .modal-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(52, 73, 94, 0.2);
+            border: 1px solid var(--penguin);
+            border-radius: 20px;
+            color: var(--penguin-light);
+            font-size: clamp(0.7rem, 2vw, 0.8rem);
+            margin-top: 10px;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .modal-btn {
+            flex: 1 1 auto;
+            min-width: 120px;
+            padding: clamp(10px, 3vw, 12px) clamp(12px, 4vw, 15px);
+            border: 2px solid;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-btn.primary {
+            border-color: var(--penguin);
+            color: var(--penguin-light);
+        }
+
+        .modal-btn.primary:hover {
+            background: var(--penguin);
+            color: #000;
+            box-shadow: 0 0 20px var(--penguin);
+        }
+
+        .modal-btn.secondary {
+            border-color: var(--text-dim);
+            color: var(--text-dim);
+        }
+
+        .modal-btn.secondary:hover {
+            border-color: #fff;
+            color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-btn.success {
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .modal-btn.success:hover {
+            background: var(--success);
+            color: #000;
+            box-shadow: 0 0 20px var(--success);
+        }
+
+        /* ===== PREVIEW DO VILÃO ===== */
+        .villain-preview {
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid var(--penguin);
+            border-radius: 10px;
+            padding: clamp(15px, 4vw, 20px);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: clamp(10px, 3vw, 20px);
+            backdrop-filter: blur(5px);
+        }
+
+        .villain-preview-icon {
+            font-size: clamp(3rem, 12vw, 4rem);
+            filter: drop-shadow(0 0 20px var(--penguin));
+        }
+
+        .villain-preview-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .villain-preview-name {
+            color: var(--penguin-light);
+            font-size: clamp(1.2rem, 5vw, 1.5rem);
+            font-weight: bold;
+            margin-bottom: 8px;
+            line-height: 1.2;
+            word-wrap: break-word;
+        }
+
+        .villain-preview-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            color: var(--text-dim);
+            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+        }
+
+        /* ===== HUD DO JOGO ===== */
+        #gameCanvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            background: #000000;
+            /* Fundo preto sólido */
+            cursor: none;
+            touch-action: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        .hud {
+            position: fixed;
+            top: max(15px, env(safe-area-inset-top));
+            left: 15px;
+            right: 15px;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: clamp(5px, 1.5vw, 10px);
+            padding: clamp(8px, 2vw, 12px);
+            background: var(--bg-panel);
+            border: 2px solid var(--penguin);
+            border-radius: 10px;
+            backdrop-filter: blur(15px);
+            z-index: 10;
+            box-shadow: var(--shadow), 0 0 20px var(--penguin);
+        }
+
+        .stat {
+            text-align: center;
+            padding: clamp(4px, 1.5vw, 8px) clamp(3px, 1vw, 5px);
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--penguin);
+            border-radius: 6px;
+        }
+
+        .stat-label {
+            color: var(--penguin-light);
+            font-size: clamp(0.6rem, 2vw, 0.7rem);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            white-space: nowrap;
+        }
+
+        .stat-value {
+            font-size: clamp(1.2rem, 4vw, 1.6rem);
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 0 10px var(--penguin);
+            line-height: 1.2;
+        }
+
+        .target-info {
+            position: fixed;
+            bottom: max(80px, calc(env(safe-area-inset-bottom) + 60px));
+            left: 50%;
+            transform: translateX(-50%);
+            width: min(90%, 400px);
+            background: var(--bg-card);
+            border: 2px solid var(--penguin);
+            border-radius: 8px;
+            padding: clamp(10px, 3vw, 12px) clamp(15px, 4vw, 20px);
+            color: var(--penguin-light);
+            font-size: clamp(0.9rem, 3vw, 1rem);
+            text-align: center;
+            z-index: 10;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 0 20px var(--penguin);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .combo-indicator {
+            position: fixed;
+            top: max(100px, calc(env(safe-area-inset-top) + 80px));
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, var(--penguin), var(--penguin-dark));
+            border: 2px solid #fff;
+            border-radius: 8px;
+            padding: clamp(8px, 2.5vw, 10px) clamp(15px, 4vw, 20px);
+            color: #fff;
+            font-size: clamp(1.2rem, 5vw, 1.5rem);
+            font-weight: bold;
+            z-index: 15;
+            display: none;
+            box-shadow: 0 0 30px var(--penguin);
+            animation: comboPop 0.3s;
+            white-space: nowrap;
+        }
+
+        @keyframes comboPop {
+            0% {
+                transform: translateX(-50%) scale(0);
+            }
+
+            80% {
+                transform: translateX(-50%) scale(1.1);
+            }
+
+            100% {
+                transform: translateX(-50%) scale(1);
+            }
+        }
+
+        .ammo-indicator {
+            position: fixed;
+            bottom: max(20px, env(safe-area-inset-bottom));
+            right: 20px;
+            background: var(--bg-card);
+            border: 2px solid var(--penguin);
+            border-radius: 8px;
+            padding: clamp(8px, 2.5vw, 10px) clamp(12px, 3vw, 15px);
+            color: var(--penguin-light);
+            font-size: clamp(1.2rem, 4vw, 1.5rem);
+            font-weight: bold;
+            z-index: 10;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 0 20px var(--penguin);
+        }
+
+        .hit-marker {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--penguin-light);
+            font-size: clamp(3rem, 12vw, 4rem);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 15;
+            text-shadow: 0 0 40px var(--penguin);
+        }
+
+        .touch-hint {
+            position: fixed;
+            bottom: max(120px, calc(env(safe-area-inset-bottom) + 100px));
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-card);
+            border: 2px solid var(--penguin);
+            border-radius: 20px;
+            padding: clamp(8px, 2.5vw, 10px) clamp(15px, 4vw, 20px);
+            color: var(--penguin-light);
+            font-size: clamp(0.9rem, 3vw, 1rem);
+            z-index: 8;
+            animation: fadeOut 3s forwards;
+            white-space: nowrap;
+            backdrop-filter: blur(10px);
+        }
+
+        @keyframes fadeOut {
+            0% {
+                opacity: 1;
+            }
+
+            70% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0;
+                display: none;
+            }
+        }
+
+        /* Media Queries para ajustes finos */
+        @media (max-width: 768px) {
+            .villain-preview {
+                flex-direction: column;
+                text-align: center;
+                gap: 8px;
+            }
+
+            .villain-preview-icon {
+                font-size: 3.5rem;
+            }
+
+            .villain-preview-name {
+                font-size: 1.3rem;
+            }
+
+            .villain-preview-stats {
+                font-size: 0.8rem;
+            }
+
+            .modal {
+                width: 95%;
+                padding: 20px;
+            }
+
+            .modal-title {
+                font-size: 1.1rem;
+            }
+
+            .modal-icon {
+                font-size: 3rem;
+            }
+
+            .modal-actions {
+                flex-direction: column;
+            }
+
+            .modal-btn {
+                width: 100%;
+            }
+
+            .hud {
+                grid-template-columns: repeat(2, 1fr);
+                padding: 8px;
+            }
+
+            .stat-value {
+                font-size: 1.2rem;
+            }
+
+            .loading-icon {
+                font-size: 4rem;
+            }
+
+            .loading-text {
+                font-size: 1rem;
+            }
+
+            .points-display {
+                font-size: 0.8rem;
+                padding: 4px 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .target-info {
+                bottom: 70px;
+                font-size: 0.8rem;
+                padding: 8px 12px;
+            }
+
+            .ammo-indicator {
+                font-size: 1rem;
+                padding: 6px 10px;
+            }
+
+            .stat-label {
+                font-size: 0.55rem;
+            }
+
+            .stat-value {
+                font-size: 1rem;
+            }
+        }
+
+        @media (orientation: landscape) and (max-height: 600px) {
+            .hud {
+                padding: 5px;
+            }
+
+            .stat-value {
+                font-size: 1rem;
+            }
+
+            .target-info {
+                bottom: 50px;
+            }
+
+            .ammo-indicator {
+                bottom: 10px;
+            }
+        }
+
+        /* Ajustes para telas muito pequenas */
+        @media (max-width: 360px) {
+            .stat-label {
+                font-size: 0.5rem;
+            }
+
+            .stat-value {
+                font-size: 0.9rem;
+            }
+
+            .target-info {
+                width: 95%;
+                font-size: 0.75rem;
+            }
+        }
+    </style>
+    <!-- ===== ARKHAM CORE ADICIONADO ===== -->
+    <script src="../sistemas/arkham-core.js"></script>
+</head>
+
+<body>
+    <a href="../dash3.html" class="hub-back-link">← HUB</a>
+
+    <div class="points-display" id="pointsDisplay">💰 0</div>
+
+    <!-- LOADING OVERLAY -->
+    <div class="loading-container" id="loadingContainer">
+        <div class="loading-icon">🐧</div>
+        <div class="loading-text" id="loadingText">CARREGANDO...</div>
+        <div class="loading-progress">
+            <div class="loading-progress-fill"></div>
+        </div>
+    </div>
+
+    <!-- MODAL DE INTRODUÇÃO -->
+    <div class="modal-overlay intro-overlay" id="introOverlay"></div>
+
+    <div class="modal modal-penguin active" id="modalIntro">
+        <div class="modal-header">
+            <div class="modal-title">🐧 PINGÜIM - OPERAÇÃO PORTO</div>
+            <button class="modal-close" onclick="closeIntro()">×</button>
+        </div>
+        <div class="modal-icon">⚓</div>
+        <div class="modal-content">
+            <div class="modal-text">
+                O Pinguim está contrabandeando armas pelo porto de Gotham.
+                Elimine seus capangas antes que o carregamento escape!
+            </div>
+            <div class="modal-text-secondary">
+                <strong>🎯 INSTRUÇÕES:</strong><br>
+                • Toque na tela para atirar<br>
+                • Mantenha o combo para multiplicar pontos<br>
+                • Capangas blindados precisam de mais tiros<br>
+                • Pressione R para recarregar<br>
+                • Complete 5 fases para vencer
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn primary" onclick="startGame()">INICIAR OPERAÇÃO</button>
+        </div>
+    </div>
+
+    <!-- MODAL DE FASE -->
+    <div class="modal-overlay phase-overlay" id="phaseOverlay"></div>
+
+    <div class="modal modal-penguin" id="modalPhase">
+        <div class="modal-header">
+            <div class="modal-title" id="phaseModalTitle">FASE 1 - INICIANTE</div>
+            <button class="modal-close" onclick="closePhaseModal()">×</button>
+        </div>
+        <div class="modal-icon">🐧</div>
+        <div class="modal-content">
+            <div class="villain-preview" id="villainPreview"></div>
+
+            <div class="modal-stats">
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">⏰ TEMPO:</span>
+                    <span class="modal-stat-value" id="phaseTime">60s</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">🔫 MUNIÇÃO:</span>
+                    <span class="modal-stat-value" id="phaseAmmo">30</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">💥 BLINDADOS:</span>
+                    <span class="modal-stat-value" id="phaseArmored">20%</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">⭐ PONTOS BASE:</span>
+                    <span class="modal-stat-value" id="phasePoints">100</span>
+                </div>
+            </div>
+            <div class="modal-badge">
+                💡 Combos multiplicam sua pontuação!
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn secondary" onclick="closePhaseModal()">AGUARDAR</button>
+            <button class="modal-btn primary" onclick="startPhase()">INICIAR FASE</button>
+        </div>
+    </div>
+
+    <!-- MODAL DE RESULTADO -->
+    <div class="modal-overlay result-overlay" id="resultOverlay"></div>
+
+    <div class="modal modal-penguin" id="modalResult">
+        <div class="modal-header">
+            <div class="modal-title" id="resultTitle">RESULTADO</div>
+            <button class="modal-close" onclick="closeResultModal()">×</button>
+        </div>
+        <div class="modal-icon" id="resultIcon">🏆</div>
+        <div class="modal-content">
+            <div class="modal-text" id="resultMessage"></div>
+            <div class="modal-stats" id="resultStats">
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">Pontuação:</span>
+                    <span class="modal-stat-value success" id="resultScore">0</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">Precisão:</span>
+                    <span class="modal-stat-value" id="resultAccuracy">0%</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">Combo Máx:</span>
+                    <span class="modal-stat-value" id="resultCombo">0</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">Acertos:</span>
+                    <span class="modal-stat-value" id="resultHits">0</span>
+                </div>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn secondary" onclick="closeResultModal()">FECHAR</button>
+            <button class="modal-btn primary" onclick="nextPhase()">PRÓXIMA FASE</button>
+        </div>
+    </div>
+
+    <!-- MODAL DE GAME OVER -->
+    <div class="modal-overlay result-overlay" id="gameOverOverlay"></div>
+
+    <div class="modal modal-penguin" id="modalGameOver">
+        <div class="modal-header">
+            <div class="modal-title">💀 DERROTA</div>
+            <button class="modal-close" onclick="closeGameOver()">×</button>
+        </div>
+        <div class="modal-icon">💀</div>
+        <div class="modal-content">
+            <div class="modal-text" id="gameOverMessage">Operação falhou... Os capangas escaparam.</div>
+            <div class="modal-stats" id="gameOverStats"></div>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn secondary" onclick="closeGameOver()">FECHAR</button>
+            <button class="modal-btn primary" onclick="retryPhase()">TENTAR NOVAMENTE</button>
+        </div>
+    </div>
+
+    <!-- MODAL DE VITÓRIA FINAL -->
+    <div class="modal-overlay result-overlay" id="finalVictoryOverlay"></div>
+
+    <div class="modal modal-penguin" id="modalFinalVictory">
+        <div class="modal-header">
+            <div class="modal-title">🎉 VITÓRIA TOTAL!</div>
+            <button class="modal-close" onclick="closeFinalVictory()">×</button>
+        </div>
+        <div class="modal-icon">🏆</div>
+        <div class="modal-content">
+            <div class="modal-text">
+                Parabéns! Você eliminou todas as 5 ondas de capangas do Pinguim!
+            </div>
+            <div class="modal-stats" id="finalVictoryStats"></div>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn primary" onclick="restartGame()">JOGAR NOVAMENTE</button>
+        </div>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <div class="hud">
+        <div class="stat">
+            <div class="stat-label">Pontos</div>
+            <div class="stat-value" id="scoreDisplay">0000</div>
+        </div>
+        <div class="stat">
+            <div class="stat-label">Acertos</div>
+            <div class="stat-value" id="hitsDisplay">00</div>
+        </div>
+        <div class="stat">
+            <div class="stat-label">Munição</div>
+            <div class="stat-value" id="ammoDisplay">30</div>
+        </div>
+        <div class="stat">
+            <div class="stat-label">Tempo</div>
+            <div class="stat-value" id="timeDisplay">60</div>
+        </div>
+    </div>
+
+    <div class="target-info" id="targetInfo">
+        🐧 Elimine os capangas do Pinguim no porto
+    </div>
+
+    <div class="combo-indicator" id="comboIndicator">
+        COMBO x2! 🔥
+    </div>
+
+    <div class="ammo-indicator" id="ammoIndicator">
+        🔫 30
+    </div>
+
+    <div class="hit-marker" id="hitMarker">✖</div>
+
+    <div class="touch-hint" id="touchHint">👆 Toque na tela para atirar</div>
+
+    <script>
+        // ===========================================
+        // CONFIGURAÇÃO DAS FASES - 5 FASES PROGRESSIVAS
+        // ===========================================
+        const PHASES = [
+            {
+                phase: 1,
+                name: 'INICIANTE',
+                time: 60,
+                ammo: 30,
+                armoredChance: 0.2,
+                spawnRate: 0.02,
+                basePoints: 100,
+                description: 'Infiltre-se no porto e elimine os capangas.'
+            },
+            {
+                phase: 2,
+                name: 'INTERMEDIÁRIO',
+                time: 55,
+                ammo: 28,
+                armoredChance: 0.25,
+                spawnRate: 0.025,
+                basePoints: 150,
+                description: 'Mais capangas estão aparecendo...'
+            },
+            {
+                phase: 3,
+                name: 'AVANÇADO',
+                time: 50,
+                ammo: 25,
+                armoredChance: 0.3,
+                spawnRate: 0.03,
+                basePoints: 200,
+                description: 'O Pinguim está enviando reforços blindados.'
+            },
+            {
+                phase: 4,
+                name: 'ESPECIALISTA',
+                time: 45,
+                ammo: 22,
+                armoredChance: 0.35,
+                spawnRate: 0.035,
+                basePoints: 250,
+                description: 'Fogo concentrado! Não desperdice munição.'
+            },
+            {
+                phase: 5,
+                name: 'MESTRE',
+                time: 40,
+                ammo: 20,
+                armoredChance: 0.4,
+                spawnRate: 0.04,
+                basePoints: 300,
+                description: 'Última defesa do Pinguim! Elimine todos!'
+            }
+        ];
+
+        // ===========================================
+        // ESTADO DO JOGO
+        // ===========================================
+        let gameState = {
+            player: {
+                points: 0,
+                totalScore: 0,
+                phase: 1
+            },
+            state: {
+                gameRunning: false,
+                currentPhase: 0,
+                phaseScore: 0,
+                hits: 0,
+                totalShots: 0,
+                ammo: 30,
+                maxAmmo: 30,
+                timeLeft: 60,
+                combo: 0,
+                maxCombo: 0,
+                comboTimer: 0,
+                phaseCompleted: false
+            }
+        };
+
+        // ===========================================
+        // VARIÁVEIS DO CANVAS
+        // ===========================================
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let targets = [];
+        let particles = [];
+        let shellCasings = [];
+        let muzzleFlash = 0;
+        let recoil = 0;
+        let hitMarkerOpacity = 0;
+        let mouseX = canvas.width / 2;
+        let mouseY = canvas.height / 2;
+        let isReloading = false;
+        let reloadTime = 0;
+        let screenShake = 0;
+        let containers = [];
+        let rainDrops = [];
+        let gameLoopId = null;
+        let gameTimer = null;
+
+        let gunBaseX, gunBaseY, gunTipX, gunTipY;
+
+        // ===========================================
+        // FUNÇÕES DOS MODAIS
+        // ===========================================
+        function closeIntro() {
+            document.getElementById('introOverlay').classList.remove('active');
+            document.getElementById('modalIntro').classList.remove('active');
+            showPhaseModal(0);
+        }
+
+        function showPhaseModal(phaseIndex) {
+            gameState.state.currentPhase = phaseIndex;
+            const phase = PHASES[phaseIndex];
+
+            document.getElementById('phaseModalTitle').textContent = `FASE ${phase.phase} - ${phase.name}`;
+            document.getElementById('phaseTime').textContent = phase.time + 's';
+            document.getElementById('phaseAmmo').textContent = phase.ammo;
+            document.getElementById('phaseArmored').textContent = Math.round(phase.armoredChance * 100) + '%';
+            document.getElementById('phasePoints').textContent = phase.basePoints;
+
+            document.getElementById('villainPreview').innerHTML = `
+                <div class="villain-preview-icon">🐧</div>
+                <div class="villain-preview-info">
+                    <div class="villain-preview-name">PINGÜIM</div>
+                    <div class="villain-preview-stats">
+                        <div>⏰ ${phase.time}s</div>
+                        <div>🔫 ${phase.ammo}</div>
+                        <div>💥 ${Math.round(phase.armoredChance * 100)}%</div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('phaseOverlay').classList.add('active');
+            document.getElementById('modalPhase').classList.add('active');
+        }
+
+        function closePhaseModal() {
+            document.getElementById('phaseOverlay').classList.remove('active');
+            document.getElementById('modalPhase').classList.remove('active');
+        }
+
+        async function startPhase() {
+            closePhaseModal();
+
+            // Mostra loading antes de iniciar a fase
+            await showLoading('PREPARANDO OPERAÇÃO...', 2000);
+
+            startGamePhase();
+        }
+
+        function showResultModal(victory) {
+            const phase = PHASES[gameState.state.currentPhase];
+            const title = victory ? 'VITÓRIA!' : 'DERROTA';
+            const icon = victory ? '🏆' : '💀';
+            const message = victory ?
+                `Fase ${phase.phase} concluída! Porto liberado!` :
+                'Operação falhou... Os capangas escaparam.';
+
+            document.getElementById('resultTitle').textContent = title;
+            document.getElementById('resultIcon').textContent = icon;
+            document.getElementById('resultMessage').textContent = message;
+            document.getElementById('resultScore').textContent = gameState.state.phaseScore;
+
+            const accuracy = gameState.state.totalShots > 0 ? Math.round((gameState.state.hits / gameState.state.totalShots) * 100) : 0;
+            document.getElementById('resultAccuracy').textContent = accuracy + '%';
+            document.getElementById('resultCombo').textContent = gameState.state.maxCombo;
+            document.getElementById('resultHits').textContent = gameState.state.hits;
+
+            document.getElementById('resultOverlay').classList.add('active');
+            document.getElementById('modalResult').classList.add('active');
+        }
+
+        function closeResultModal() {
+            document.getElementById('resultOverlay').classList.remove('active');
+            document.getElementById('modalResult').classList.remove('active');
+        }
+
+        // Substituir a função nextPhase (aproximadamente linha 600)
+        async function nextPhase() {
+            closeResultModal();
+
+            // Salvar pontuação
+            if (window.ArkhamCore) {
+                ArkhamCore.addPoints(gameState.state.phaseScore, 'pinguim');
+
+                // CORREÇÃO: Registrar progresso da fase
+                ArkhamCore.registerPhaseCompletion('pinguim');
+            } else {
+                const cur = parseInt(localStorage.getItem('batmanPoints') || '0', 10);
+                localStorage.setItem('batmanPoints', (cur + gameState.state.phaseScore).toString());
+            }
+
+            gameState.player.totalScore += gameState.state.phaseScore;
+            updatePointsDisplay();
+
+            if (gameState.state.currentPhase < PHASES.length - 1) {
+                gameState.state.currentPhase++;
+                gameState.player.phase = gameState.state.currentPhase + 1;
+                await showLoading('AVANÇANDO PARA PRÓXIMA FASE...', 1500);
+                showPhaseModal(gameState.state.currentPhase);
+            } else {
+                await showLoading('VITÓRIA! CARREGANDO RESULTADO...', 2000);
+                showFinalVictory();
+            }
+        }
+
+        function showGameOver(message) {
+            document.getElementById('gameOverMessage').textContent = message;
+
+            const accuracy = gameState.state.totalShots > 0 ? Math.round((gameState.state.hits / gameState.state.totalShots) * 100) : 0;
+
+            document.getElementById('gameOverStats').innerHTML = `
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">🔫 Acertos:</span>
+                    <span class="modal-stat-value">${gameState.state.hits}</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">📊 Precisão:</span>
+                    <span class="modal-stat-value">${accuracy}%</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">🔥 Combo Máx:</span>
+                    <span class="modal-stat-value">${gameState.state.maxCombo}</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">💯 Pontuação:</span>
+                    <span class="modal-stat-value">${gameState.state.phaseScore}</span>
+                </div>
+            `;
+
+            document.getElementById('gameOverOverlay').classList.add('active');
+            document.getElementById('modalGameOver').classList.add('active');
+        }
+
+        function closeGameOver() {
+            document.getElementById('gameOverOverlay').classList.remove('active');
+            document.getElementById('modalGameOver').classList.remove('active');
+        }
+
+        async function retryPhase() {
+            closeGameOver();
+
+            // Mostra loading antes de tentar novamente
+            await showLoading('REINICIANDO FASE...', 1500);
+
+            showPhaseModal(gameState.state.currentPhase);
+        }
+
+        function showFinalVictory() {
+            document.getElementById('finalVictoryStats').innerHTML = `
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">🏆 Pontuação Total:</span>
+                    <span class="modal-stat-value success">${gameState.player.totalScore}</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">⭐ Título:</span>
+                    <span class="modal-stat-value">O DESTRUIDOR DE PINGÜINS</span>
+                </div>
+            `;
+
+            document.getElementById('finalVictoryOverlay').classList.add('active');
+            document.getElementById('modalFinalVictory').classList.add('active');
+        }
+
+        function closeFinalVictory() {
+            document.getElementById('finalVictoryOverlay').classList.remove('active');
+            document.getElementById('modalFinalVictory').classList.remove('active');
+        }
+
+        async function restartGame() {
+            closeFinalVictory();
+
+            // Mostra loading antes de reiniciar
+            await showLoading('REINICIANDO OPERAÇÃO...', 1500);
+
+            gameState.state.currentPhase = 0;
+            gameState.player.phase = 1;
+            gameState.player.totalScore = 0;
+            updatePointsDisplay();
+            showPhaseModal(0);
+        }
+
+        function startGame() {
+            closeIntro();
+            showPhaseModal(0);
+        }
+
+        // ===========================================
+        // FUNÇÃO DE LOADING
+        // ===========================================
+        async function showLoading(message = 'CARREGANDO...', duration = 2000) {
+            return new Promise((resolve) => {
+                const container = document.getElementById('loadingContainer');
+                const text = document.getElementById('loadingText');
+
+                text.textContent = message;
+                container.classList.add('active');
+
+                setTimeout(() => {
+                    container.classList.remove('active');
+                    resolve();
+                }, duration);
+            });
+        }
+
+        // ===========================================
+        // FUNÇÕES DO CANVAS
+        // ===========================================
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            gunBaseX = canvas.width - Math.min(120, canvas.width * 0.15);
+            gunBaseY = canvas.height - Math.min(80, canvas.height * 0.12);
+            updateGunTip();
+            createContainers();
+        }
+
+        function createContainers() {
+            containers = [];
+            for (let i = 0; i < 8; i++) {
+                containers.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    width: 60 + Math.random() * 40,
+                    height: 80 + Math.random() * 60,
+                    color: `hsl(${Math.random() * 30 + 20}, 50%, 30%)`
+                });
+            }
+        }
+
+        function createRain() {
+            rainDrops = [];
+            for (let i = 0; i < 50; i++) {
+                rainDrops.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    speed: 5 + Math.random() * 10,
+                    size: 1 + Math.random() * 2
+                });
+            }
+        }
+
+        function updateGunTip() {
+            let dx = mouseX - gunBaseX;
+            let dy = mouseY - gunBaseY;
+            let distance = Math.sqrt(dx * dx + dy * dy);
+            let gunLength = Math.min(180, canvas.width * 0.2);
+            if (distance > 0) {
+                let dirX = dx / distance;
+                let dirY = dy / distance;
+                gunTipX = gunBaseX + dirX * gunLength;
+                gunTipY = gunBaseY + dirY * gunLength;
+            }
+        }
+
+        function startGamePhase() {
+            const phase = PHASES[gameState.state.currentPhase];
+
+            gameState.state.gameRunning = true;
+            gameState.state.phaseScore = 0;
+            gameState.state.hits = 0;
+            gameState.state.totalShots = 0;
+            gameState.state.ammo = phase.ammo;
+            gameState.state.maxAmmo = phase.ammo;
+            gameState.state.timeLeft = phase.time;
+            gameState.state.combo = 0;
+            gameState.state.maxCombo = 0;
+            gameState.state.comboTimer = 0;
+            gameState.state.phaseCompleted = false;
+
+            targets = [];
+            particles = [];
+            shellCasings = [];
+            isReloading = false;
+
+            document.getElementById('scoreDisplay').textContent = '0000';
+            document.getElementById('hitsDisplay').textContent = '00';
+            document.getElementById('ammoDisplay').textContent = gameState.state.ammo;
+            document.getElementById('ammoIndicator').innerHTML = '🔫 ' + gameState.state.ammo;
+            document.getElementById('targetInfo').textContent = `🐧 FASE ${phase.phase} - ${phase.description}`;
+
+            setTimeout(() => {
+                let hint = document.getElementById('touchHint');
+                if (hint) hint.style.display = 'none';
+            }, 3000);
+
+            createContainers();
+            createRain();
+            for (let i = 0; i < 6; i++) spawnTarget();
+
+            if (gameTimer) clearInterval(gameTimer);
+            gameTimer = setInterval(() => {
+                if (!gameState.state.gameRunning) return;
+                gameState.state.timeLeft -= 0.1;
+                document.getElementById('timeDisplay').textContent = Math.ceil(gameState.state.timeLeft);
+
+                if (gameState.state.timeLeft <= 0) {
+                    gameState.state.gameRunning = false;
+                    clearInterval(gameTimer);
+                    if (gameLoopId) cancelAnimationFrame(gameLoopId);
+                    gameState.state.phaseCompleted = true;
+                    gameState.player.totalScore += gameState.state.phaseScore;
+                    updatePointsDisplay();
+                    showGameOver('⏰ O tempo acabou! Os capangas escaparam!');
+                }
+            }, 100);
+
+            gameLoopId = requestAnimationFrame(gameLoop);
+        }
+
+        function spawnTarget() {
+            const phase = PHASES[gameState.state.currentPhase];
+            let isArmored = Math.random() < phase.armoredChance;
+
+            targets.push({
+                x: Math.random() * (canvas.width - 100) + 50,
+                y: Math.random() * (canvas.height * 0.6 - 100) + 50,
+                radius: isArmored ? 45 : 35,
+                speedX: (Math.random() - 0.5) * (isArmored ? 1.5 : 3),
+                speedY: (Math.random() - 0.5) * (isArmored ? 1.5 : 3),
+                value: isArmored ? 200 : 100,
+                health: isArmored ? 3 : 1,
+                color: isArmored ? '#8B4513' : '#5d6d7e',
+                type: isArmored ? 'blindado' : 'capanga',
+                hits: 0
+            });
+        }
+
+        function gameLoop() {
+            if (!gameState.state.gameRunning) return;
+            update();
+            draw();
+            gameLoopId = requestAnimationFrame(gameLoop);
+        }
+
+        function update() {
+            hitMarkerOpacity = Math.max(0, hitMarkerOpacity - 0.05);
+            muzzleFlash = Math.max(0, muzzleFlash - 0.1);
+            recoil = Math.max(0, recoil - 0.05);
+            screenShake = Math.max(0, screenShake - 0.5);
+
+            updateGunTip();
+
+            // Atualizar combo
+            if (gameState.state.comboTimer > 0) {
+                gameState.state.comboTimer -= 0.016;
+                if (gameState.state.comboTimer <= 0) gameState.state.combo = 0;
+            }
+
+            // Atualizar recarga
+            if (isReloading) {
+                reloadTime -= 0.016;
+                if (reloadTime <= 0) {
+                    gameState.state.ammo = gameState.state.maxAmmo;
+                    isReloading = false;
+                    document.getElementById('ammoDisplay').textContent = gameState.state.ammo;
+                    document.getElementById('ammoIndicator').innerHTML = '🔫 ' + gameState.state.ammo;
+                }
+            }
+
+            // Mover alvos
+            targets.forEach(t => {
+                t.x += t.speedX;
+                t.y += t.speedY;
+                if (t.x < t.radius || t.x > canvas.width - t.radius) t.speedX *= -1;
+                if (t.y < t.radius || t.y > canvas.height - t.radius) t.speedY *= -1;
+            });
+
+            // Atualizar partículas
+            particles = particles.filter(p => {
+                p.life--;
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.2;
+                return p.life > 0;
+            });
+
+            // Atualizar cápsulas
+            shellCasings = shellCasings.filter(s => {
+                s.life--;
+                s.x += s.vx;
+                s.y += s.vy;
+                s.vy += 0.3;
+                s.rotation += s.rotationSpeed;
+                return s.life > 0;
+            });
+
+            // Spawnar novos alvos
+            const phase = PHASES[gameState.state.currentPhase];
+            if (targets.length < 8 && Math.random() < phase.spawnRate && !isReloading) spawnTarget();
+
+            // Atualizar chuva
+            rainDrops.forEach(r => {
+                r.y += r.speed;
+                if (r.y > canvas.height) {
+                    r.y = 0;
+                    r.x = Math.random() * canvas.width;
+                }
+            });
+
+            if (gameState.state.timeLeft <= 10) document.getElementById('targetInfo').textContent = '⏰ TEMPO ACABANDO!';
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (screenShake > 0) {
+                ctx.save();
+                ctx.translate((Math.random() - 0.5) * screenShake, (Math.random() - 0.5) * screenShake);
+            }
+
+            // Fundo preto sólido
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Desenhar contêineres
+            containers.forEach(c => {
+                ctx.fillStyle = c.color;
+                ctx.fillRect(c.x, c.y, c.width, c.height);
+
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(c.x, c.y, c.width, c.height);
+
+                for (let i = 0; i < 3; i++) {
+                    ctx.fillStyle = '#333';
+                    ctx.fillRect(c.x + 5, c.y + 10 + i * 20, c.width - 10, 5);
+                }
+            });
+
+            // Desenhar chuva
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.lineWidth = 1;
+            rainDrops.forEach(r => {
+                ctx.beginPath();
+                ctx.moveTo(r.x, r.y);
+                ctx.lineTo(r.x - 2, r.y + 10);
+                ctx.stroke();
+            });
+
+            // Desenhar alvos
+            targets.forEach(t => {
+                ctx.shadowColor = t.color;
+                ctx.shadowBlur = 20;
+
+                // Corpo
+                ctx.fillStyle = t.color;
+                ctx.beginPath();
+                ctx.arc(t.x, t.y, t.radius, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Monóculo
+                ctx.shadowBlur = 0;
+                ctx.fillStyle = '#000';
+                ctx.beginPath();
+                ctx.arc(t.x - 8, t.y - 5, 5, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = '#fff';
+                ctx.beginPath();
+                ctx.arc(t.x - 10, t.y - 7, 2, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Cartola
+                ctx.fillStyle = '#000';
+                ctx.fillRect(t.x - 15, t.y - 30, 30, 8);
+                ctx.fillRect(t.x - 8, t.y - 45, 16, 15);
+
+                // Indicador de blindado
+                if (t.type === 'blindado') {
+                    ctx.strokeStyle = '#ffaa00';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.arc(t.x, t.y, t.radius + 5, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+
+                // Vida para blindados
+                if (t.health > 1) {
+                    ctx.fillStyle = '#00ff88';
+                    ctx.font = 'bold 16px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('❤️'.repeat(t.health), t.x, t.y - 60);
+                }
+            });
+
+            // Desenhar partículas
+            particles.forEach(p => {
+                ctx.globalAlpha = p.life / 50;
+                ctx.fillStyle = p.color;
+                ctx.fillRect(p.x, p.y, p.size, p.size);
+            });
+
+            // Desenhar cápsulas
+            shellCasings.forEach(s => {
+                ctx.save();
+                ctx.translate(s.x, s.y);
+                ctx.rotate(s.rotation);
+                ctx.globalAlpha = s.life / 50;
+                ctx.fillStyle = '#d4af37';
+                ctx.fillRect(-3, -1, 6, 2);
+                ctx.restore();
+            });
+
+            ctx.globalAlpha = 1;
+
+            // Desenhar mira
+            ctx.strokeStyle = 'rgba(93, 109, 126, 0.7)';
+            ctx.lineWidth = 2;
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = 'var(--penguin)';
+
+            ctx.beginPath();
+            ctx.moveTo(mouseX - 15, mouseY);
+            ctx.lineTo(mouseX - 5, mouseY);
+            ctx.moveTo(mouseX + 5, mouseY);
+            ctx.lineTo(mouseX + 15, mouseY);
+            ctx.moveTo(mouseX, mouseY - 15);
+            ctx.lineTo(mouseX, mouseY - 5);
+            ctx.moveTo(mouseX, mouseY + 5);
+            ctx.lineTo(mouseX, mouseY + 15);
+            ctx.stroke();
+
+            // Desenhar laser
+            if (!isReloading && gameState.state.ammo > 0) {
+                ctx.beginPath();
+                ctx.strokeStyle = 'rgba(255, 0, 0, 0.4)';
+                ctx.lineWidth = 1;
+                ctx.shadowBlur = 5;
+                ctx.moveTo(gunTipX, gunTipY);
+                ctx.lineTo(mouseX, mouseY);
+                ctx.stroke();
+            }
+
+            ctx.shadowBlur = 0;
+
+            // Desenhar arma
+            let recoilX = gunBaseX - recoil * 5;
+            let recoilY = gunBaseY + recoil * 8;
+
+            ctx.fillStyle = '#333';
+            ctx.beginPath();
+            ctx.moveTo(recoilX, recoilY);
+            ctx.lineTo(gunTipX, gunTipY);
+            ctx.lineWidth = 20;
+            ctx.strokeStyle = '#555';
+            ctx.stroke();
+
+            // Muzzle flash
+            if (muzzleFlash > 0) {
+                ctx.fillStyle = `rgba(255, 200, 100, ${muzzleFlash})`;
+                ctx.beginPath();
+                ctx.arc(gunTipX, gunTipY, 30, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Recarregando
+            if (isReloading) {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                ctx.fillRect(canvas.width / 2 - 150, canvas.height / 2 - 30, 300, 60);
+                ctx.strokeStyle = 'var(--penguin)';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(canvas.width / 2 - 150, canvas.height / 2 - 30, 300, 60);
+                ctx.fillStyle = 'var(--penguin-light)';
+                ctx.font = 'bold 24px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('RECARREGANDO...', canvas.width / 2, canvas.height / 2);
+            }
+
+            if (screenShake > 0) ctx.restore();
+
+            document.getElementById('hitMarker').style.opacity = hitMarkerOpacity;
+        }
+
+        function handleShoot(x, y) {
+            if (!gameState.state.gameRunning || isReloading) return;
+
+            if (gameState.state.ammo <= 0) {
+                if (!isReloading) {
+                    isReloading = true;
+                    reloadTime = 1.5;
+                    document.getElementById('targetInfo').textContent = '🔄 Recarregando...';
+                }
+                return;
+            }
+
+            muzzleFlash = 1;
+            recoil = 1;
+            screenShake = 3;
+            gameState.state.ammo--;
+            gameState.state.totalShots++;
+
+            // Ejetar cápsula
+            let dx = gunTipX - gunBaseX;
+            let dy = gunTipY - gunBaseY;
+            let perpX = -dy;
+            let perpY = dx;
+            let len = Math.sqrt(perpX * perpX + perpY * perpY);
+            perpX /= len;
+            perpY /= len;
+
+            shellCasings.push({
+                x: gunTipX + perpX * 20,
+                y: gunTipY + perpY * 20,
+                vx: perpX * 2 + (Math.random() - 0.5),
+                vy: perpY * 2 - 2 + (Math.random() - 0.5),
+                rotation: Math.random() * Math.PI * 2,
+                rotationSpeed: (Math.random() - 0.5) * 0.3,
+                life: 50
+            });
+
+            document.getElementById('ammoDisplay').textContent = gameState.state.ammo;
+            document.getElementById('ammoIndicator').innerHTML = '🔫 ' + gameState.state.ammo;
+
+            let hit = false;
+            targets = targets.filter(t => {
+                const dist = Math.sqrt((x - t.x) ** 2 + (y - t.y) ** 2);
+                if (dist < t.radius) {
+                    t.hits++;
+
+                    if (t.hits >= t.health) {
+                        hit = true;
+                        gameState.state.combo++;
+                        gameState.state.comboTimer = 2;
+
+                        if (gameState.state.combo > 1) {
+                            document.getElementById('comboIndicator').innerHTML = `COMBO x${gameState.state.combo}! 🔥`;
+                            document.getElementById('comboIndicator').style.display = 'block';
+                            setTimeout(() => document.getElementById('comboIndicator').style.display = 'none', 1500);
+                            if (gameState.state.combo > gameState.state.maxCombo) gameState.state.maxCombo = gameState.state.combo;
+                        }
+
+                        const phase = PHASES[gameState.state.currentPhase];
+                        let comboBonus = (gameState.state.combo - 1) * 50;
+                        let pointsEarned = t.value + comboBonus + phase.basePoints;
+                        gameState.state.phaseScore += pointsEarned;
+                        gameState.state.hits++;
+                        hitMarkerOpacity = 1;
+                        screenShake = 5;
+
+                        for (let i = 0; i < 15; i++) {
+                            particles.push({
+                                x: t.x,
+                                y: t.y,
+                                vx: (Math.random() - 0.5) * 8,
+                                vy: (Math.random() - 0.5) * 8 - 2,
+                                size: Math.random() * 5 + 2,
+                                life: 50 + Math.random() * 50,
+                                color: t.color
+                            });
+                        }
+
+                        document.getElementById('targetInfo').textContent =
+                            gameState.state.combo > 1 ? `🔥 COMBO x${gameState.state.combo}! +${pointsEarned} pts` : `✅ Capanga eliminado! +${pointsEarned} pts`;
+
+                        return false;
+                    }
+                    return true;
+                }
+                return true;
+            });
+
+            if (hit) {
+                document.getElementById('scoreDisplay').textContent = String(gameState.state.phaseScore).padStart(4, '0');
+                document.getElementById('hitsDisplay').textContent = String(gameState.state.hits).padStart(2, '0');
+            } else {
+                gameState.state.combo = 0;
+                document.getElementById('targetInfo').textContent = '❌ Errou! Combo perdido';
+            }
+
+            if (gameState.state.ammo <= 0 && !isReloading) {
+                isReloading = true;
+                reloadTime = 1.5;
+                document.getElementById('targetInfo').textContent = '🔄 Recarregando...';
+            }
+        }
+
+        function updatePointsDisplay() {
+            document.getElementById('pointsDisplay').textContent = `💰 ${gameState.player.totalScore}`;
+        }
+
+        function loadPoints() {
+            const saved = localStorage.getItem('batmanPoints');
+            if (saved) {
+                gameState.player.totalScore = parseInt(saved);
+                document.getElementById('pointsDisplay').textContent = `💰 ${saved}`;
+            }
+        }
+
+        // ===========================================
+        // EVENT LISTENERS
+        // ===========================================
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const touch = e.touches[0];
+            const x = touch.clientX - rect.left;
+            const y = touch.clientY - rect.top;
+            mouseX = x;
+            mouseY = y;
+            handleShoot(x, y);
+        });
+
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const touch = e.touches[0];
+            mouseX = touch.clientX - rect.left;
+            mouseY = touch.clientY - rect.top;
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            mouseX = e.clientX - rect.left;
+            mouseY = e.clientY - rect.top;
+        });
+
+        canvas.addEventListener('click', (e) => {
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            handleShoot(e.clientX - rect.left, e.clientY - rect.top);
+        });
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'r' || e.key === 'R') {
+                if (gameState.state.gameRunning && !isReloading && gameState.state.ammo < gameState.state.maxAmmo) {
+                    isReloading = true;
+                    reloadTime = 1.5;
+                    document.getElementById('targetInfo').textContent = '🔄 Recarregando...';
+                }
+            }
+        });
+
+        canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+
+        // ===========================================
+        // INICIALIZAÇÃO
+        // ===========================================
+        window.addEventListener('load', () => {
+            resizeCanvas();
+            loadPoints();
+
+            // O modal de introdução já tem a classe 'active' no HTML
+            document.getElementById('introOverlay').classList.add('active');
+        });
+
+        window.addEventListener('resize', resizeCanvas);
+    </script>
+</body>
+
+</html>

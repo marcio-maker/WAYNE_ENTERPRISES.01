@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Holograma Batmóvel 3D</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: #000;
+            overflow: hidden;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        #ui {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #00f2ff;
+            text-shadow: 0 0 10px #00f2ff;
+            pointer-events: none;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        /* Efeito de Scanline (linhas de TV antiga) na tela */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+                linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 4px, 3px 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* ===== BOTÃO VOLTAR ===== */
+        .back-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 242, 255, 0.1);
+            border: 1px solid rgba(0, 242, 255, 0.3);
+            color: #00f2ff;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Segoe UI', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-decoration: none;
+            z-index: 100;
+            backdrop-filter: blur(2px);
+        }
+
+        .back-button:hover {
+            background: rgba(0, 242, 255, 0.2);
+            border-color: rgba(0, 242, 255, 0.6);
+            box-shadow: 0 0 15px rgba(0, 242, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .back-button:active {
+            transform: translateY(0);
+        }
+
+        /* Responsivo */
+        @media (max-width: 768px) {
+            .back-button {
+                top: 10px;
+                right: 10px;
+                padding: 6px 12px;
+                font-size: 11px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="ui">
+        <h1>Batmóvel: Protótipo Holográfico</h1>
+        <p>Sistema Ativo // Escaneando...</p>
+    </div>
+    <div class="scanlines"></div>
+
+    <!-- Botão Voltar -->
+    <a href="intro.html" class="back-button">← Voltar</a>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+
+    <script>
+        // Efeito de transição suave para voltar
+        document.querySelector('.back-button').addEventListener('click', function (e) {
+            e.preventDefault();
+            const href = this.getAttribute('href');
+
+            // Fade out
+            document.body.style.opacity = '0';
+            document.body.style.transition = 'opacity 0.3s ease';
+
+            setTimeout(() => {
+                window.location.href = href;
+            }, 300);
+        });
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        // --- CENA E CÂMERA ---
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(4, 2, 6);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        document.body.appendChild(renderer.domElement);
+
+        // --- O MATERIAL DO HOLOGRAMA ---
+        // Aqui criamos o efeito visual: azul neon, transparente e com "wireframe" (malha de linhas)
+        const holoMaterial = new THREE.MeshPhongMaterial({
+            color: 0x00f2ff,
+            wireframe: true,       // Mostra a malha de linhas
+            transparent: true,
+            opacity: 0.3,          // Deixa transparente
+            emissive: 0x00f2ff,    // Faz o material "brilhar"
+            emissiveIntensity: 0.5,
+            side: THREE.DoubleSide
+        });
+
+        // --- CONSTRUINDO O CORPO DO BATMÓVEL (GEOMETRIA ABSTRATA) ---
+        // Como não temos o arquivo .obj aqui, vamos montar um design robusto com blocos
+        const carGroup = new THREE.Group();
+
+        // Chassi Principal
+        const bodyGeom = new THREE.BoxGeometry(4, 0.5, 2);
+        const body = new THREE.Mesh(bodyGeom, holoMaterial);
+        carGroup.add(body);
+
+        // Cockpit (Cabine)
+        const cabinGeom = new THREE.BoxGeometry(1.5, 0.6, 1.2);
+        const cabin = new THREE.Mesh(cabinGeom, holoMaterial);
+        cabin.position.set(-0.5, 0.5, 0);
+        carGroup.add(cabin);
+
+        // Rodas (cilindros wireframe)
+        const wheelGeom = new THREE.CylinderGeometry(0.5, 0.5, 0.6, 16);
+        const wheelPos = [
+            [1.5, -0.2, 1.1], [1.5, -0.2, -1.1],
+            [-1.5, -0.2, 1.1], [-1.5, -0.2, -1.1]
+        ];
+
+        wheelPos.forEach(pos => {
+            const wheel = new THREE.Mesh(wheelGeom, holoMaterial);
+            wheel.rotation.x = Math.PI / 2;
+            wheel.position.set(...pos);
+            carGroup.add(wheel);
+        });
+
+        // Barbatanas Traseiras (Estilo Batman)
+        const finGeom = new THREE.ConeGeometry(0.5, 2, 3);
+        const fin1 = new THREE.Mesh(finGeom, holoMaterial);
+        fin1.position.set(-1.8, 0.8, 0.8);
+        fin1.rotation.z = Math.PI / 4;
+        carGroup.add(fin1);
+
+        const fin2 = fin1.clone();
+        fin2.position.z = -0.8;
+        carGroup.add(fin2);
+
+        scene.add(carGroup);
+
+        // --- CHÃO DE GRADE (GRID) ---
+        const gridHelper = new THREE.GridHelper(20, 40, 0x00f2ff, 0x004444);
+        gridHelper.position.y = -0.7;
+        scene.add(gridHelper);
+
+        // --- ILUMINAÇÃO ---
+        const light = new THREE.PointLight(0x00f2ff, 100);
+        light.position.set(5, 5, 5);
+        scene.add(light);
+
+        // --- CONTROLES ---
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+
+        // --- ANIMAÇÃO ---
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Faz o holograma flutuar e girar levemente
+            carGroup.rotation.y += 0.005;
+            carGroup.position.y = Math.sin(Date.now() * 0.002) * 0.1;
+
+            // Oscilação de opacidade para efeito de "glitch"
+            holoMaterial.opacity = 0.2 + Math.random() * 0.2;
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        // Ajuste de tela
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        animate();
+    </script>
+</body>
+
+</html>

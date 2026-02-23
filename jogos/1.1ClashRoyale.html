@@ -1,0 +1,1634 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>🤡 CORINGA - ARKHAM BATTLES</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ===== SEU CSS EXISTENTE AQUI (MANTIDO IGUAL) ===== */
+        :root {
+            --primary: #00d9ff;
+            --primary-dark: #0066cc;
+            --success: #00ff88;
+            --warning: #ffaa00;
+            --danger: #ff0040;
+            --info: #bb86fc;
+            --purple: #9d4edd;
+            --joker: #b22222;
+            --joker-light: #ff4444;
+            --joker-dark: #8b0000;
+            --bg-dark: #000;
+            --bg-panel: rgba(10, 20, 40, 0.75);
+            --bg-card: rgba(10, 20, 40, 0.65);
+            --text: #ffffff;
+            --text-dim: #e0e0e0;
+            --border: rgba(178, 34, 34, 0.3);
+            --border-strong: rgba(178, 34, 34, 0.6);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            --shadow-glow: 0 0 20px rgba(178, 34, 34, 0.3);
+            --font-mono: 'Courier New', monospace;
+            --safe-area-inset: env(safe-area-inset-top, 0px);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html,
+        body {
+            overflow: hidden !important;
+            height: 100%;
+            width: 100%;
+            position: fixed;
+            overscroll-behavior: none;
+        }
+
+        body {
+            background: #000000;
+            color: var(--text);
+            font-family: 'Arial', sans-serif;
+            height: 100vh;
+            width: 100vw;
+            padding: 10px;
+            position: relative;
+            overflow-y: auto !important;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        body::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+
+        .hub-back-link {
+            position: fixed;
+            top: max(15px, env(safe-area-inset-top));
+            left: 15px;
+            z-index: 10001;
+            color: var(--joker-light);
+            text-decoration: none;
+            padding: 8px 16px;
+            border: 2px solid var(--joker);
+            border-radius: 8px;
+            background: var(--bg-card);
+            font-size: clamp(0.75rem, 2vw, 0.85rem);
+            font-weight: bold;
+            letter-spacing: 1px;
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-glow);
+            transition: all 0.3s ease;
+        }
+
+        .points-display {
+            position: fixed;
+            top: max(15px, env(safe-area-inset-top));
+            right: 15px;
+            background: var(--bg-card);
+            border: 2px solid var(--joker);
+            border-radius: 8px;
+            padding: 8px 16px;
+            color: var(--joker-light);
+            font-weight: bold;
+            font-size: clamp(0.85rem, 2.5vw, 1rem);
+            z-index: 10001;
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .loading-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(15px);
+            z-index: 20000;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loading-container.active {
+            display: flex;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .loading-icon {
+            font-size: clamp(3rem, 15vw, 5rem);
+            margin-bottom: 20px;
+            animation: spin 1s linear infinite;
+            filter: drop-shadow(0 0 30px var(--joker));
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-text {
+            color: #fff;
+            font-size: clamp(1rem, 4vw, 1.2rem);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: bold;
+            text-shadow: 0 0 10px var(--joker);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        .loading-progress {
+            width: min(200px, 80%);
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            margin-top: 30px;
+            overflow: hidden;
+        }
+
+        .loading-progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, transparent, var(--joker), transparent);
+            animation: progress 2s infinite;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 9999;
+            display: none;
+        }
+
+        .modal-overlay.active {
+            display: block;
+        }
+
+        .intro-overlay {
+            background: url('https://i.pinimg.com/1200x/ac/82/2b/ac822bf82589bf99a6830daf19e069f1.jpg') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        .phase-overlay {
+            background: url('https://th.bing.com/th/id/R.f5e985d0962ba37379d1c4ae6d410c6c?rik=7LxvUYhFEKxmLg&riu=http%3a%2f%2fgetwallpapers.com%2fwallpaper%2ffull%2fb%2f2%2fe%2f907641-download-free-batman-arkham-knight-wallpapers-1920x1080.jpg&ehk=vqpa1Rb%2f7TL3W25LK3PZRng4CqRvEvnN8QmDmcH2IvE%3d&risl=&pid=ImgRaw&r=0') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        .result-overlay {
+            background: url('https://www.sonyrumors.net/wp-content/uploads/2012/07/Dark-Knight-Rises-Photos-101.jpeg') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        .modal-overlay::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(5px);
+            z-index: -1;
+        }
+
+        .modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--bg-card);
+            border: 3px solid var(--joker);
+            border-radius: 20px;
+            padding: clamp(15px, 4vw, 30px);
+            width: min(95%, 500px);
+            max-height: 90vh;
+            overflow-y: auto;
+            z-index: 10000;
+            backdrop-filter: blur(15px);
+            box-shadow: var(--shadow), 0 0 50px var(--joker);
+            display: none;
+            animation: modalAppear 0.4s ease-out;
+        }
+
+        .modal.active {
+            display: block;
+        }
+
+        .modal::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+
+        @keyframes modalAppear {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -45%);
+            }
+
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--joker);
+        }
+
+        .modal-title {
+            color: var(--joker-light);
+            font-size: clamp(1.1rem, 4vw, 1.3rem);
+            font-weight: bold;
+            letter-spacing: 1px;
+            line-height: 1.2;
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            font-size: clamp(1.5rem, 5vw, 1.8rem);
+            cursor: pointer;
+            transition: color 0.3s;
+            padding: 0 8px;
+            line-height: 1;
+        }
+
+        .modal-icon {
+            font-size: clamp(2.5rem, 10vw, 3.5rem);
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        .modal-content {
+            margin: 15px 0;
+        }
+
+        .modal-text {
+            color: var(--text);
+            line-height: 1.5;
+            font-size: clamp(0.9rem, 3vw, 1rem);
+        }
+
+        .modal-text-secondary {
+            color: var(--text-dim);
+            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+            margin-top: 10px;
+        }
+
+        .modal-stats {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--joker);
+            border-radius: 8px;
+            padding: clamp(10px, 3vw, 15px);
+            margin: 15px 0;
+        }
+
+        .modal-stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(178, 34, 34, 0.2);
+            font-size: clamp(0.85rem, 2.5vw, 0.9rem);
+        }
+
+        .modal-stat-label {
+            color: var(--text-dim);
+        }
+
+        .modal-stat-value {
+            color: var(--joker-light);
+            font-weight: bold;
+        }
+
+        .modal-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(178, 34, 34, 0.2);
+            border: 1px solid var(--joker);
+            border-radius: 20px;
+            color: var(--joker-light);
+            font-size: clamp(0.7rem, 2vw, 0.8rem);
+            margin-top: 10px;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .modal-btn {
+            flex: 1 1 auto;
+            min-width: 120px;
+            padding: clamp(10px, 3vw, 12px) clamp(12px, 4vw, 15px);
+            border: 2px solid;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-btn.primary {
+            border-color: var(--joker);
+            color: var(--joker-light);
+        }
+
+        .modal-btn.primary:hover {
+            background: var(--joker);
+            color: #000;
+            box-shadow: 0 0 20px var(--joker);
+        }
+
+        .modal-btn.secondary {
+            border-color: var(--text-dim);
+            color: var(--text-dim);
+        }
+
+        .modal-btn.secondary:hover {
+            border-color: #fff;
+            color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-btn.success {
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .modal-btn.success:hover {
+            background: var(--success);
+            color: #000;
+            box-shadow: 0 0 20px var(--success);
+        }
+
+        .villain-preview {
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid var(--joker);
+            border-radius: 10px;
+            padding: clamp(15px, 4vw, 20px);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: clamp(10px, 3vw, 20px);
+            backdrop-filter: blur(5px);
+        }
+
+        .villain-preview-icon {
+            font-size: clamp(3rem, 12vw, 4rem);
+            filter: drop-shadow(0 0 20px var(--joker));
+        }
+
+        .villain-preview-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .villain-preview-name {
+            color: var(--joker-light);
+            font-size: clamp(1.2rem, 5vw, 1.5rem);
+            font-weight: bold;
+            margin-bottom: 8px;
+            line-height: 1.2;
+            word-wrap: break-word;
+        }
+
+        .villain-preview-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            color: var(--text-dim);
+            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+        }
+
+        .game-container {
+            max-width: 1400px;
+            margin: max(60px, env(safe-area-inset-top)) auto 0;
+            width: 100%;
+            height: calc(100vh - 80px);
+            overflow-y: auto;
+            padding-bottom: 20px;
+        }
+
+        .game-container::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+
+        .header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            padding: clamp(8px, 2vw, 12px) clamp(12px, 3vw, 15px);
+            background: var(--bg-panel);
+            border: 2px solid var(--joker);
+            border-radius: 10px;
+            margin-bottom: 15px;
+            backdrop-filter: blur(15px);
+            box-shadow: var(--shadow), 0 0 20px var(--joker);
+            gap: 8px;
+        }
+
+        .phase-badge,
+        .villain-badge {
+            padding: clamp(4px, 1.5vw, 6px) clamp(8px, 2.5vw, 12px);
+            background: rgba(178, 34, 34, 0.2);
+            border: 1px solid var(--joker);
+            border-radius: 20px;
+            color: var(--joker-light);
+            font-size: clamp(0.7rem, 2vw, 0.8rem);
+            font-weight: bold;
+            backdrop-filter: blur(5px);
+            white-space: nowrap;
+        }
+
+        .game-title {
+            color: var(--joker-light);
+            font-size: clamp(0.9rem, 3vw, 1.2rem);
+            font-weight: bold;
+            text-shadow: 0 0 15px var(--joker);
+            letter-spacing: 1px;
+            text-align: center;
+            flex: 1;
+        }
+
+        .selection-phase {
+            background: var(--bg-card);
+            border: 2px solid var(--joker);
+            border-radius: 12px;
+            padding: clamp(15px, 4vw, 20px);
+            backdrop-filter: blur(15px);
+            box-shadow: var(--shadow), 0 0 20px var(--joker);
+            height: auto;
+            max-height: 100%;
+            overflow-y: auto;
+        }
+
+        .selection-phase::-webkit-scrollbar {
+            width: 0px;
+        }
+
+        .selection-title {
+            text-align: center;
+            color: var(--joker-light);
+            font-size: clamp(1.2rem, 5vw, 1.5rem);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 20px var(--joker);
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(120px, 100%), 1fr));
+            gap: 8px;
+            margin: 15px 0;
+        }
+
+        .selection-card {
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid var(--joker);
+            border-radius: 8px;
+            padding: clamp(8px, 2.5vw, 12px);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        .selection-card.selected {
+            border: 3px solid var(--success);
+            box-shadow: 0 0 30px var(--success);
+        }
+
+        .card-emoji {
+            font-size: clamp(1.8rem, 6vw, 2.5rem);
+            margin-bottom: 5px;
+        }
+
+        .card-name {
+            color: var(--joker-light);
+            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+            font-weight: bold;
+            margin-bottom: 3px;
+            word-wrap: break-word;
+        }
+
+        .card-stats {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            font-size: clamp(0.7rem, 2vw, 0.8rem);
+        }
+
+        .btn {
+            padding: clamp(10px, 3vw, 12px) clamp(15px, 4vw, 25px);
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid var(--joker);
+            color: var(--joker-light);
+            font-size: clamp(0.9rem, 3vw, 1rem);
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            width: 100%;
+            max-width: 300px;
+            margin: 0 auto;
+            display: block;
+            backdrop-filter: blur(5px);
+        }
+
+        .fight-phase {
+            display: none;
+            height: 100%;
+            overflow-y: auto;
+            position: relative;
+            background: #000000;
+            min-height: 500px;
+        }
+
+        .fight-phase::before,
+        .fight-phase::after {
+            display: none;
+        }
+
+        .fight-phase .combat-arena {
+            position: relative;
+            z-index: 1;
+        }
+
+        .fight-phase .hand-container {
+            position: relative;
+            z-index: 1;
+            backdrop-filter: blur(15px) brightness(0.8);
+            border: 2px solid rgba(178, 34, 34, 0.6);
+            background: rgba(10, 20, 40, 0.65);
+        }
+
+        .fight-phase .combat-log {
+            position: relative;
+            z-index: 1;
+            backdrop-filter: blur(15px) brightness(0.8);
+            background: rgba(0, 0, 0, 0.7);
+        }
+
+        .fight-phase .fighter-card {
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 30px rgba(178, 34, 34, 0.3);
+            background: var(--bg-card);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .fight-phase .fighter-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6), 0 0 40px rgba(178, 34, 34, 0.4);
+        }
+
+        .fight-phase .combat-arena::before {
+            display: none;
+        }
+
+        .combat-arena {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 10px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        .fighter-card {
+            border: 3px solid;
+            border-radius: 10px;
+            padding: clamp(10px, 3vw, 15px);
+            text-align: center;
+            backdrop-filter: blur(15px);
+            box-shadow: var(--shadow);
+            position: relative;
+        }
+
+        .fighter-card.batman {
+            border-color: var(--primary);
+        }
+
+        .fighter-card.villain {
+            border-color: var(--joker);
+        }
+
+        .fighter-name {
+            font-size: clamp(1.2rem, 5vw, 1.5rem);
+            font-weight: bold;
+            margin-bottom: 5px;
+            line-height: 1.2;
+        }
+
+        .fighter-sprite {
+            font-size: clamp(3rem, 12vw, 4rem);
+            margin: 5px 0;
+            filter: drop-shadow(0 0 20px currentColor);
+        }
+
+        .health-bar-container {
+            margin: 8px 0;
+        }
+
+        .health-bar {
+            height: 15px;
+            background: #1a1a2e;
+            border: 2px solid var(--joker);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .health-fill {
+            height: 100%;
+            width: 100%;
+            transition: width 0.3s ease;
+        }
+
+        .batman .health-fill {
+            background: linear-gradient(90deg, var(--primary), #0066cc);
+        }
+
+        .villain .health-fill {
+            background: linear-gradient(90deg, var(--joker), #ff8800);
+        }
+
+        .health-text {
+            margin-top: 3px;
+            font-size: clamp(0.9rem, 3vw, 1rem);
+            font-weight: bold;
+        }
+
+        .hand-container {
+            background: var(--bg-card);
+            border: 2px solid var(--joker);
+            border-radius: 10px;
+            padding: clamp(10px, 3vw, 15px);
+            backdrop-filter: blur(15px);
+            margin-top: 10px;
+        }
+
+        .turn-indicator {
+            text-align: center;
+            color: var(--joker-light);
+            font-size: clamp(0.9rem, 3vw, 1rem);
+            font-weight: bold;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .hand-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 5px;
+        }
+
+        .hand-card {
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid var(--joker);
+            border-radius: 6px;
+            padding: clamp(5px, 2vw, 8px);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        .hand-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(178, 34, 34, 0.4);
+        }
+
+        .combat-log {
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid var(--joker);
+            border-radius: 8px;
+            padding: 8px;
+            margin-top: 10px;
+            height: 60px;
+            overflow-y: auto;
+            font-family: var(--font-mono);
+            font-size: clamp(0.7rem, 2vw, 0.8rem);
+            backdrop-filter: blur(5px);
+        }
+
+        .combat-log::-webkit-scrollbar {
+            width: 0px;
+        }
+
+        .log-entry {
+            color: var(--text-dim);
+            line-height: 1.4;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 5px;
+            }
+
+            .hand-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .modal-actions {
+                flex-direction: column;
+            }
+
+            .modal-btn {
+                width: 100%;
+            }
+
+            .villain-preview {
+                flex-direction: column;
+                text-align: center;
+                gap: 8px;
+            }
+
+            .villain-preview-icon {
+                font-size: 3rem;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .header {
+                flex-direction: column;
+            }
+
+            .phase-badge,
+            .villain-badge {
+                width: 100%;
+                text-align: center;
+            }
+
+            .cards-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (orientation: landscape) and (max-height: 600px) {
+            .game-container {
+                margin-top: 50px;
+            }
+
+            .fighter-sprite {
+                font-size: 2.5rem;
+            }
+
+            .hand-cards {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            .modal {
+                max-height: 85vh;
+            }
+        }
+
+        @media (min-width: 1400px) {
+            .game-container {
+                max-width: 1600px;
+            }
+
+            .cards-grid {
+                grid-template-columns: repeat(5, 1fr);
+            }
+        }
+    </style>
+    <script src="../sistemas/arkham-core.js"></script>
+</head>
+
+<body>
+    <a href="../dash3.html" class="hub-back-link">← HUB</a>
+
+    <div class="points-display" id="pointsDisplay">💰 0</div>
+
+    <div class="loading-container" id="loadingContainer">
+        <div class="loading-icon">🤡</div>
+        <div class="loading-text" id="loadingText">CARREGANDO...</div>
+        <div class="loading-progress">
+            <div class="loading-progress-fill"></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay intro-overlay" id="introOverlay"></div>
+
+    <div class="modal modal-coringa active" id="modalIntro">
+        <div class="modal-header">
+            <div class="modal-title">🤡 CORINGA - ARKHAM BATTLES</div>
+            <button class="modal-close" onclick="closeIntro()">×</button>
+        </div>
+        <div class="modal-icon">🎪</div>
+        <div class="modal-content">
+            <div class="modal-text">
+                O Coringa está espalhando o caos em Gotham com seu gás do riso.
+                Prepare-se para um combate tático por turnos contra o Palhaço do Crime.
+            </div>
+            <div class="modal-text-secondary">
+                • Selecione 4 cartas para sua mão<br>
+                • Use combos para causar dano massivo<br>
+                • Cuidado com o Gás do Riso!<br>
+                • Complete 5 fases para derrotar o Coringa
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn primary" onclick="startGame()">INICIAR BATALHA</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay phase-overlay" id="phaseOverlay"></div>
+
+    <div class="modal modal-coringa" id="modalPhase">
+        <div class="modal-header">
+            <div class="modal-title" id="phaseModalTitle">FASE 1</div>
+            <button class="modal-close" onclick="closePhaseModal()">×</button>
+        </div>
+        <div class="modal-icon">🤡</div>
+        <div class="modal-content">
+            <div class="villain-preview" id="villainPreview"></div>
+
+            <div class="modal-stats">
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">❤️ Vida do Coringa:</span>
+                    <span class="modal-stat-value" id="phaseVillainHealth">120</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">💥 Dano base:</span>
+                    <span class="modal-stat-value" id="phaseDamage">15-50</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">⚡ Combos disponíveis:</span>
+                    <span class="modal-stat-value" id="phaseCombos">6</span>
+                </div>
+            </div>
+            <div class="modal-badge">💡 Combine cartas para ativar combos especiais</div>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn secondary" onclick="closePhaseModal()">AGUARDAR</button>
+            <button class="modal-btn primary" onclick="startPhase()">INICIAR FASE</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay result-overlay" id="resultOverlay"></div>
+
+    <div class="modal modal-coringa" id="modalResult">
+        <div class="modal-header">
+            <div class="modal-title" id="resultTitle">RESULTADO</div>
+            <button class="modal-close" onclick="closeResultModal()">×</button>
+        </div>
+        <div class="modal-icon" id="resultIcon">🏆</div>
+        <div class="modal-content">
+            <div class="modal-text" id="resultMessage"></div>
+            <div class="modal-stats" id="resultStats">
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">Pontuação:</span>
+                    <span class="modal-stat-value success" id="resultScore">0</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">Combos usados:</span>
+                    <span class="modal-stat-value" id="resultCombos">0</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">Turnos:</span>
+                    <span class="modal-stat-value" id="resultTurns">0</span>
+                </div>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn secondary" onclick="closeResultModal()">FECHAR</button>
+            <button class="modal-btn primary" onclick="nextPhase()">PRÓXIMA FASE</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay result-overlay" id="gameOverOverlay"></div>
+
+    <div class="modal modal-coringa" id="modalGameOver">
+        <div class="modal-header">
+            <div class="modal-title">💀 DERROTA</div>
+            <button class="modal-close" onclick="closeGameOver()">×</button>
+        </div>
+        <div class="modal-icon">💀</div>
+        <div class="modal-content">
+            <div class="modal-text" id="gameOverMessage">Batman foi derrotado pelo Gás do Riso...</div>
+            <div class="modal-stats" id="gameOverStats"></div>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn secondary" onclick="closeGameOver()">FECHAR</button>
+            <button class="modal-btn primary" onclick="retryPhase()">TENTAR NOVAMENTE</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay result-overlay" id="finalVictoryOverlay"></div>
+
+    <div class="modal modal-coringa" id="modalFinalVictory">
+        <div class="modal-header">
+            <div class="modal-title">🎉 VITÓRIA TOTAL!</div>
+            <button class="modal-close" onclick="closeFinalVictory()">×</button>
+        </div>
+        <div class="modal-icon">🏆</div>
+        <div class="modal-content">
+            <div class="modal-text">
+                Parabéns! Você derrotou o Coringa em todas as 5 fases!
+            </div>
+            <div class="modal-stats" id="finalVictoryStats"></div>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn primary" onclick="restartGame()">JOGAR NOVAMENTE</button>
+        </div>
+    </div>
+
+    <div class="game-container">
+        <div class="header">
+            <div class="phase-badge" id="phaseBadge">FASE 1</div>
+            <div class="game-title">🤡 CORINGA - ARKHAM BATTLES</div>
+            <div class="villain-badge" id="villainBadge">CORINGA</div>
+        </div>
+
+        <div class="selection-phase" id="selectionPhase">
+            <div class="selection-title">⚡ ESCOLHA SUAS CARTAS ⚡</div>
+
+            <div class="villain-preview" id="villainPreviewSelection"></div>
+
+            <div class="cards-grid" id="cardsGrid"></div>
+
+            <button class="btn" id="startFightBtn" disabled onclick="startCountdown()">
+                ▶ ENFRENTAR CORINGA
+            </button>
+        </div>
+
+        <div class="fight-phase" id="fightPhase">
+            <div class="combat-arena">
+                <div class="fighter-card batman" id="batmanCard">
+                    <div class="fighter-name">BATMAN</div>
+                    <div class="fighter-sprite">🦇</div>
+                    <div class="health-bar-container">
+                        <div class="health-bar">
+                            <div class="health-fill" id="batmanHealthFill" style="width: 100%"></div>
+                        </div>
+                        <div class="health-text" id="batmanHealthText">100/100</div>
+                    </div>
+                </div>
+
+                <div class="fighter-card villain" id="villainCard">
+                    <div class="fighter-name" id="villainName">CORINGA</div>
+                    <div class="fighter-sprite" id="villainSprite">🤡</div>
+                    <div class="health-bar-container">
+                        <div class="health-bar">
+                            <div class="health-fill" id="villainHealthFill" style="width: 100%"></div>
+                        </div>
+                        <div class="health-text" id="villainHealthText">120/120</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hand-container">
+                <div class="turn-indicator" id="turnIndicator">⚡ SEU TURNO ⚡</div>
+                <div class="hand-cards" id="handCards"></div>
+            </div>
+
+            <div class="combat-log" id="combatLog">
+                <div class="log-entry">> SISTEMA DE COMBATE INICIALIZADO</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== DADOS DO JOGO - VERSÃO BALANCEADA =====
+        const GAME_DATA = {
+            player: {
+                points: 0,
+                victories: 0,
+                totalScore: 0,
+                phase: 1,
+                currentPhaseCompleted: false
+            },
+
+            state: {
+                batman: {
+                    health: 100,
+                    maxHealth: 100,
+                    stamina: 100,
+                    defense: 0,
+                    poison: 0
+                },
+                villain: null,
+                turn: 'player',
+                currentVillainIndex: 0,
+                selectedCards: [],
+                hand: [],
+                turnCount: 0,
+                comboUsedThisTurn: false,
+                lastCardPlayed: null,
+                gameActive: false,
+                combosUsed: 0,
+                phaseScore: 0
+            },
+
+            villains: [
+                {
+                    name: 'CORINGA',
+                    icon: '🤡',
+                    health: 120,
+                    damage: 12,
+                    ability: 'Gás do Riso',
+                    description: 'Ataca de forma imprevisível e pode envenenar Batman',
+                    tip: 'Use combos rápidos antes que ele use o gás'
+                }
+            ],
+
+            cards: [
+                { name: 'SOCO', emoji: '👊', damage: 20, stamina: 8 },
+                { name: 'BATARANG', emoji: '🦇', damage: 30, stamina: 12 },
+                { name: 'COMBO', emoji: '⚡', damage: 45, stamina: 20 },
+                { name: 'CAPA', emoji: '🌙', damage: 25, stamina: 10 },
+                { name: 'SMOKE', emoji: '💨', damage: 22, stamina: 8 },
+                { name: 'GADGET', emoji: '🔧', damage: 35, stamina: 15 },
+                { name: 'CHUTE', emoji: '🦵', damage: 28, stamina: 12 },
+                { name: 'CRÍTICO', emoji: '💥', damage: 60, stamina: 30 },
+                { name: 'DETETIVE', emoji: '🔍', damage: 32, stamina: 14 },
+                { name: 'JUSTIÇA', emoji: '⚖️', damage: 55, stamina: 25 }
+            ],
+
+            combos: [
+                { name: 'ATAQUE EM ÁREA', cards: ['SOCO', 'BATARANG'], damage: 70 },
+                { name: 'CONTRA-ATAQUE', cards: ['COMBO', 'BATARANG'], damage: 80 },
+                { name: 'ATORDOAMENTO', cards: ['BATARANG', 'COMBO'], damage: 75 },
+                { name: 'STEALTH KILL', cards: ['SMOKE', 'CRÍTICO'], damage: 100 }
+            ]
+        };
+
+        // ===== SISTEMA DE LOADING =====
+        async function showLoading(message = 'CARREGANDO...', duration = 2000) {
+            return new Promise((resolve) => {
+                const container = document.getElementById('loadingContainer');
+                const text = document.getElementById('loadingText');
+
+                text.textContent = message;
+                container.classList.add('active');
+
+                setTimeout(() => {
+                    container.classList.remove('active');
+                    resolve();
+                }, duration);
+            });
+        }
+
+        // ===== FUNÇÕES DOS MODAIS =====
+        function closeIntro() {
+            document.getElementById('introOverlay').classList.remove('active');
+            document.getElementById('modalIntro').classList.remove('active');
+            showPhaseModal(1);
+        }
+
+        function showPhaseModal(phase) {
+            GAME_DATA.player.phase = phase;
+            GAME_DATA.player.currentPhaseCompleted = false;
+
+            const villain = GAME_DATA.villains[0];
+
+            document.getElementById('phaseModalTitle').textContent = `FASE ${phase}`;
+            document.getElementById('phaseVillainHealth').textContent = Math.floor(villain.health * (1 + (phase - 1) * 0.1));
+
+            document.getElementById('villainPreview').innerHTML = `
+                <div class="villain-preview-icon">${villain.icon}</div>
+                <div class="villain-preview-info">
+                    <div class="villain-preview-name">${villain.name}</div>
+                    <div class="villain-preview-stats">
+                        <div>❤️ ${Math.floor(villain.health * (1 + (phase - 1) * 0.1))}</div>
+                        <div>💥 ${Math.floor(villain.damage * (1 + (phase - 1) * 0.1))}</div>
+                        <div>⚡ Especial</div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('phaseOverlay').classList.add('active');
+            document.getElementById('modalPhase').classList.add('active');
+        }
+
+        function closePhaseModal() {
+            document.getElementById('phaseOverlay').classList.remove('active');
+            document.getElementById('modalPhase').classList.remove('active');
+        }
+
+        async function startPhase() {
+            closePhaseModal();
+            await showLoading('PREPARANDO BATALHA...', 2500);
+
+            // Resetar seleção de cartas para a nova fase
+            GAME_DATA.state.selectedCards = [];
+            document.getElementById('startFightBtn').disabled = true;
+
+            // Recarregar a tela de seleção
+            showSelectionPhase();
+            document.getElementById('selectionPhase').style.display = 'block';
+            document.getElementById('fightPhase').style.display = 'none';
+        }
+
+        function showResultModal(victory) {
+            const title = victory ? 'VITÓRIA!' : 'DERROTA';
+            const icon = victory ? '🏆' : '💀';
+
+            // TEXTO DIFERENTE PARA A FASE 5
+            let message = victory ?
+                `Fase ${GAME_DATA.player.phase} concluída! Coringa derrotado!` :
+                'Batman foi derrotado pelo Gás do Riso...';
+
+            if (victory && GAME_DATA.player.phase === 5) {
+                message = '🏆 MISSÃO COMPLETA! Coringa derrotado! Voltando ao hub...';
+            }
+
+            document.getElementById('resultTitle').textContent = title;
+            document.getElementById('resultIcon').textContent = icon;
+            document.getElementById('resultMessage').textContent = message;
+            document.getElementById('resultScore').textContent = GAME_DATA.state.phaseScore;
+            document.getElementById('resultCombos').textContent = GAME_DATA.state.combosUsed;
+            document.getElementById('resultTurns').textContent = GAME_DATA.state.turnCount;
+
+            document.getElementById('resultOverlay').classList.add('active');
+            document.getElementById('modalResult').classList.add('active');
+        }
+
+        function closeResultModal() {
+            document.getElementById('resultOverlay').classList.remove('active');
+            document.getElementById('modalResult').classList.remove('active');
+        }
+
+        async function nextPhase() {
+            closeResultModal();
+
+            // SE CHEGOU NA FASE 5 E COMPLETOU
+            if (GAME_DATA.player.phase === 5) {
+                await showLoading('🏆 MISSÃO COMPLETA! VOLTANDO AO HUB...', 2000);
+                window.location.href = '../dash3.html';
+                return;
+            }
+
+            // Se não, vai para a próxima fase
+            if (GAME_DATA.player.phase < 5) {
+                GAME_DATA.player.phase++;
+                await showLoading('AVANÇANDO PARA PRÓXIMA FASE...', 2000);
+                showPhaseModal(GAME_DATA.player.phase);
+            }
+        }
+
+        function showGameOver(message) {
+            document.getElementById('gameOverMessage').textContent = message;
+
+            document.getElementById('gameOverStats').innerHTML = `
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">👊 Turnos:</span>
+                    <span class="modal-stat-value">${GAME_DATA.state.turnCount}</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">⚡ Combos usados:</span>
+                    <span class="modal-stat-value">${GAME_DATA.state.combosUsed}</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">💯 Pontuação:</span>
+                    <span class="modal-stat-value">${GAME_DATA.player.totalScore}</span>
+                </div>
+            `;
+
+            document.getElementById('gameOverOverlay').classList.add('active');
+            document.getElementById('modalGameOver').classList.add('active');
+        }
+
+        function closeGameOver() {
+            document.getElementById('gameOverOverlay').classList.remove('active');
+            document.getElementById('modalGameOver').classList.remove('active');
+        }
+
+        async function retryPhase() {
+            closeGameOver();
+            await showLoading('REINICIANDO FASE...', 1500);
+
+            // Resetar tudo
+            GAME_DATA.state.selectedCards = [];
+            GAME_DATA.state.hand = [];
+            GAME_DATA.state.turnCount = 0;
+            GAME_DATA.state.combosUsed = 0;
+
+            showPhaseModal(GAME_DATA.player.phase);
+        }
+
+        function showFinalVictory() {
+            document.getElementById('finalVictoryStats').innerHTML = `
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">🏆 Pontuação Total:</span>
+                    <span class="modal-stat-value success">${GAME_DATA.player.totalScore}</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">⭐ Título:</span>
+                    <span class="modal-stat-value">O CAÇADOR DE CORINGAS</span>
+                </div>
+            `;
+
+            document.getElementById('finalVictoryOverlay').classList.add('active');
+            document.getElementById('modalFinalVictory').classList.add('active');
+        }
+
+        function closeFinalVictory() {
+            document.getElementById('finalVictoryOverlay').classList.remove('active');
+            document.getElementById('modalFinalVictory').classList.remove('active');
+        }
+
+        async function restartGame() {
+            closeFinalVictory();
+            await showLoading('REINICIANDO JOGO...', 1500);
+            GAME_DATA.player.phase = 1;
+            GAME_DATA.player.totalScore = 0;
+            GAME_DATA.state.selectedCards = [];
+            updatePointsDisplay();
+            showPhaseModal(1);
+        }
+
+        function startGame() {
+            closeIntro();
+            showPhaseModal(1);
+        }
+
+        // ===== FUNÇÕES DO JOGO =====
+        function init() {
+            loadPlayerData();
+            showSelectionPhase();
+            updatePointsDisplay();
+            GAME_DATA.state.gameActive = true;
+            GAME_DATA.state.phaseScore = 0;
+        }
+
+        function loadPlayerData() {
+            // Carregar do core se disponível
+            if (window.ArkhamCore && ArkhamCore.Player) {
+                const coreXp = ArkhamCore.Player.xp;
+                GAME_DATA.player.totalScore = coreXp;
+                console.log('📊 XP carregado do core:', coreXp);
+
+                // Verificar progresso da missão
+                const progress = ArkhamCore.Player.missionProgress.coringa;
+                if (progress) {
+                    console.log('📊 Progresso do Coringa:', progress.phasesCompleted, '/', progress.totalPhases);
+                }
+            } else {
+                const savedPoints = localStorage.getItem('batmanPoints');
+                if (savedPoints) {
+                    GAME_DATA.player.points = parseInt(savedPoints);
+                    GAME_DATA.player.totalScore = parseInt(savedPoints);
+                }
+            }
+        }
+
+        function savePlayerData() {
+            localStorage.setItem('batmanPoints', GAME_DATA.player.totalScore.toString());
+            updatePointsDisplay();
+        }
+
+        function updatePointsDisplay() {
+            document.getElementById('pointsDisplay').textContent = `💰 ${GAME_DATA.player.totalScore}`;
+        }
+
+        function showSelectionPhase() {
+            const villain = GAME_DATA.villains[0];
+            const phaseMultiplier = 1 + (GAME_DATA.player.phase - 1) * 0.1;
+
+            document.getElementById('villainPreviewSelection').innerHTML = `
+                <div class="villain-preview-icon">${villain.icon}</div>
+                <div class="villain-preview-info">
+                    <div class="villain-preview-name">${villain.name} - FASE ${GAME_DATA.player.phase}</div>
+                    <div class="villain-preview-stats">
+                        <div>❤️ ${Math.floor(villain.health * phaseMultiplier)}</div>
+                        <div>💥 ${Math.floor(villain.damage * phaseMultiplier)}</div>
+                        <div>⚡ Especial</div>
+                    </div>
+                    <div style="margin-top: 10px; color: var(--joker-light); font-size: clamp(0.8rem, 2.5vw, 0.9rem);">
+                        ${villain.ability}: ${villain.description}
+                    </div>
+                </div>
+            `;
+
+            // Embaralhar e mostrar cartas para escolha
+            const shuffledCards = [...GAME_DATA.cards].sort(() => Math.random() - 0.5);
+            const grid = document.getElementById('cardsGrid');
+            grid.innerHTML = '';
+
+            shuffledCards.forEach((card, index) => {
+                const cardDiv = document.createElement('div');
+                cardDiv.className = 'selection-card';
+                cardDiv.id = `select-card-${index}`;
+                cardDiv.onclick = () => selectCard(card, index);
+                cardDiv.innerHTML = `
+                    <div class="card-emoji">${card.emoji}</div>
+                    <div class="card-name">${card.name}</div>
+                    <div class="card-stats">
+                        <span>💥 ${card.damage}</span>
+                        <span>⚡ ${card.stamina}</span>
+                    </div>
+                `;
+                grid.appendChild(cardDiv);
+            });
+        }
+
+        function selectCard(card, index) {
+            const cardElement = document.getElementById(`select-card-${index}`);
+            const isSelected = GAME_DATA.state.selectedCards.includes(card);
+
+            if (isSelected) {
+                GAME_DATA.state.selectedCards = GAME_DATA.state.selectedCards.filter(c => c !== card);
+                cardElement.classList.remove('selected');
+            } else {
+                if (GAME_DATA.state.selectedCards.length >= 4) {
+                    alert('⚠️ Máximo de 4 cartas!');
+                    return;
+                }
+                GAME_DATA.state.selectedCards.push(card);
+                cardElement.classList.add('selected');
+            }
+
+            document.getElementById('startFightBtn').disabled = GAME_DATA.state.selectedCards.length !== 4;
+        }
+
+        async function startCountdown() {
+            document.getElementById('selectionPhase').style.display = 'none';
+            await showLoading('INICIANDO COMBATE...', 2000);
+            startFight();
+        }
+
+        function startFight() {
+            const villain = GAME_DATA.villains[0];
+
+            // Ajustar dificuldade baseada na fase (10% por fase)
+            const phaseMultiplier = 1 + (GAME_DATA.player.phase - 1) * 0.1;
+
+            GAME_DATA.state.villain = {
+                ...villain,
+                health: Math.floor(villain.health * phaseMultiplier),
+                maxHealth: Math.floor(villain.health * phaseMultiplier),
+                damage: Math.floor(villain.damage * phaseMultiplier)
+            };
+
+            GAME_DATA.state.batman = {
+                health: 100, maxHealth: 100, stamina: 100, defense: 0, poison: 0
+            };
+
+            GAME_DATA.state.hand = [...GAME_DATA.state.selectedCards];
+            GAME_DATA.state.turn = 'player';
+            GAME_DATA.state.turnCount = 0;
+            GAME_DATA.state.combosUsed = 0;
+            GAME_DATA.state.phaseScore = 0;
+
+            document.getElementById('phaseBadge').textContent = `FASE ${GAME_DATA.player.phase} - COMBATE`;
+            document.getElementById('fightPhase').style.display = 'block';
+            document.getElementById('villainName').textContent = villain.name;
+            document.getElementById('villainSprite').textContent = villain.icon;
+            document.getElementById('villainHealthText').textContent = `${GAME_DATA.state.villain.health}/${GAME_DATA.state.villain.maxHealth}`;
+
+            updateBatmanDisplay();
+            updateVillainDisplay();
+            updateHandDisplay();
+            updateTurnIndicator();
+
+            addLog(`⚔️ COMBATE INICIADO contra ${villain.name} (Fase ${GAME_DATA.player.phase})!`);
+        }
+
+        function playCard(card, cardIndex) {
+            if (GAME_DATA.state.turn !== 'player') return;
+            if (GAME_DATA.state.batman.stamina < card.stamina) return;
+
+            GAME_DATA.state.batman.stamina -= card.stamina;
+
+            let finalDamage = card.damage;
+            let combo = null;
+
+            if (GAME_DATA.state.lastCardPlayed) {
+                combo = findCombo(GAME_DATA.state.lastCardPlayed, card);
+            }
+
+            if (combo && !GAME_DATA.state.comboUsedThisTurn) {
+                finalDamage = combo.damage;
+                GAME_DATA.state.combosUsed++;
+                GAME_DATA.state.comboUsedThisTurn = true;
+                addLog(`⚡ COMBO: ${combo.name}! ${finalDamage} de dano!`);
+            } else {
+                GAME_DATA.state.lastCardPlayed = card;
+            }
+
+            const isCritical = Math.random() < 0.2;
+            if (isCritical && !combo) {
+                finalDamage = Math.floor(finalDamage * 1.5);
+                addLog(`💥 GOLPE CRÍTICO!`);
+            }
+
+            GAME_DATA.state.villain.health -= finalDamage;
+            GAME_DATA.state.phaseScore += finalDamage;
+
+            addLog(`👊 ${card.emoji} ${card.name}: ${finalDamage} de dano`);
+
+            GAME_DATA.state.hand.splice(cardIndex, 1);
+
+            updateBatmanDisplay();
+            updateVillainDisplay();
+            updateHandDisplay();
+
+            if (GAME_DATA.state.villain.health <= 0) {
+                setTimeout(() => handleVictory(), 1000);
+                return;
+            }
+
+            GAME_DATA.state.turn = 'villain';
+            GAME_DATA.state.turnCount++;
+            GAME_DATA.state.comboUsedThisTurn = false;
+            GAME_DATA.state.lastCardPlayed = null;
+
+            updateTurnIndicator();
+            setTimeout(() => villainTurn(), 1500);
+        }
+
+        function villainTurn() {
+            const villain = GAME_DATA.state.villain;
+
+            if (Math.random() < 0.3) {
+                GAME_DATA.state.batman.poison = 2;
+                addLog(`☠️ CORINGA usou Gás do Riso! Batman envenenado!`);
+            }
+
+            if (GAME_DATA.state.batman.poison > 0) {
+                GAME_DATA.state.batman.health -= 10;
+                GAME_DATA.state.batman.poison--;
+            }
+
+            GAME_DATA.state.batman.health -= villain.damage;
+
+            addLog(`💀 ${villain.name} ataca: ${villain.damage} de dano!`);
+
+            updateBatmanDisplay();
+
+            if (GAME_DATA.state.batman.health <= 0) {
+                setTimeout(() => handleDefeat(), 1000);
+                return;
+            }
+
+            GAME_DATA.state.batman.stamina = Math.min(100, GAME_DATA.state.batman.stamina + 20);
+            GAME_DATA.state.turn = 'player';
+
+            updateTurnIndicator();
+            updateBatmanDisplay();
+        }
+
+        function findCombo(card1, card2) {
+            return GAME_DATA.combos.find(combo =>
+                (combo.cards[0] === card1.name && combo.cards[1] === card2.name) ||
+                (combo.cards[1] === card1.name && combo.cards[0] === card2.name)
+            );
+        }
+
+        // Substituir a função handleVictory inteira (aproximadamente linha 800)
+        function handleVictory() {
+            const points = 100 + (GAME_DATA.state.turnCount * 10) + (GAME_DATA.state.combosUsed * 50);
+
+            // CORREÇÃO: Adicionar pontos ANTES de registrar a fase
+            if (window.ArkhamCore) {
+                ArkhamCore.addPoints(points, 'coringa');
+                console.log(`✅ Fase ${GAME_DATA.player.phase} registrada no core!`);
+
+                // CORREÇÃO: Registrar progresso da fase
+                ArkhamCore.registerPhaseCompletion('coringa');
+            } else {
+                const cur = parseInt(localStorage.getItem('batmanPoints') || '0', 10);
+                localStorage.setItem('batmanPoints', (cur + points).toString());
+            }
+
+            updatePointsDisplay();
+            GAME_DATA.state.gameActive = false;
+            showResultModal(true);
+        }
+
+        function handleDefeat() {
+            GAME_DATA.state.gameActive = false;
+            showGameOver('Batman foi derrotado pelo Gás do Riso...');
+        }
+
+        function resetGame() {
+            GAME_DATA.state.selectedCards = [];
+            GAME_DATA.state.hand = [];
+            GAME_DATA.state.turnCount = 0;
+            GAME_DATA.state.combosUsed = 0;
+            GAME_DATA.state.phaseScore = 0;
+            document.getElementById('fightPhase').style.display = 'none';
+            document.getElementById('selectionPhase').style.display = 'block';
+            document.getElementById('phaseBadge').textContent = `FASE ${GAME_DATA.player.phase} - SELEÇÃO`;
+            document.getElementById('startFightBtn').disabled = true;
+            showSelectionPhase();
+        }
+
+        function updateBatmanDisplay() {
+            const b = GAME_DATA.state.batman;
+            document.getElementById('batmanHealthFill').style.width = (b.health / b.maxHealth * 100) + '%';
+            document.getElementById('batmanHealthText').textContent = `${Math.max(0, b.health)}/${b.maxHealth}`;
+        }
+
+        function updateVillainDisplay() {
+            const v = GAME_DATA.state.villain;
+            document.getElementById('villainHealthFill').style.width = (v.health / v.maxHealth * 100) + '%';
+            document.getElementById('villainHealthText').textContent = `${Math.max(0, v.health)}/${v.maxHealth}`;
+        }
+
+        function updateHandDisplay() {
+            const container = document.getElementById('handCards');
+            container.innerHTML = '';
+
+            GAME_DATA.state.hand.forEach((card, index) => {
+                const cardDiv = document.createElement('div');
+                cardDiv.className = 'hand-card';
+                cardDiv.onclick = () => playCard(card, index);
+                cardDiv.innerHTML = `
+                    <div class="card-emoji">${card.emoji}</div>
+                    <div class="card-name">${card.name}</div>
+                    <div class="card-stats">
+                        <span>💥 ${card.damage}</span>
+                        <span>⚡ ${card.stamina}</span>
+                    </div>
+                `;
+                container.appendChild(cardDiv);
+            });
+        }
+
+        function updateTurnIndicator() {
+            const ind = document.getElementById('turnIndicator');
+            if (GAME_DATA.state.turn === 'player') {
+                ind.textContent = '⚡ SEU TURNO ⚡';
+                ind.style.color = 'var(--primary)';
+            } else {
+                ind.textContent = '💀 TURNO DO CORINGA 💀';
+                ind.style.color = 'var(--joker-light)';
+            }
+        }
+
+        function addLog(message) {
+            const log = document.getElementById('combatLog');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.textContent = '> ' + message;
+            log.insertBefore(entry, log.firstChild);
+            while (log.children.length > 5) log.removeChild(log.lastChild);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            loadPlayerData();
+            updatePointsDisplay();
+            document.getElementById('introOverlay').classList.add('active');
+        });
+    </script>
+</body>
+
+</html>

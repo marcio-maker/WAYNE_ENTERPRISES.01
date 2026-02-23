@@ -1,0 +1,1849 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>👻 ESPANTALHO - ARKHAM BATTLES</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- ===== ARKHAM CORE ADICIONADO ===== -->
+    <script src="../sistemas/arkham-core.js"></script>
+    <style>
+        /* =========================================== */
+        /* BATMAN HUD SYSTEM - VERSÃO SIMPLIFICADA */
+        /* =========================================== */
+        :root {
+            --primary: #00d9ff;
+            --primary-dark: #0066cc;
+            --success: #00ff88;
+            --warning: #ffaa00;
+            --danger: #ff0040;
+            --info: #bb86fc;
+            --purple: #9d4edd;
+            --scarecrow: #ff6600;
+            --scarecrow-light: #ff9933;
+            --scarecrow-dark: #cc4400;
+            --bg-dark: #000;
+            --bg-panel: rgba(10, 20, 40, 0.75);
+            --bg-card: rgba(10, 20, 40, 0.65);
+            --text: #ffffff;
+            --text-dim: #e0e0e0;
+            --border: rgba(255, 102, 0, 0.3);
+            --border-strong: rgba(255, 102, 0, 0.6);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            --shadow-glow: 0 0 20px rgba(255, 102, 0, 0.3);
+            --font-mono: 'Courier New', monospace;
+            --safe-area-inset: env(safe-area-inset-top, 0px);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Remoção completa das barras de rolagem */
+        html,
+        body {
+            overflow: hidden !important;
+            height: 100%;
+            width: 100%;
+            position: fixed;
+            overscroll-behavior: none;
+        }
+
+        body {
+            background: #000000;
+            /* Fundo preto sólido */
+            color: var(--text);
+            font-family: 'Arial', sans-serif;
+            height: 100vh;
+            width: 100vw;
+            position: relative;
+            overflow-y: auto !important;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        body.fear-active {
+            animation: fearDistortion 0.3s infinite;
+        }
+
+        @keyframes fearDistortion {
+
+            0%,
+            100% {
+                transform: skew(0deg, 0deg);
+            }
+
+            25% {
+                transform: skew(2deg, -1deg);
+            }
+
+            50% {
+                transform: skew(-2deg, 1deg);
+            }
+
+            75% {
+                transform: skew(1deg, 2deg);
+            }
+        }
+
+        /* Scrollbar invisível mas funcional */
+        body::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+
+        .hub-back-link {
+            position: fixed;
+            top: max(15px, env(safe-area-inset-top));
+            left: 15px;
+            z-index: 10001;
+            color: var(--scarecrow-light);
+            text-decoration: none;
+            padding: clamp(6px, 2vw, 8px) clamp(12px, 3vw, 16px);
+            border: 2px solid var(--scarecrow);
+            border-radius: 8px;
+            background: var(--bg-card);
+            font-size: clamp(0.75rem, 2vw, 0.85rem);
+            font-weight: bold;
+            letter-spacing: 1px;
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-glow);
+            transition: all 0.3s ease;
+        }
+
+        .points-display {
+            position: fixed;
+            top: max(15px, env(safe-area-inset-top));
+            right: 15px;
+            background: var(--bg-card);
+            border: 2px solid var(--scarecrow);
+            border-radius: 8px;
+            padding: clamp(6px, 2vw, 8px) clamp(12px, 3vw, 16px);
+            color: var(--scarecrow-light);
+            font-weight: bold;
+            font-size: clamp(0.85rem, 2.5vw, 1rem);
+            z-index: 10001;
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        /* ===== LOADING ANIMATION ===== */
+        .loading-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(15px);
+            z-index: 20000;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loading-container.active {
+            display: flex;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .loading-icon {
+            font-size: clamp(3rem, 15vw, 5rem);
+            margin-bottom: 20px;
+            animation: spin 1s linear infinite;
+            filter: drop-shadow(0 0 30px var(--scarecrow));
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-text {
+            color: #fff;
+            font-size: clamp(1rem, 4vw, 1.2rem);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: bold;
+            text-shadow: 0 0 10px var(--scarecrow);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        .loading-progress {
+            width: min(200px, 80%);
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            margin-top: 30px;
+            overflow: hidden;
+        }
+
+        .loading-progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, transparent, var(--scarecrow), transparent);
+            animation: progress 2s infinite;
+        }
+
+        /* ===== SISTEMA DE MODAIS GLASSMORPH ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 9999;
+            display: none;
+        }
+
+        .modal-overlay.active {
+            display: block;
+        }
+
+        .intro-overlay {
+            background: url('https://images.pexels.com/photos/1111318/pexels-photo-1111318.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        .phase-overlay {
+            background: url('https://images.pexels.com/photos/2097628/pexels-photo-2097628.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        .result-overlay {
+            background: url('https://images.pexels.com/photos/669996/pexels-photo-669996.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        .modal-overlay::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(5px);
+            z-index: -1;
+        }
+
+        .modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--bg-card);
+            border: 3px solid var(--scarecrow);
+            border-radius: 20px;
+            padding: clamp(15px, 4vw, 30px);
+            width: min(95%, 500px);
+            max-height: 90vh;
+            overflow-y: auto;
+            z-index: 10000;
+            backdrop-filter: blur(15px);
+            box-shadow: var(--shadow), 0 0 50px var(--scarecrow);
+            display: none;
+            animation: modalAppear 0.4s ease-out;
+        }
+
+        .modal.active {
+            display: block;
+        }
+
+        /* Esconder scrollbar do modal mas manter funcional */
+        .modal::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+
+        @keyframes modalAppear {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -45%);
+            }
+
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--scarecrow);
+        }
+
+        .modal-title {
+            color: var(--scarecrow-light);
+            font-size: clamp(1.1rem, 4vw, 1.3rem);
+            font-weight: bold;
+            letter-spacing: 1px;
+            line-height: 1.2;
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            font-size: clamp(1.5rem, 5vw, 1.8rem);
+            cursor: pointer;
+            transition: color 0.3s;
+            padding: 0 8px;
+            line-height: 1;
+        }
+
+        .modal-icon {
+            font-size: clamp(2.5rem, 10vw, 3.5rem);
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        .modal-content {
+            margin: 15px 0;
+        }
+
+        .modal-text {
+            color: var(--text);
+            line-height: 1.5;
+            font-size: clamp(0.9rem, 3vw, 1rem);
+        }
+
+        .modal-text-secondary {
+            color: var(--text-dim);
+            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+            margin-top: 10px;
+        }
+
+        .modal-stats {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--scarecrow);
+            border-radius: 8px;
+            padding: clamp(10px, 3vw, 15px);
+            margin: 15px 0;
+        }
+
+        .modal-stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 102, 0, 0.2);
+            font-size: clamp(0.85rem, 2.5vw, 0.9rem);
+        }
+
+        .modal-stat-label {
+            color: var(--text-dim);
+        }
+
+        .modal-stat-value {
+            color: var(--scarecrow-light);
+            font-weight: bold;
+        }
+
+        .modal-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(255, 102, 0, 0.2);
+            border: 1px solid var(--scarecrow);
+            border-radius: 20px;
+            color: var(--scarecrow-light);
+            font-size: clamp(0.7rem, 2vw, 0.8rem);
+            margin-top: 10px;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .modal-btn {
+            flex: 1 1 auto;
+            min-width: 120px;
+            padding: clamp(10px, 3vw, 12px) clamp(12px, 4vw, 15px);
+            border: 2px solid;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-btn.primary {
+            border-color: var(--scarecrow);
+            color: var(--scarecrow-light);
+        }
+
+        .modal-btn.primary:hover {
+            background: var(--scarecrow);
+            color: #000;
+            box-shadow: 0 0 20px var(--scarecrow);
+        }
+
+        .modal-btn.secondary {
+            border-color: var(--text-dim);
+            color: var(--text-dim);
+        }
+
+        .modal-btn.secondary:hover {
+            border-color: #fff;
+            color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-btn.success {
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .modal-btn.success:hover {
+            background: var(--success);
+            color: #000;
+            box-shadow: 0 0 20px var(--success);
+        }
+
+        /* ===== PREVIEW DO VILÃO ===== */
+        .villain-preview {
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid var(--scarecrow);
+            border-radius: 10px;
+            padding: clamp(15px, 4vw, 20px);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: clamp(10px, 3vw, 20px);
+            backdrop-filter: blur(5px);
+        }
+
+        .villain-preview-icon {
+            font-size: clamp(3rem, 12vw, 4rem);
+            filter: drop-shadow(0 0 20px var(--scarecrow));
+        }
+
+        .villain-preview-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .villain-preview-name {
+            color: var(--scarecrow-light);
+            font-size: clamp(1.2rem, 5vw, 1.5rem);
+            font-weight: bold;
+            margin-bottom: 8px;
+            line-height: 1.2;
+            word-wrap: break-word;
+        }
+
+        .villain-preview-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            color: var(--text-dim);
+            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+        }
+
+        /* ===== CONTEÚDO PRINCIPAL ===== */
+        .game-container {
+            max-width: 1200px;
+            margin: max(60px, env(safe-area-inset-top)) auto 0;
+            width: 100%;
+            height: calc(100vh - 80px);
+            overflow-y: auto;
+            padding: 0 10px 20px;
+            background: #000000;
+            /* Fundo preto sólido */
+        }
+
+        .game-container::-webkit-scrollbar {
+            width: 0px;
+        }
+
+        .header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            padding: clamp(8px, 2vw, 12px) clamp(12px, 3vw, 15px);
+            background: var(--bg-panel);
+            border: 2px solid var(--scarecrow);
+            border-radius: 10px;
+            margin-bottom: 15px;
+            backdrop-filter: blur(15px);
+            box-shadow: var(--shadow), 0 0 20px var(--scarecrow);
+            gap: 8px;
+        }
+
+        .phase-badge,
+        .villain-badge {
+            padding: clamp(4px, 1.5vw, 6px) clamp(8px, 2.5vw, 12px);
+            background: rgba(255, 102, 0, 0.2);
+            border: 1px solid var(--scarecrow);
+            border-radius: 20px;
+            color: var(--scarecrow-light);
+            font-size: clamp(0.7rem, 2vw, 0.8rem);
+            font-weight: bold;
+            backdrop-filter: blur(5px);
+            white-space: nowrap;
+        }
+
+        .game-title {
+            color: var(--scarecrow-light);
+            font-size: clamp(0.9rem, 3vw, 1.2rem);
+            font-weight: bold;
+            text-shadow: 0 0 15px var(--scarecrow);
+            letter-spacing: 1px;
+            text-align: center;
+            flex: 1;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: clamp(5px, 1.5vw, 10px);
+            margin-bottom: 15px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 2px solid var(--scarecrow);
+            border-radius: 10px;
+            padding: clamp(8px, 2vw, 12px);
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-value {
+            font-size: clamp(1.2rem, 4vw, 1.8rem);
+            font-weight: bold;
+            color: var(--scarecrow-light);
+            text-shadow: 0 0 10px var(--scarecrow);
+            line-height: 1.2;
+        }
+
+        .stat-label {
+            font-size: clamp(0.6rem, 2vw, 0.7rem);
+            color: var(--text-dim);
+            margin-top: 3px;
+            text-transform: uppercase;
+        }
+
+        .timer-section {
+            margin-bottom: 15px;
+        }
+
+        .timer-bar {
+            height: 20px;
+            background: #1a1a2e;
+            border: 2px solid var(--scarecrow);
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .timer-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--scarecrow), var(--scarecrow-light));
+            transition: width 0.1s linear;
+        }
+
+        .timer-fill.warning {
+            background: linear-gradient(90deg, var(--warning), var(--danger));
+        }
+
+        .timer-fill.danger {
+            background: linear-gradient(90deg, var(--danger), #ff00aa);
+        }
+
+        .timer-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #000;
+            font-weight: bold;
+            font-size: 0.8rem;
+        }
+
+        .hint-display {
+            background: rgba(255, 102, 0, 0.1);
+            border: 2px solid var(--scarecrow);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 15px;
+            color: var(--scarecrow-light);
+            font-weight: bold;
+            text-align: center;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(0.8rem, 2.5vw, 1rem);
+            line-height: 1.4;
+            backdrop-filter: blur(5px);
+        }
+
+        .events-log {
+            background: var(--bg-card);
+            border: 2px solid var(--scarecrow);
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 15px;
+            max-height: 90px;
+            overflow-y: auto;
+            font-size: 0.8rem;
+            font-family: var(--font-mono);
+        }
+
+        .events-log::-webkit-scrollbar {
+            width: 0px;
+        }
+
+        .event-item {
+            padding: 3px 0;
+            border-bottom: 1px solid var(--scarecrow);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .event-item.movement {
+            color: var(--scarecrow-light);
+        }
+
+        .event-item.found {
+            color: var(--success);
+        }
+
+        .event-item.error {
+            color: var(--danger);
+        }
+
+        .cameras-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: clamp(8px, 2vw, 12px);
+            margin-bottom: 15px;
+        }
+
+        .camera-card {
+            aspect-ratio: 16/9;
+            background: #000;
+            border: 3px solid var(--scarecrow);
+            border-radius: 10px;
+            overflow: hidden;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .camera-card:hover:not(.locked) {
+            transform: scale(1.02);
+            border-color: var(--scarecrow-light);
+            box-shadow: 0 0 30px var(--scarecrow);
+        }
+
+        .camera-card.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+            filter: grayscale(1);
+        }
+
+        .camera-card.found {
+            border-color: var(--success);
+            box-shadow: 0 0 20px var(--success);
+        }
+
+        .camera-card.highlight {
+            border-color: var(--warning);
+            animation: highlightPulse 1s infinite;
+        }
+
+        .camera-card.fear-effect {
+            animation: fearEffect 0.5s infinite;
+        }
+
+        @keyframes fearEffect {
+
+            0%,
+            100% {
+                filter: brightness(1) contrast(1.3) hue-rotate(0deg);
+            }
+
+            50% {
+                filter: brightness(1.5) contrast(1.8) hue-rotate(45deg);
+            }
+        }
+
+        @keyframes highlightPulse {
+
+            0%,
+            100% {
+                border-color: var(--warning);
+            }
+
+            50% {
+                border-color: #fff;
+            }
+        }
+
+        .camera-feed {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .camera-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.9));
+            padding: 6px;
+        }
+
+        .camera-name {
+            color: var(--scarecrow);
+            font-size: clamp(0.7rem, 2vw, 0.8rem);
+            font-weight: bold;
+        }
+
+        .camera-location {
+            color: var(--text-dim);
+            font-size: clamp(0.6rem, 1.8vw, 0.7rem);
+        }
+
+        .scarecrow-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: linear-gradient(135deg, var(--scarecrow), var(--scarecrow-dark));
+            color: #fff;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            animation: popIn 0.3s;
+            z-index: 5;
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: scale(0);
+            }
+
+            80% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .movement-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 102, 0, 0.9);
+            color: #000;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            animation: fadeInOut 1.5s;
+            z-index: 6;
+            white-space: nowrap;
+        }
+
+        @keyframes fadeInOut {
+
+            0%,
+            100% {
+                opacity: 0;
+            }
+
+            20%,
+            80% {
+                opacity: 1;
+            }
+        }
+
+        .fear-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 102, 0, 0.1);
+            pointer-events: none;
+            z-index: 500;
+            animation: fearPulse 2s infinite;
+        }
+
+        @keyframes fearPulse {
+
+            0%,
+            100% {
+                opacity: 0.1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        .action-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: clamp(8px, 2vw, 12px);
+            margin-bottom: 15px;
+        }
+
+        .action-btn {
+            padding: clamp(10px, 3vw, 14px);
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid var(--scarecrow);
+            color: var(--scarecrow-light);
+            font-size: clamp(0.8rem, 2.5vw, 1rem);
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            backdrop-filter: blur(5px);
+        }
+
+        .action-btn:hover:not(:disabled) {
+            background: var(--scarecrow);
+            color: #000;
+            box-shadow: 0 0 25px var(--scarecrow);
+            transform: translateY(-2px);
+        }
+
+        .action-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        /* Media Queries */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                text-align: center;
+                padding: 10px;
+            }
+
+            .game-title {
+                font-size: 1rem;
+            }
+
+            .villain-preview {
+                flex-direction: column;
+                text-align: center;
+                gap: 8px;
+            }
+
+            .villain-preview-icon {
+                font-size: 3.5rem;
+            }
+
+            .villain-preview-name {
+                font-size: 1.3rem;
+            }
+
+            .villain-preview-stats {
+                font-size: 0.8rem;
+            }
+
+            .cameras-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .stats-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .modal {
+                width: 95%;
+                padding: 20px;
+            }
+
+            .modal-title {
+                font-size: 1.1rem;
+            }
+
+            .modal-icon {
+                font-size: 3rem;
+            }
+
+            .modal-actions {
+                flex-direction: column;
+            }
+
+            .modal-btn {
+                width: 100%;
+            }
+
+            .points-display {
+                font-size: 0.8rem;
+                padding: 4px 10px;
+            }
+
+            .loading-icon {
+                font-size: 4rem;
+            }
+
+            .loading-text {
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .game-container {
+                margin-top: 55px;
+            }
+
+            .stats-container {
+                gap: 4px;
+            }
+
+            .stat-card {
+                padding: 6px;
+            }
+
+            .stat-value {
+                font-size: 1rem;
+            }
+
+            .stat-label {
+                font-size: 0.55rem;
+            }
+
+            .action-btn {
+                padding: 10px 6px;
+                font-size: 0.8rem;
+            }
+
+            .camera-name {
+                font-size: 0.6rem;
+            }
+
+            .camera-location {
+                font-size: 0.55rem;
+            }
+
+            .cameras-grid {
+                gap: 5px;
+            }
+        }
+
+        @media (orientation: landscape) and (max-height: 600px) {
+            .game-container {
+                margin-top: 45px;
+            }
+
+            .cameras-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="fear-overlay"></div>
+
+    <!-- BOTÃO DE VOLTA AO HUB (CORRIGIDO) -->
+    <a href="../dash3.html" class="hub-back-link">← HUB</a>
+
+    <div class="points-display" id="pointsDisplay">👻 0</div>
+
+    <!-- LOADING OVERLAY -->
+    <div class="loading-container" id="loadingContainer">
+        <div class="loading-icon">👻</div>
+        <div class="loading-text" id="loadingText">CARREGANDO...</div>
+        <div class="loading-progress">
+            <div class="loading-progress-fill"></div>
+        </div>
+    </div>
+
+    <!-- MODAL DE INTRODUÇÃO -->
+    <div class="modal-overlay intro-overlay" id="introOverlay"></div>
+
+    <div class="modal modal-scarecrow active" id="modalIntro">
+        <div class="modal-header">
+            <div class="modal-title">👻 ESPANTALHO - VIGILÂNCIA DO MEDO</div>
+            <button class="modal-close" onclick="closeIntro()">×</button>
+        </div>
+        <div class="modal-icon">🎭</div>
+        <div class="modal-content">
+            <div class="modal-text">
+                O Espantalho está testando sua toxina do medo no Asilo Arkham.
+                Monitore as câmeras de segurança e identifique as aparições antes que a toxina se espalhe completamente!
+            </div>
+            <div class="modal-text-secondary">
+                <strong>🎯 INSTRUÇÕES:</strong><br>
+                • Clique nas câmeras para verificar aparições do Espantalho<br>
+                • Use ANTÍDOTOS para revelar uma câmera suspeita<br>
+                • O SCANNER revela todas as aparições temporariamente<br>
+                • O Espantalho se move entre as câmeras - fique atento!<br>
+                • Complete 5 fases para vencer
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn primary" onclick="startGame()">COMEÇAR VIGILÂNCIA</button>
+        </div>
+    </div>
+
+    <!-- MODAL DE FASE -->
+    <div class="modal-overlay phase-overlay" id="phaseOverlay"></div>
+
+    <div class="modal modal-scarecrow" id="modalPhase">
+        <div class="modal-header">
+            <div class="modal-title" id="phaseModalTitle">FASE 1 - TOXINA LEVE</div>
+            <button class="modal-close" onclick="closePhaseModal()">×</button>
+        </div>
+        <div class="modal-icon">👻</div>
+        <div class="modal-content">
+            <div class="villain-preview" id="villainPreview"></div>
+
+            <div class="modal-stats">
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">⏰ TEMPO:</span>
+                    <span class="modal-stat-value" id="phaseTime">45s</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">👻 APARIÇÕES:</span>
+                    <span class="modal-stat-value" id="phaseScarecrow">3</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">💡 ANTÍDOTOS:</span>
+                    <span class="modal-stat-value" id="phaseHints">3</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">📡 SCANNERS:</span>
+                    <span class="modal-stat-value" id="phaseScanner">2</span>
+                </div>
+            </div>
+
+            <div class="modal-badge">
+                ⚠️ O Espantalho se move entre as câmeras a cada poucos segundos!
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn secondary" onclick="closePhaseModal()">AGUARDAR</button>
+            <button class="modal-btn primary" onclick="startPhase()">INICIAR FASE</button>
+        </div>
+    </div>
+
+    <!-- MODAL DE RESULTADO -->
+    <div class="modal-overlay result-overlay" id="resultOverlay"></div>
+
+    <div class="modal modal-scarecrow" id="modalResult">
+        <div class="modal-header">
+            <div class="modal-title" id="resultTitle">RESULTADO</div>
+            <button class="modal-close" onclick="closeResultModal()">×</button>
+        </div>
+        <div class="modal-icon" id="resultIcon">🏆</div>
+        <div class="modal-content">
+            <div class="modal-text" id="resultMessage"></div>
+            <div class="modal-stats" id="resultStats">
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">Pontuação:</span>
+                    <span class="modal-stat-value success" id="resultScore">0</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">Precisão:</span>
+                    <span class="modal-stat-value" id="resultAccuracy">100%</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">Bônus:</span>
+                    <span class="modal-stat-value" id="resultBonus">0</span>
+                </div>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn secondary" onclick="closeResultModal()">FECHAR</button>
+            <button class="modal-btn primary" onclick="nextPhase()">PRÓXIMA FASE</button>
+        </div>
+    </div>
+
+    <!-- MODAL DE GAME OVER -->
+    <div class="modal-overlay result-overlay" id="gameOverOverlay"></div>
+
+    <div class="modal modal-scarecrow" id="modalGameOver">
+        <div class="modal-header">
+            <div class="modal-title">💀 DERROTA</div>
+            <button class="modal-close" onclick="closeGameOver()">×</button>
+        </div>
+        <div class="modal-icon">💀</div>
+        <div class="modal-content">
+            <div class="modal-text" id="gameOverMessage">A toxina do medo venceu...</div>
+            <div class="modal-stats" id="gameOverStats"></div>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn secondary" onclick="closeGameOver()">FECHAR</button>
+            <button class="modal-btn primary" onclick="retryPhase()">TENTAR NOVAMENTE</button>
+        </div>
+    </div>
+
+    <!-- MODAL DE VITÓRIA FINAL -->
+    <div class="modal-overlay result-overlay" id="finalVictoryOverlay"></div>
+
+    <div class="modal modal-scarecrow" id="modalFinalVictory">
+        <div class="modal-header">
+            <div class="modal-title">🎉 VITÓRIA TOTAL!</div>
+            <button class="modal-close" onclick="closeFinalVictory()">×</button>
+        </div>
+        <div class="modal-icon">🏆</div>
+        <div class="modal-content">
+            <div class="modal-text">
+                Parabéns! Você neutralizou todas as 5 fases da toxina do Espantalho!
+            </div>
+            <div class="modal-stats" id="finalVictoryStats"></div>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn primary" onclick="restartGame()">JOGAR NOVAMENTE</button>
+        </div>
+    </div>
+
+    <div class="game-container">
+        <div class="header">
+            <div class="phase-badge" id="phaseBadge">FASE 1</div>
+            <div class="game-title">👻 ESPANTALHO - VIGILÂNCIA DO MEDO</div>
+            <div class="villain-badge" id="villainBadge">ESPANTALHO</div>
+        </div>
+
+        <div class="stats-container">
+            <div class="stat-card">
+                <div class="stat-value" id="score">0</div>
+                <div class="stat-label">PONTOS</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="found">0/3</div>
+                <div class="stat-label">APARIÇÕES</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="accuracy">100%</div>
+                <div class="stat-label">PRECISÃO</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="bonus">0</div>
+                <div class="stat-label">BÔNUS</div>
+            </div>
+        </div>
+
+        <div class="timer-section">
+            <div class="timer-bar">
+                <div class="timer-fill" id="timerFill"></div>
+                <div class="timer-text" id="timerText">45s</div>
+            </div>
+        </div>
+
+        <div class="hint-display" id="hintText">
+            👻 A toxina do medo distorce as imagens das câmeras...
+        </div>
+
+        <div class="events-log" id="eventsLog">
+            <div class="event-item">📡 Sistema de vigilância afetado pela toxina</div>
+        </div>
+
+        <div class="cameras-grid" id="camerasGrid"></div>
+
+        <div class="action-buttons">
+            <button class="action-btn" id="hintBtn" onclick="useHint()" disabled>
+                💡 ANTÍDOTO (<span id="hintCount">3</span>)
+            </button>
+            <button class="action-btn" id="scannerBtn" onclick="useScanner()" disabled>
+                📡 SCANNER (<span id="scannerCount">2</span>)
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // ===========================================
+        // CONFIGURAÇÃO DAS FASES - PADRÃO UNIFICADO
+        // ===========================================
+        const PHASES = [
+            {
+                phase: 1,
+                name: 'TOXINA LEVE',
+                time: 45,
+                scarecrowCount: 3,
+                hints: 3,
+                scanner: 2,
+                movementSpeed: 6000,
+                pointsPerAppearance: 150,
+                description: 'A toxina está começando a se espalhar...'
+            },
+            {
+                phase: 2,
+                name: 'MEDO MODERADO',
+                time: 40,
+                scarecrowCount: 3,
+                hints: 3,
+                scanner: 2,
+                movementSpeed: 5000,
+                pointsPerAppearance: 150,
+                description: 'As visões estão ficando mais frequentes...'
+            },
+            {
+                phase: 3,
+                name: 'PÂNICO',
+                time: 35,
+                scarecrowCount: 4,
+                hints: 2,
+                scanner: 1,
+                movementSpeed: 4000,
+                pointsPerAppearance: 200,
+                description: 'A toxina está afetando seu julgamento...'
+            },
+            {
+                phase: 4,
+                name: 'TERROR',
+                time: 30,
+                scarecrowCount: 4,
+                hints: 2,
+                scanner: 1,
+                movementSpeed: 3500,
+                pointsPerAppearance: 200,
+                description: 'O medo distorce completamente a realidade...'
+            },
+            {
+                phase: 5,
+                name: 'MEDO ABSOLUTO',
+                time: 25,
+                scarecrowCount: 5,
+                hints: 1,
+                scanner: 1,
+                movementSpeed: 3000,
+                pointsPerAppearance: 250,
+                description: 'Você enfrenta seus piores pesadelos...'
+            }
+        ];
+
+        // ===========================================
+        // ESTADO DO JOGO UNIFICADO
+        // ===========================================
+        let gameState = {
+            player: {
+                points: 0,
+                totalScore: 0,
+                phase: 1
+            },
+            state: {
+                active: false,
+                currentPhase: 0,
+                phaseScore: 0,
+                found: 0,
+                attempts: 0,
+                correctAttempts: 0,
+                hints: 3,
+                scanner: 2,
+                timeLeft: 45,
+                foundAppearances: [],
+                timer: null,
+                movementTimer: null,
+                fearInterval: null,
+                fearActive: false,
+                gameActive: false
+            }
+        };
+
+        // Câmeras
+        const cameras = Array.from({ length: 9 }, (_, i) => ({
+            id: i + 1,
+            name: `CAM-${String(i + 1).padStart(2, '0')}`,
+            location: ['Asilo Arkham', 'Laboratório', 'Depósito', 'Subsolo', 'Torre', 'Morgue', 'Porão', 'Túnel', 'Caverna'][i],
+            locked: false,
+            scarecrow: null
+        }));
+
+        // Imagens das câmeras
+        const feedImages = Array(9).fill('https://media1.tenor.com/m/gVg1J28GAMwAAAAC/batman-dark-knight.gif');
+
+        // Aparições
+        const scarecrowAppearances = [
+            { name: 'Visão 1', icon: '👻', points: 150 },
+            { name: 'Visão 2', icon: '👻', points: 150 },
+            { name: 'Visão 3', icon: '👻', points: 150 },
+            { name: 'Visão 4', icon: '👻', points: 200 },
+            { name: 'Visão 5', icon: '👻', points: 250 }
+        ];
+
+        // ===========================================
+        // FUNÇÃO DE LOADING
+        // ===========================================
+        async function showLoading(message = 'CARREGANDO...', duration = 2000) {
+            return new Promise((resolve) => {
+                const container = document.getElementById('loadingContainer');
+                const text = document.getElementById('loadingText');
+
+                text.textContent = message;
+                container.classList.add('active');
+
+                setTimeout(() => {
+                    container.classList.remove('active');
+                    resolve();
+                }, duration);
+            });
+        }
+
+        // ===========================================
+        // FUNÇÕES DOS MODAIS
+        // ===========================================
+        function closeIntro() {
+            document.getElementById('introOverlay').classList.remove('active');
+            document.getElementById('modalIntro').classList.remove('active');
+            showPhaseModal(0);
+        }
+
+        function showPhaseModal(phaseIndex) {
+            gameState.state.currentPhase = phaseIndex;
+            const phase = PHASES[phaseIndex];
+            gameState.player.phase = phase.phase;
+
+            document.getElementById('phaseModalTitle').textContent = `FASE ${phase.phase} - ${phase.name}`;
+            document.getElementById('phaseTime').textContent = phase.time + 's';
+            document.getElementById('phaseScarecrow').textContent = phase.scarecrowCount;
+            document.getElementById('phaseHints').textContent = phase.hints;
+            document.getElementById('phaseScanner').textContent = phase.scanner;
+
+            document.getElementById('villainPreview').innerHTML = `
+                <div class="villain-preview-icon">👻</div>
+                <div class="villain-preview-info">
+                    <div class="villain-preview-name">ESPANTALHO</div>
+                    <div class="villain-preview-stats">
+                        <div>⏰ ${phase.time}s</div>
+                        <div>👻 ${phase.scarecrowCount}</div>
+                        <div>💡 ${phase.hints}</div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('phaseOverlay').classList.add('active');
+            document.getElementById('modalPhase').classList.add('active');
+        }
+
+        function closePhaseModal() {
+            document.getElementById('phaseOverlay').classList.remove('active');
+            document.getElementById('modalPhase').classList.remove('active');
+        }
+
+        async function startPhase() {
+            closePhaseModal();
+
+            await showLoading('ATIVANDO VIGILÂNCIA...', 2000);
+
+            initPhase();
+        }
+
+        function showResultModal(victory) {
+            const phase = PHASES[gameState.state.currentPhase];
+            const title = victory ? 'VITÓRIA!' : 'DERROTA';
+            const icon = victory ? '🏆' : '💀';
+            const message = victory ?
+                `Fase ${phase.phase} concluída! Toxina neutralizada.` :
+                'A toxina se espalhou... O Espantalho escapou.';
+
+            document.getElementById('resultTitle').textContent = title;
+            document.getElementById('resultIcon').textContent = icon;
+            document.getElementById('resultMessage').textContent = message;
+
+            const accuracy = gameState.state.attempts > 0 ? Math.round((gameState.state.correctAttempts / gameState.state.attempts) * 100) : 100;
+            const timeBonus = Math.floor(gameState.state.timeLeft) * 15;
+
+            document.getElementById('resultScore').textContent = gameState.state.phaseScore;
+            document.getElementById('resultAccuracy').textContent = accuracy + '%';
+            document.getElementById('resultBonus').textContent = '+ ' + timeBonus;
+
+            document.getElementById('resultOverlay').classList.add('active');
+            document.getElementById('modalResult').classList.add('active');
+        }
+
+        function closeResultModal() {
+            document.getElementById('resultOverlay').classList.remove('active');
+            document.getElementById('modalResult').classList.remove('active');
+        }
+
+        // ===== FUNÇÃO PARA ADICIONAR PONTOS AO SISTEMA GLOBAL =====
+        function addToGlobalPoints(p) {
+            if (window.ArkhamCore && typeof ArkhamCore.addPoints === 'function') {
+                ArkhamCore.addPoints(p, 'espantalho');
+            } else {
+                console.warn("ArkhamCore não encontrado, salvando pontos localmente.");
+                const cur = parseInt(localStorage.getItem('batmanPoints') || '0', 10);
+                localStorage.setItem('batmanPoints', (cur + p).toString());
+            }
+            if (typeof updatePointsDisplay === 'function') {
+                updatePointsDisplay();
+            } else {
+                const pointsDisplay = document.getElementById('pointsDisplay');
+                if (pointsDisplay) {
+                    let totalScore = gameState.player?.totalScore || 0;
+                    pointsDisplay.textContent = `💰 ${totalScore}`;
+                }
+            }
+        }
+
+        // Substituir a função nextPhase (aproximadamente linha 500)
+        async function nextPhase() {
+            closeResultModal();
+
+            if (window.ArkhamCore) {
+                // CORREÇÃO: Registrar progresso da fase
+                ArkhamCore.registerPhaseCompletion('espantalho');
+            }
+
+            if (gameState.state.currentPhase < PHASES.length - 1) {
+                gameState.state.currentPhase++;
+                gameState.player.phase = gameState.state.currentPhase + 1;
+                await showLoading('PREPARANDO PRÓXIMA FASE...', 1500);
+                showPhaseModal(gameState.state.currentPhase);
+            } else {
+                await showLoading('VITÓRIA! CARREGANDO RESULTADO...', 2000);
+                showFinalVictory();
+            }
+        }
+
+        function showGameOver(message) {
+            document.getElementById('gameOverMessage').textContent = message;
+
+            const accuracy = gameState.state.attempts > 0 ? Math.round((gameState.state.correctAttempts / gameState.state.attempts) * 100) : 0;
+
+            document.getElementById('gameOverStats').innerHTML = `
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">👻 Aparições encontradas:</span>
+                    <span class="modal-stat-value">${gameState.state.found}/${PHASES[gameState.state.currentPhase].scarecrowCount}</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">📊 Precisão:</span>
+                    <span class="modal-stat-value">${accuracy}%</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">💯 Pontuação:</span>
+                    <span class="modal-stat-value">${gameState.state.phaseScore}</span>
+                </div>
+            `;
+
+            document.getElementById('gameOverOverlay').classList.add('active');
+            document.getElementById('modalGameOver').classList.add('active');
+        }
+
+        function closeGameOver() {
+            document.getElementById('gameOverOverlay').classList.remove('active');
+            document.getElementById('modalGameOver').classList.remove('active');
+        }
+
+        async function retryPhase() {
+            closeGameOver();
+
+            await showLoading('REINICIANDO FASE...', 1500);
+
+            showPhaseModal(gameState.state.currentPhase);
+        }
+
+        function showFinalVictory() {
+            gameState.player.totalScore += gameState.state.phaseScore;
+
+            document.getElementById('finalVictoryStats').innerHTML = `
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">🏆 Pontuação Total:</span>
+                    <span class="modal-stat-value success">${gameState.player.totalScore}</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">⭐ Título:</span>
+                    <span class="modal-stat-value">IMUNE AO MEDO</span>
+                </div>
+            `;
+
+            document.getElementById('finalVictoryOverlay').classList.add('active');
+            document.getElementById('modalFinalVictory').classList.add('active');
+        }
+
+        function closeFinalVictory() {
+            document.getElementById('finalVictoryOverlay').classList.remove('active');
+            document.getElementById('modalFinalVictory').classList.remove('active');
+        }
+
+        async function restartGame() {
+            closeFinalVictory();
+
+            await showLoading('REINICIANDO VIGILÂNCIA...', 1500);
+
+            gameState.state.currentPhase = 0;
+            gameState.player.phase = 1;
+            gameState.player.totalScore = 0;
+            updatePointsDisplay();
+            showPhaseModal(0);
+        }
+
+        function startGame() {
+            closeIntro();
+            loadPoints();
+            showPhaseModal(0);
+        }
+
+        // ===========================================
+        // FUNÇÕES DO JOGO
+        // ===========================================
+        function initPhase() {
+            const phase = PHASES[gameState.state.currentPhase];
+
+            gameState.state.active = true;
+            gameState.state.found = 0;
+            gameState.state.attempts = 0;
+            gameState.state.correctAttempts = 0;
+            gameState.state.hints = phase.hints;
+            gameState.state.scanner = phase.scanner;
+            gameState.state.timeLeft = phase.time;
+            gameState.state.foundAppearances = [];
+            gameState.state.fearActive = false;
+            gameState.state.phaseScore = 0;
+
+            cameras.forEach(cam => {
+                cam.locked = false;
+                cam.scarecrow = null;
+            });
+
+            distributeScarecrow(phase.scarecrowCount);
+
+            updateUI();
+            renderCameras();
+
+            document.getElementById('hintBtn').disabled = false;
+            document.getElementById('scannerBtn').disabled = false;
+            document.getElementById('phaseBadge').textContent = `FASE ${phase.phase} - ${phase.name}`;
+            document.getElementById('hintText').textContent = phase.description;
+            document.getElementById('villainBadge').textContent = 'ESPANTALHO';
+
+            addEvent(`🔴 FASE ${phase.phase} INICIADA: ${phase.name}`);
+
+            startTimer();
+            startMovementTimer(phase.movementSpeed);
+
+            if (gameState.state.fearInterval) clearInterval(gameState.state.fearInterval);
+
+            gameState.state.fearInterval = setInterval(() => {
+                if (gameState.state.active && Math.random() < 0.3) {
+                    activateFearEffect();
+                }
+            }, 5000);
+        }
+
+        function activateFearEffect() {
+            gameState.state.fearActive = true;
+            document.body.classList.add('fear-active');
+
+            cameras.forEach(cam => {
+                if (!cam.locked && Math.random() < 0.4) {
+                    const card = document.getElementById(`camera-${cam.id}`);
+                    if (card) card.classList.add('fear-effect');
+                }
+            });
+
+            addEvent('👻 TOXINA DO MEDO ATIVADA!', 'movement');
+
+            setTimeout(() => {
+                document.body.classList.remove('fear-active');
+                cameras.forEach(cam => {
+                    const card = document.getElementById(`camera-${cam.id}`);
+                    if (card) card.classList.remove('fear-effect');
+                });
+                gameState.state.fearActive = false;
+            }, 3000);
+        }
+
+        function distributeScarecrow(count) {
+            const availableCameras = [...cameras].sort(() => Math.random() - 0.5);
+            for (let i = 0; i < count; i++) {
+                availableCameras[i].scarecrow = scarecrowAppearances[i % scarecrowAppearances.length];
+            }
+        }
+
+        function startTimer() {
+            const phase = PHASES[gameState.state.currentPhase];
+            gameState.state.timer = setInterval(() => {
+                if (!gameState.state.active) return;
+
+                gameState.state.timeLeft -= 0.1;
+                const percentage = (gameState.state.timeLeft / phase.time) * 100;
+
+                const fill = document.getElementById('timerFill');
+                fill.style.width = `${percentage}%`;
+
+                if (percentage < 20) fill.className = 'timer-fill danger';
+                else if (percentage < 40) fill.className = 'timer-fill warning';
+                else fill.className = 'timer-fill';
+
+                document.getElementById('timerText').textContent = `${Math.ceil(gameState.state.timeLeft)}s`;
+
+                if (gameState.state.timeLeft <= 0) {
+                    clearInterval(gameState.state.timer);
+                    if (gameState.state.movementTimer) clearInterval(gameState.state.movementTimer);
+                    if (gameState.state.fearInterval) clearInterval(gameState.state.fearInterval);
+                    gameState.state.active = false;
+                    showGameOver('⏰ O tempo acabou! O Espantalho escapou!');
+                }
+
+                updateUI();
+            }, 100);
+        }
+
+        function startMovementTimer(speed) {
+            gameState.state.movementTimer = setInterval(() => {
+                if (!gameState.state.active) return;
+
+                const occupied = cameras.filter(c => c.scarecrow && !c.locked);
+                const empty = cameras.filter(c => !c.scarecrow && !c.locked);
+
+                if (occupied.length === 0 || empty.length === 0) return;
+
+                const from = occupied[Math.floor(Math.random() * occupied.length)];
+                const to = empty[Math.floor(Math.random() * empty.length)];
+
+                moveScarecrow(from, to);
+            }, speed);
+        }
+
+        function moveScarecrow(from, to) {
+            const scarecrow = from.scarecrow;
+            const fromCard = document.getElementById(`camera-${from.id}`);
+
+            fromCard.classList.add('highlight');
+            showMovementIndicator(fromCard, '👻 SAIU');
+
+            setTimeout(() => {
+                fromCard.classList.remove('highlight');
+                from.scarecrow = null;
+                to.scarecrow = scarecrow;
+
+                const toCard = document.getElementById(`camera-${to.id}`);
+                toCard.classList.add('highlight');
+                showMovementIndicator(toCard, '👻 APARECEU');
+
+                setTimeout(() => toCard.classList.remove('highlight'), 1500);
+
+                addEvent(`👻 Espantalho se moveu: ${from.name} → ${to.name}`, 'movement');
+                renderCameras();
+            }, 500);
+        }
+
+        function showMovementIndicator(card, text) {
+            const ind = document.createElement('div');
+            ind.className = 'movement-indicator';
+            ind.textContent = text;
+            card.appendChild(ind);
+            setTimeout(() => ind.remove(), 1500);
+        }
+
+        function handleCameraClick(cameraId) {
+            if (!gameState.state.active) return;
+
+            const camera = cameras.find(c => c.id === cameraId);
+            if (camera.locked) return;
+
+            gameState.state.attempts++;
+            camera.locked = true;
+
+            if (camera.scarecrow && !gameState.state.foundAppearances.includes(camera.scarecrow.name)) {
+                gameState.state.found++;
+                gameState.state.correctAttempts++;
+                gameState.state.phaseScore += camera.scarecrow.points;
+                gameState.state.foundAppearances.push(camera.scarecrow.name);
+
+                const badge = document.createElement('div');
+                badge.className = 'scarecrow-badge';
+                badge.textContent = `👻 ${camera.scarecrow.name}`;
+                document.getElementById(`camera-${camera.id}`).appendChild(badge);
+
+                addEvent(`✅ Aparição ${gameState.state.found} encontrada!`, 'found');
+                document.getElementById('hintText').textContent = `🎯 Aparição identificada! +${camera.scarecrow.points} pontos`;
+
+                const phase = PHASES[gameState.state.currentPhase];
+                if (gameState.state.found >= phase.scarecrowCount) {
+                    clearInterval(gameState.state.timer);
+                    if (gameState.state.movementTimer) clearInterval(gameState.state.movementTimer);
+                    if (gameState.state.fearInterval) clearInterval(gameState.state.fearInterval);
+                    gameState.state.active = false;
+
+                    const timeBonus = Math.floor(gameState.state.timeLeft) * 15;
+                    gameState.state.phaseScore += timeBonus;
+                    gameState.player.totalScore += gameState.state.phaseScore;
+                    addToGlobalPoints(gameState.state.phaseScore);
+                    updatePointsDisplay();
+
+                    showResultModal(true);
+                }
+            } else {
+                gameState.state.phaseScore = Math.max(0, gameState.state.phaseScore - 30);
+                addEvent(`❌ Falso positivo! -30 pontos`, 'error');
+                document.getElementById('hintText').textContent = '❌ A toxina enganou você! -30 pontos';
+            }
+
+            updateUI();
+            renderCameras();
+        }
+
+        function useHint() {
+            if (gameState.state.hints <= 0 || !gameState.state.active) return;
+
+            gameState.state.hints--;
+            document.getElementById('hintCount').textContent = gameState.state.hints;
+
+            const unfound = cameras.find(c => c.scarecrow && !gameState.state.foundAppearances.includes(c.scarecrow.name));
+
+            if (unfound) {
+                document.getElementById(`camera-${unfound.id}`).classList.add('highlight');
+                document.getElementById('hintText').textContent = `💡 Antídoto aplicado: ${unfound.name}`;
+
+                setTimeout(() => {
+                    document.getElementById(`camera-${unfound.id}`).classList.remove('highlight');
+                }, 2000);
+            }
+
+            if (gameState.state.hints === 0) {
+                document.getElementById('hintBtn').disabled = true;
+            }
+        }
+
+        function useScanner() {
+            if (gameState.state.scanner <= 0 || !gameState.state.active) return;
+
+            gameState.state.scanner--;
+            document.getElementById('scannerCount').textContent = gameState.state.scanner;
+
+            document.getElementById('hintText').textContent = '📡 SCANNER ATIVADO! Revelando aparições...';
+
+            cameras.forEach(c => {
+                if (c.scarecrow && !gameState.state.foundAppearances.includes(c.scarecrow.name)) {
+                    document.getElementById(`camera-${c.id}`).classList.add('highlight');
+                }
+            });
+
+            setTimeout(() => {
+                cameras.forEach(c => {
+                    document.getElementById(`camera-${c.id}`).classList.remove('highlight');
+                });
+                document.getElementById('hintText').textContent = PHASES[gameState.state.currentPhase].description;
+            }, 3000);
+
+            if (gameState.state.scanner === 0) {
+                document.getElementById('scannerBtn').disabled = true;
+            }
+        }
+
+        function renderCameras() {
+            const grid = document.getElementById('camerasGrid');
+            grid.innerHTML = '';
+
+            cameras.forEach((camera, i) => {
+                const card = document.createElement('div');
+                card.className = `camera-card ${camera.locked ? 'locked' : ''}`;
+
+                if (camera.scarecrow && camera.locked) {
+                    card.classList.add('found');
+                }
+
+                card.id = `camera-${camera.id}`;
+                card.onclick = () => handleCameraClick(camera.id);
+
+                card.innerHTML = `
+                    <img src="${feedImages[i]}" class="camera-feed">
+                    <div class="camera-overlay">
+                        <div class="camera-name">${camera.name}</div>
+                        <div class="camera-location">${camera.location}</div>
+                    </div>
+                `;
+
+                grid.appendChild(card);
+            });
+        }
+
+        function updateUI() {
+            const phase = PHASES[gameState.state.currentPhase];
+            const accuracy = gameState.state.attempts > 0 ? Math.round((gameState.state.correctAttempts / gameState.state.attempts) * 100) : 100;
+
+            document.getElementById('score').textContent = gameState.state.phaseScore;
+            document.getElementById('found').textContent = `${gameState.state.found}/${phase.scarecrowCount}`;
+            document.getElementById('accuracy').textContent = `${accuracy}%`;
+            document.getElementById('bonus').textContent = `+${Math.floor(gameState.state.timeLeft) * 15}`;
+            document.getElementById('hintCount').textContent = gameState.state.hints;
+            document.getElementById('scannerCount').textContent = gameState.state.scanner;
+        }
+
+        function addEvent(text, type = '') {
+            const log = document.getElementById('eventsLog');
+            const item = document.createElement('div');
+            item.className = `event-item ${type}`;
+            item.textContent = `${new Date().toLocaleTimeString()} - ${text}`;
+            log.insertBefore(item, log.firstChild);
+
+            while (log.children.length > 8) {
+                log.removeChild(log.lastChild);
+            }
+        }
+
+        function updatePointsDisplay() {
+            document.getElementById('pointsDisplay').textContent = `👻 ${gameState.player.totalScore}`;
+        }
+
+        function loadPoints() {
+            const saved = localStorage.getItem('batmanPoints');
+            if (saved) {
+                gameState.player.totalScore = parseInt(saved);
+                updatePointsDisplay();
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            renderCameras();
+            loadPoints();
+            document.getElementById('introOverlay').classList.add('active');
+        });
+    </script>
+</body>
+
+</html>

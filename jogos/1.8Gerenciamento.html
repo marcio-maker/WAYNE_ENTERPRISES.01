@@ -1,0 +1,1905 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>🐱 MULHER GATO SALTANDO</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- ===== ARKHAM CORE ADICIONADO ===== -->
+    <script src="../sistemas/arkham-core.js"></script>
+    <style>
+        /* =========================================== */
+        /* BATMAN HUD SYSTEM - VERSÃO SIMPLIFICADA */
+        /* =========================================== */
+        :root {
+            --primary: #00d9ff;
+            --primary-dark: #0066cc;
+            --success: #00ff88;
+            --warning: #ffaa00;
+            --danger: #ff0040;
+            --info: #bb86fc;
+            --purple: #9d4edd;
+            --cat: #8A2BE2;
+            --cat-light: #B57EDD;
+            --cat-dark: #4B0082;
+            --bg-dark: #000;
+            --bg-panel: rgba(10, 20, 40, 0.75);
+            --bg-card: rgba(10, 20, 40, 0.65);
+            --text: #ffffff;
+            --text-dim: #e0e0e0;
+            --border: rgba(138, 43, 226, 0.3);
+            --border-strong: rgba(138, 43, 226, 0.6);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            --shadow-glow: 0 0 20px rgba(138, 43, 226, 0.3);
+            --font-mono: 'Courier New', monospace;
+            --safe-area-inset: env(safe-area-inset-top, 0px);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Remoção completa das barras de rolagem */
+        html,
+        body {
+            overflow: hidden !important;
+            height: 100%;
+            width: 100%;
+            position: fixed;
+            overscroll-behavior: none;
+        }
+
+        body {
+            background: #000000;
+            color: var(--text);
+            font-family: 'Arial', sans-serif;
+            height: 100vh;
+            width: 100vw;
+            position: relative;
+            overflow-y: auto !important;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Scrollbar invisível mas funcional */
+        body::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+
+        /* ===== BOTÃO DE VOLTA ===== */
+        .hub-back-link {
+            position: fixed;
+            top: max(15px, env(safe-area-inset-top));
+            left: 15px;
+            z-index: 10002;
+            color: var(--cat-light);
+            text-decoration: none;
+            padding: clamp(6px, 2vw, 8px) clamp(12px, 3vw, 16px);
+            border: 2px solid var(--cat);
+            border-radius: 8px;
+            background: var(--bg-card);
+            font-size: clamp(0.75rem, 2vw, 0.85rem);
+            font-weight: bold;
+            letter-spacing: 1px;
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-glow);
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .points-display {
+            position: fixed;
+            top: max(15px, env(safe-area-inset-top));
+            right: 15px;
+            background: var(--bg-card);
+            border: 2px solid var(--cat);
+            border-radius: 8px;
+            padding: clamp(6px, 2vw, 8px) clamp(12px, 3vw, 16px);
+            color: var(--cat-light);
+            font-weight: bold;
+            font-size: clamp(0.85rem, 2.5vw, 1rem);
+            z-index: 10002;
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        /* ===== LOADING ANIMATION ===== */
+        .loading-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(15px);
+            z-index: 20000;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loading-container.active {
+            display: flex;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .loading-icon {
+            font-size: clamp(3rem, 15vw, 5rem);
+            margin-bottom: 20px;
+            animation: spin 1s linear infinite;
+            filter: drop-shadow(0 0 30px var(--cat));
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-text {
+            color: #fff;
+            font-size: clamp(1rem, 4vw, 1.2rem);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: bold;
+            text-shadow: 0 0 10px var(--cat);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        .loading-progress {
+            width: min(200px, 80%);
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            margin-top: 30px;
+            overflow: hidden;
+        }
+
+        .loading-progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, transparent, var(--cat), transparent);
+            animation: progress 2s infinite;
+        }
+
+        /* ===== SISTEMA DE MODAIS GLASSMORPH ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 9999;
+            display: none;
+        }
+
+        .modal-overlay.active {
+            display: block;
+        }
+
+        .intro-overlay {
+            background: url('https://images.pexels.com/photos/1111318/pexels-photo-1111318.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        .phase-overlay {
+            background: url('https://images.pexels.com/photos/2097628/pexels-photo-2097628.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        .result-overlay {
+            background: url('https://images.pexels.com/photos/669996/pexels-photo-669996.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        .modal-overlay::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(5px);
+            z-index: -1;
+        }
+
+        .modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--bg-card);
+            border: 3px solid var(--cat);
+            border-radius: 20px;
+            padding: clamp(15px, 4vw, 30px);
+            width: min(95%, 500px);
+            max-height: 90vh;
+            overflow-y: auto;
+            z-index: 10000;
+            backdrop-filter: blur(15px);
+            box-shadow: var(--shadow), 0 0 50px var(--cat);
+            display: none;
+            animation: modalAppear 0.4s ease-out;
+        }
+
+        .modal.active {
+            display: block;
+        }
+
+        .modal::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+
+        @keyframes modalAppear {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -45%);
+            }
+
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--cat);
+        }
+
+        .modal-title {
+            color: var(--cat-light);
+            font-size: clamp(1.1rem, 4vw, 1.3rem);
+            font-weight: bold;
+            letter-spacing: 1px;
+            line-height: 1.2;
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            font-size: clamp(1.5rem, 5vw, 1.8rem);
+            cursor: pointer;
+            transition: color 0.3s;
+            padding: 0 8px;
+            line-height: 1;
+        }
+
+        .modal-icon {
+            font-size: clamp(2.5rem, 10vw, 3.5rem);
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        .modal-content {
+            margin: 15px 0;
+        }
+
+        .modal-text {
+            color: var(--text);
+            line-height: 1.5;
+            font-size: clamp(0.9rem, 3vw, 1rem);
+        }
+
+        .modal-text-secondary {
+            color: var(--text-dim);
+            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+            margin-top: 10px;
+        }
+
+        .modal-stats {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--cat);
+            border-radius: 8px;
+            padding: clamp(10px, 3vw, 15px);
+            margin: 15px 0;
+        }
+
+        .modal-stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(138, 43, 226, 0.2);
+            font-size: clamp(0.85rem, 2.5vw, 0.9rem);
+        }
+
+        .modal-stat-label {
+            color: var(--text-dim);
+        }
+
+        .modal-stat-value {
+            color: var(--cat-light);
+            font-weight: bold;
+        }
+
+        .modal-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(138, 43, 226, 0.2);
+            border: 1px solid var(--cat);
+            border-radius: 20px;
+            color: var(--cat-light);
+            font-size: clamp(0.7rem, 2vw, 0.8rem);
+            margin-top: 10px;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .modal-btn {
+            flex: 1 1 auto;
+            min-width: 120px;
+            padding: clamp(10px, 3vw, 12px) clamp(12px, 4vw, 15px);
+            border: 2px solid;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-btn.primary {
+            border-color: var(--cat);
+            color: var(--cat-light);
+        }
+
+        .modal-btn.primary:hover {
+            background: var(--cat);
+            color: #000;
+            box-shadow: 0 0 20px var(--cat);
+        }
+
+        .modal-btn.secondary {
+            border-color: var(--text-dim);
+            color: var(--text-dim);
+        }
+
+        .modal-btn.secondary:hover {
+            border-color: #fff;
+            color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-btn.success {
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .modal-btn.success:hover {
+            background: var(--success);
+            color: #000;
+            box-shadow: 0 0 20px var(--success);
+        }
+
+        /* ===== PREVIEW DA FASE ===== */
+        .villain-preview {
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid var(--cat);
+            border-radius: 10px;
+            padding: clamp(15px, 4vw, 20px);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: clamp(10px, 3vw, 20px);
+            backdrop-filter: blur(5px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .villain-preview::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 60px;
+            height: 60px;
+            background: var(--cat);
+            opacity: 0.2;
+            border-radius: 50%;
+            filter: blur(20px);
+            z-index: 0;
+        }
+
+        .villain-preview-icon {
+            font-size: clamp(3rem, 12vw, 4rem);
+            filter: drop-shadow(0 0 20px var(--cat));
+            position: relative;
+            z-index: 1;
+        }
+
+        .villain-preview-info {
+            flex: 1;
+            min-width: 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .villain-preview-name {
+            color: var(--cat-light);
+            font-size: clamp(1.2rem, 5vw, 1.5rem);
+            font-weight: bold;
+            margin-bottom: 8px;
+            line-height: 1.2;
+            word-wrap: break-word;
+        }
+
+        .villain-preview-name small {
+            color: var(--cat);
+            font-size: 0.8rem;
+            margin-left: 5px;
+        }
+
+        .villain-preview-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            color: var(--text-dim);
+            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+        }
+
+        .villain-preview-stats div {
+            background: rgba(138, 43, 226, 0.1);
+            padding: 5px;
+            border-radius: 5px;
+            border-left: 2px solid var(--cat);
+        }
+
+        /* ===== CONTEÚDO PRINCIPAL ===== */
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            background: var(--bg-panel);
+            border: 3px solid var(--cat);
+            border-radius: 15px;
+            padding: clamp(15px, 4vw, 30px);
+            backdrop-filter: blur(15px);
+            box-shadow: var(--shadow), 0 0 60px var(--cat);
+            position: relative;
+            margin: max(60px, env(safe-area-inset-top)) auto 20px;
+            max-height: calc(100vh - 80px);
+            overflow-y: auto;
+        }
+
+        .container::-webkit-scrollbar {
+            width: 0px;
+        }
+
+        .level-indicator {
+            position: absolute;
+            top: clamp(10px, 2vw, 15px);
+            right: clamp(10px, 2vw, 15px);
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid var(--cat);
+            border-radius: 8px;
+            padding: 4px 10px;
+            color: var(--cat-light);
+            font-size: clamp(0.7rem, 2vw, 0.8rem);
+            font-weight: bold;
+            backdrop-filter: blur(5px);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--cat);
+            padding-bottom: 15px;
+        }
+
+        h1 {
+            color: var(--cat);
+            font-size: clamp(1.5rem, 5vw, 2rem);
+            text-shadow: 0 0 20px var(--cat);
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            color: var(--text-dim);
+            font-size: clamp(0.7rem, 2vw, 0.8rem);
+            letter-spacing: 2px;
+        }
+
+        .loot-display {
+            background: rgba(138, 43, 226, 0.1);
+            border: 2px solid var(--cat);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 15px;
+            text-align: center;
+            display: none;
+        }
+
+        .loot-value {
+            font-size: clamp(1.8rem, 6vw, 2.5rem);
+            font-weight: bold;
+            color: var(--cat-light);
+            text-shadow: 0 0 20px var(--cat);
+            line-height: 1.2;
+        }
+
+        .loot-label {
+            color: var(--text-dim);
+            font-size: clamp(0.7rem, 2vw, 0.8rem);
+        }
+
+        /* ===== NOVA ÁREA DO JOGO ===== */
+        .game-wrapper {
+            width: 100%;
+            max-width: 750px;
+            margin: 0 auto;
+        }
+        
+        .game-container {
+            background: #1f4a5c;
+            padding: 20px;
+            border-radius: 40px;
+            box-shadow: 0 20px 30px rgba(0,0,0,0.6);
+            border: 3px solid #ffd966;
+            transition: border-color 0.3s;
+        }
+        
+        canvas {
+            display: block;
+            margin: 0 auto;
+            width: 100%;
+            height: auto;
+            aspect-ratio: 600/600;
+            border-radius: 28px;
+            background: radial-gradient(circle at 50% 30%, #2e4b5e, #1a2f3a);
+            border: 3px solid #ffb347;
+            cursor: pointer;
+        }
+        
+        .painel {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 16px;
+            padding: 0 10px;
+            color: #f9e7b3;
+            font-weight: bold;
+            font-size: 1.1rem;
+            gap: 10px;
+        }
+        
+        .status {
+            background: #263f46;
+            padding: 8px 15px;
+            border-radius: 40px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        
+        .status span {
+            background: #fcd9a3;
+            color: #1e3b41;
+            padding: 5px 15px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 1rem;
+        }
+        
+        .fase-indicator {
+            background: #e5b95c;
+            color: #152e36;
+            padding: 8px 25px;
+            border-radius: 40px;
+            font-weight: 800;
+            font-size: 1.2rem;
+            white-space: nowrap;
+        }
+        
+        .heist-btn {
+            background: #fec165;
+            border: none;
+            font-size: 1.2rem;
+            font-weight: bold;
+            padding: 8px 25px;
+            border-radius: 40px;
+            color: #1a4545;
+            box-shadow: 0 5px 0 #a7622c;
+            cursor: pointer;
+            border: 2px solid #ffdfa0;
+            transition: 0.1s;
+            width: auto;
+            margin: 10px 0 0;
+        }
+        
+        .heist-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 1px 0 #a7622c;
+        }
+        
+        .controles-info {
+            font-size: 2rem;
+            text-align: center;
+            color: #ffd966;
+            margin: 10px 0 5px;
+        }
+        
+        .instrucao {
+            text-align: center;
+            color: #c0e6f0;
+            font-size: 0.95rem;
+        }
+        
+        .dica {
+            color: #ffb347;
+            font-weight: bold;
+        }
+
+        /* Elementos antigos que serão escondidos */
+        .status-grid,
+        .slider-section,
+        .metrics-grid,
+        .alert-panel,
+        .event-panel {
+            display: none;
+        }
+
+        /* Media Queries */
+        @media (max-width: 768px) {
+            .villain-preview {
+                flex-direction: column;
+                text-align: center;
+                gap: 8px;
+            }
+
+            .villain-preview-icon {
+                font-size: 3.5rem;
+            }
+
+            .villain-preview-name {
+                font-size: 1.3rem;
+            }
+
+            .container {
+                padding: 15px;
+                margin: 50px 10px 10px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .modal {
+                width: 95%;
+                padding: 20px;
+            }
+
+            .modal-title {
+                font-size: 1.1rem;
+            }
+
+            .modal-icon {
+                font-size: 3rem;
+            }
+
+            .modal-actions {
+                flex-direction: column;
+            }
+
+            .modal-btn {
+                width: 100%;
+            }
+
+            .points-display {
+                font-size: 0.8rem;
+                padding: 4px 10px;
+            }
+
+            .loading-icon {
+                font-size: 4rem;
+            }
+
+            .loading-text {
+                font-size: 1rem;
+            }
+            
+            .painel { justify-content: center; }
+            .status { width: 100%; justify-content: center; }
+            .fase-indicator { font-size: 1rem; padding: 6px 15px; }
+        }
+
+        @media (max-width: 480px) {
+            .status-value {
+                font-size: 1.2rem;
+            }
+
+            .loot-value {
+                font-size: 1.8rem;
+            }
+        }
+
+        @media (orientation: landscape) and (max-height: 600px) {
+            .container {
+                margin-top: 45px;
+                max-height: calc(100vh - 50px);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <a href="../dash3.html" class="hub-back-link">
+        <i class="fas fa-arrow-left"></i> HUB
+    </a>
+
+    <div class="points-display" id="pointsDisplay">💰 0</div>
+
+    <!-- LOADING OVERLAY -->
+    <div class="loading-container" id="loadingContainer">
+        <div class="loading-icon">🐱</div>
+        <div class="loading-text" id="loadingText">CARREGANDO...</div>
+        <div class="loading-progress">
+            <div class="loading-progress-fill"></div>
+        </div>
+    </div>
+
+    <!-- MODAL DE INTRODUÇÃO -->
+    <div class="modal-overlay intro-overlay" id="introOverlay"></div>
+
+    <div class="modal modal-cat active" id="modalIntro">
+        <div class="modal-header">
+            <div class="modal-title">🐱 MULHER GATO SALTANDO</div>
+            <button class="modal-close" onclick="closeIntro()">×</button>
+        </div>
+        <div class="modal-icon">🐱</div>
+        <div class="modal-content">
+            <div class="modal-text">
+                Explore salas com pé direito ALTÍSSIMO! Suba até 9 andares em cada fase, desviando de guardas e lasers pendurados no teto.
+            </div>
+            <div class="modal-text-secondary">
+                <strong>🎯 INSTRUÇÕES:</strong><br>
+                • Clique no canvas para mover o gato (8 direções)<br>
+                • Cada sala tem 200px de altura - muito espaço!<br>
+                • Moedas estão posicionadas ACIMA da linha do andar<br>
+                • Guardas e lasers são representados apenas por emojis<br>
+                • O diamante está no topo do último andar<br>
+                • Complete 5 fases para vencer
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn primary" onclick="startGame()">INICIAR PARKOUR</button>
+        </div>
+    </div>
+
+    <!-- MODAL DE FASE -->
+    <div class="modal-overlay phase-overlay" id="phaseOverlay"></div>
+
+    <div class="modal modal-cat" id="modalPhase">
+        <div class="modal-header">
+            <div class="modal-title" id="phaseModalTitle">FASE 1 - TELHADOS</div>
+            <button class="modal-close" onclick="closePhaseModal()">×</button>
+        </div>
+        <div class="modal-icon">🏢</div>
+        <div class="modal-content">
+            <div class="modal-text" id="phaseDescription">
+                Suba pelos telhados de Gotham
+            </div>
+
+            <!-- PREVIEW DA FASE -->
+            <div class="villain-preview" id="villainPreview"></div>
+
+            <div class="modal-stats">
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">🏢 ANDARES:</span>
+                    <span class="modal-stat-value" id="phaseRequiredHeists">5</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">👮 GUARDAS:</span>
+                    <span class="modal-stat-value" id="phaseEnergy">1</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">🔴 LASERS:</span>
+                    <span class="modal-stat-value" id="phaseBonus">1</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">⏳ TEMPO:</span>
+                    <span class="modal-stat-value" id="phaseTime">70s</span>
+                </div>
+            </div>
+            <div class="modal-badge">💡 Salas com 200px de altura! Clique no canvas para mover.</div>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn secondary" onclick="closePhaseModal()">AGUARDAR</button>
+            <button class="modal-btn primary" onclick="startPhase()">INICIAR FASE</button>
+        </div>
+    </div>
+
+    <!-- MODAL DE RESULTADO -->
+    <div class="modal-overlay result-overlay" id="resultOverlay"></div>
+
+    <div class="modal modal-cat" id="modalResult">
+        <div class="modal-header">
+            <div class="modal-title" id="resultTitle">RESULTADO</div>
+            <button class="modal-close" onclick="closeResultModal()">×</button>
+        </div>
+        <div class="modal-icon" id="resultIcon">🏆</div>
+        <div class="modal-content">
+            <div class="modal-text" id="resultMessage"></div>
+            <div class="modal-stats" id="resultStats">
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">💎 Diamantes:</span>
+                    <span class="modal-stat-value success" id="resultScore">0</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">🪙 Moedas:</span>
+                    <span class="modal-stat-value" id="resultHeists">0</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">❤️ Vidas restantes:</span>
+                    <span class="modal-stat-value" id="resultSuccessRate">3</span>
+                </div>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn secondary" onclick="closeResultModal()">FECHAR</button>
+            <button class="modal-btn primary" onclick="nextPhase()">PRÓXIMA FASE</button>
+        </div>
+    </div>
+
+    <!-- MODAL DE GAME OVER -->
+    <div class="modal-overlay result-overlay" id="gameOverOverlay"></div>
+
+    <div class="modal modal-cat" id="modalGameOver">
+        <div class="modal-header">
+            <div class="modal-title">💀 DERROTA</div>
+            <button class="modal-close" onclick="closeGameOver()">×</button>
+        </div>
+        <div class="modal-icon">💀</div>
+        <div class="modal-content">
+            <div class="modal-text" id="gameOverMessage">Você não conseguiu chegar ao topo...</div>
+            <div class="modal-stats" id="gameOverStats"></div>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn secondary" onclick="closeGameOver()">FECHAR</button>
+            <button class="modal-btn primary" onclick="retryPhase()">TENTAR NOVAMENTE</button>
+        </div>
+    </div>
+
+    <!-- MODAL DE VITÓRIA FINAL -->
+    <div class="modal-overlay result-overlay" id="finalVictoryOverlay"></div>
+
+    <div class="modal modal-cat" id="modalFinalVictory">
+        <div class="modal-header">
+            <div class="modal-title">🎉 VITÓRIA TOTAL!</div>
+            <button class="modal-close" onclick="closeFinalVictory()">×</button>
+        </div>
+        <div class="modal-icon">🏆</div>
+        <div class="modal-content">
+            <div class="modal-text">
+                Parabéns! Você conquistou todas as 5 fases e se tornou a MESTRA DO PARKOUR!
+            </div>
+            <div class="modal-stats" id="finalVictoryStats"></div>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn primary" onclick="restartGame()">JOGAR NOVAMENTE</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="level-indicator"><i class="fas fa-building"></i> FASE <span id="gamePhase">1</span>/5</div>
+
+        <header>
+            <h1><i class="fas fa-cat"></i> MULHER GATO SALTANDO</h1>
+            <div class="subtitle">SALAS DE TETO ALTO · 200px POR ANDAR</div>
+        </header>
+
+        <!-- Loot Display (escondido mas mantido para compatibilidade) -->
+        <div class="loot-display">
+            <div class="loot-value" id="lootValue">0</div>
+            <div class="loot-label">💎 PONTUAÇÃO</div>
+        </div>
+
+        <!-- Elementos antigos escondidos -->
+        <div class="status-grid"></div>
+        <div class="alert-panel"></div>
+        <div class="event-panel hidden"></div>
+        <div class="slider-section"></div>
+        <div class="metrics-grid"></div>
+
+        <!-- NOVO JOGO -->
+        <div class="game-wrapper">
+            <div class="game-container" id="gameContainer">
+                <canvas id="gameCanvas" width="600" height="600"></canvas>
+
+                <div class="painel">
+                    <div class="status">
+                        <span>❤️ <span id="vidasDisplay">3</span></span>
+                        <span>🪙 <span id="moedasDisplay">0</span></span>
+                        <span>💎 <span id="diamantesDisplay">0</span></span>
+                        <span>⏳ <span id="timerDisplay">00</span>s</span>
+                    </div>
+                    <div class="fase-indicator" id="faseDisplay">FASE 1/5</div>
+                </div>
+
+                <div class="controles-info">
+                    ↑ ↗ → ↘ ↓ ↙ ← ↖
+                </div>
+                <div class="instrucao">
+                    <span class="dica">💎 DIAMANTE no topo</span> · 
+                    <span class="dica">👮 Guardas</span> · 
+                    <span class="dica">🔴 Lasers Pendurados</span>
+                </div>
+                
+                <button class="heist-btn" id="actionBtn">
+                    <span><i class="fas fa-redo-alt"></i> PRÓXIMO</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===========================================
+        // CONFIGURAÇÃO DAS FASES - 5 FASES PROGRESSIVAS
+        // ===========================================
+        const PHASES = [
+            {
+                phase: 1,
+                name: 'TELHADOS',
+                andares: 5,
+                guardas: 1,
+                lasersMoveis: 1,
+                tempo: 70,
+                velocidade: 0.7,
+                cor: '#7ec8dd',
+                descricao: 'Comece pelos telhados baixos de Gotham'
+            },
+            {
+                phase: 2,
+                name: 'ARRANHA-CÉUS',
+                andares: 6,
+                guardas: 2,
+                lasersMoveis: 2,
+                tempo: 80,
+                velocidade: 0.8,
+                cor: '#ffb347',
+                descricao: 'Edifícios mais altos exigem mais agilidade'
+            },
+            {
+                phase: 3,
+                name: 'ZONA INDUSTRIAL',
+                andares: 7,
+                guardas: 2,
+                lasersMoveis: 3,
+                tempo: 90,
+                velocidade: 0.9,
+                cor: '#ff6b6b',
+                descricao: 'Chaminés e estruturas perigosas'
+            },
+            {
+                phase: 4,
+                name: 'TORRE MÍSTICA',
+                andares: 8,
+                guardas: 3,
+                lasersMoveis: 4,
+                tempo: 100,
+                velocidade: 1.0,
+                cor: '#9f7aea',
+                descricao: 'A segurança está mais rigorosa'
+            },
+            {
+                phase: 5,
+                name: 'DESAFIO FINAL',
+                andares: 9,
+                guardas: 3,
+                lasersMoveis: 5,
+                tempo: 110,
+                velocidade: 1.1,
+                cor: '#f687b3',
+                descricao: 'O Banco Central de Gotham espera por você'
+            }
+        ];
+
+        // ===========================================
+        // ESTADO DO JOGO
+        // ===========================================
+        let gameState = {
+            player: {
+                points: 0,
+                totalScore: 0,
+                phase: 1
+            },
+            state: {
+                currentPhase: 0,
+                gameActive: false,
+                phasesCompleted: [false, false, false, false, false]
+            }
+        };
+
+        // Variáveis do jogo Parkour
+        let canvas, ctx;
+        let gameContainer;
+        let faseAtual = 0;
+        let andarAtual = 0;
+        let posX = 300, posY = 900;
+        let destinoX = 300, destinoY = 900;
+        let cameraY = 300;
+        let tempo = 50;
+        let vidas = 3;
+        let moedas = 0;
+        let diamantes = 0;
+        
+        // Itens do jogo
+        let moedasNoJogo = [];
+        let diamanteTopo = null;
+        let guardas = [];
+        let lasersMoveis = [];
+        
+        let gameOver = false;
+        let vitoria = false;
+        let faseCompleta = false;
+        let pulando = false;
+        let inicioPulo = 0;
+        const DURACAO_PULO = 450;
+        
+        let timerInterval = null;
+        let animFrame = null;
+
+        const RAIO = 20;
+        const CHAO_INICIAL = 1200;
+        const LARGURA = 600;
+        const ALTURA_PADRAO = 200;
+        const ALTURA_TELA = 600;
+
+        // ===========================================
+        // FUNÇÕES DE LOADING
+        // ===========================================
+        async function showLoading(message = 'CARREGANDO...', duration = 2000) {
+            return new Promise((resolve) => {
+                const container = document.getElementById('loadingContainer');
+                const text = document.getElementById('loadingText');
+
+                text.textContent = message;
+                container.classList.add('active');
+
+                setTimeout(() => {
+                    container.classList.remove('active');
+                    resolve();
+                }, duration);
+            });
+        }
+
+        // ===========================================
+        // FUNÇÕES DOS MODAIS
+        // ===========================================
+        function closeIntro() {
+            document.getElementById('introOverlay').classList.remove('active');
+            document.getElementById('modalIntro').classList.remove('active');
+            showPhaseModal(0);
+        }
+
+        function showPhaseModal(phaseIndex) {
+            gameState.state.currentPhase = phaseIndex;
+            const phase = PHASES[phaseIndex];
+
+            document.getElementById('phaseModalTitle').textContent = `FASE ${phase.phase} - ${phase.name}`;
+            document.getElementById('phaseDescription').textContent = phase.descricao;
+            document.getElementById('phaseRequiredHeists').textContent = phase.andares;
+            document.getElementById('phaseEnergy').textContent = phase.guardas;
+            document.getElementById('phaseBonus').textContent = phase.lasersMoveis;
+            document.getElementById('phaseTime').textContent = phase.tempo + 's';
+
+            // Preview da fase
+            document.getElementById('villainPreview').innerHTML = `
+                <div class="villain-preview-icon">🐱</div>
+                <div class="villain-preview-info">
+                    <div class="villain-preview-name">FASE ${phase.phase} <small>${phase.name}</small></div>
+                    <div class="villain-preview-stats">
+                        <div>🏢 ${phase.andares}</div>
+                        <div>👮 ${phase.guardas}</div>
+                        <div>🔴 ${phase.lasersMoveis}</div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('phaseOverlay').classList.add('active');
+            document.getElementById('modalPhase').classList.add('active');
+        }
+
+        function closePhaseModal() {
+            document.getElementById('phaseOverlay').classList.remove('active');
+            document.getElementById('modalPhase').classList.remove('active');
+        }
+
+        async function startPhase() {
+            closePhaseModal();
+
+            // Mostra loading antes de iniciar a fase
+            await showLoading('PREPARANDO PARKOUR...', 2000);
+
+            startGamePhase();
+        }
+
+        function startGamePhase() {
+            gameState.state.gameActive = true;
+            faseAtual = gameState.state.currentPhase;
+            document.getElementById('gamePhase').textContent = faseAtual + 1;
+            
+            // Inicializa o jogo com a fase atual
+            carregarFase();
+        }
+
+        function showResultModal(victory) {
+            const phase = PHASES[gameState.state.currentPhase];
+            const title = victory ? 'VITÓRIA!' : 'DERROTA';
+            const icon = victory ? '🏆' : '💀';
+            const message = victory ?
+                `Fase ${phase.phase} concluída! Você chegou ao topo!` :
+                'Fase falhou... Tente novamente.';
+
+            document.getElementById('resultTitle').textContent = title;
+            document.getElementById('resultIcon').textContent = icon;
+            document.getElementById('resultMessage').textContent = message;
+            document.getElementById('resultScore').textContent = diamantes;
+            document.getElementById('resultHeists').textContent = moedas;
+            document.getElementById('resultSuccessRate').textContent = vidas;
+
+            document.getElementById('resultOverlay').classList.add('active');
+            document.getElementById('modalResult').classList.add('active');
+        }
+
+        function closeResultModal() {
+            document.getElementById('resultOverlay').classList.remove('active');
+            document.getElementById('modalResult').classList.remove('active');
+        }
+
+        // ===== FUNÇÃO PARA ADICIONAR PONTOS AO SISTEMA GLOBAL =====
+        function addToGlobalPoints(p) {
+            if (window.ArkhamCore && typeof ArkhamCore.addPoints === 'function') {
+                ArkhamCore.addPoints(p, 'mulhergato');
+            } else {
+                console.warn("ArkhamCore não encontrado, salvando pontos localmente.");
+                const cur = parseInt(localStorage.getItem('batmanPoints') || '0', 10);
+                localStorage.setItem('batmanPoints', (cur + p).toString());
+            }
+            if (typeof updatePointsDisplay === 'function') {
+                updatePointsDisplay();
+            } else {
+                const pointsDisplay = document.getElementById('pointsDisplay');
+                if (pointsDisplay) {
+                    let totalScore = gameState.player?.totalScore || 0;
+                    pointsDisplay.textContent = `💰 ${totalScore}`;
+                }
+            }
+        }
+
+        async function nextPhase() {
+            closeResultModal();
+
+            // Adiciona a pontuação da fase ao total global
+            let pontosFase = (diamantes * 500) + (moedas * 10);
+            gameState.player.totalScore += pontosFase;
+
+            if (window.ArkhamCore) {
+                ArkhamCore.addPoints(pontosFase, 'mulhergato');
+                ArkhamCore.registerPhaseCompletion('mulhergato');
+            } else {
+                const cur = parseInt(localStorage.getItem('batmanPoints') || '0', 10);
+                localStorage.setItem('batmanPoints', (cur + pontosFase).toString());
+            }
+
+            gameState.state.phasesCompleted[gameState.state.currentPhase] = true;
+            updatePointsDisplay();
+
+            if (gameState.state.currentPhase < PHASES.length - 1) {
+                gameState.state.currentPhase++;
+                gameState.player.phase = gameState.state.currentPhase + 1;
+                document.getElementById('gamePhase').textContent = gameState.state.currentPhase + 1;
+                await showLoading('PREPARANDO PRÓXIMA FASE...', 1500);
+                showPhaseModal(gameState.state.currentPhase);
+            } else {
+                await showLoading('VITÓRIA! CARREGANDO RESULTADO...', 2000);
+                showFinalVictory();
+            }
+        }
+
+        function showGameOver(message) {
+            document.getElementById('gameOverMessage').textContent = message;
+
+            document.getElementById('gameOverStats').innerHTML = `
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">💎 Diamantes:</span>
+                    <span class="modal-stat-value">${diamantes}</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">🪙 Moedas:</span>
+                    <span class="modal-stat-value">${moedas}</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">🏢 Andar atual:</span>
+                    <span class="modal-stat-value">${andarAtual}</span>
+                </div>
+            `;
+
+            document.getElementById('gameOverOverlay').classList.add('active');
+            document.getElementById('modalGameOver').classList.add('active');
+        }
+
+        function closeGameOver() {
+            document.getElementById('gameOverOverlay').classList.remove('active');
+            document.getElementById('modalGameOver').classList.remove('active');
+        }
+
+        async function retryPhase() {
+            closeGameOver();
+
+            // Mostra loading antes de tentar novamente
+            await showLoading('REINICIANDO FASE...', 1500);
+
+            showPhaseModal(gameState.state.currentPhase);
+        }
+
+        function showFinalVictory() {
+            document.getElementById('finalVictoryStats').innerHTML = `
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">🏆 Pontuação Total:</span>
+                    <span class="modal-stat-value success">${gameState.player.totalScore}</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">⭐ Título:</span>
+                    <span class="modal-stat-value">A MESTRA DO PARKOUR</span>
+                </div>
+            `;
+
+            document.getElementById('finalVictoryOverlay').classList.add('active');
+            document.getElementById('modalFinalVictory').classList.add('active');
+        }
+
+        function closeFinalVictory() {
+            document.getElementById('finalVictoryOverlay').classList.remove('active');
+            document.getElementById('modalFinalVictory').classList.remove('active');
+        }
+
+        async function restartGame() {
+            closeFinalVictory();
+
+            // Mostra loading antes de reiniciar
+            await showLoading('REINICIANDO OPERAÇÃO...', 1500);
+
+            gameState.state.currentPhase = 0;
+            gameState.player.phase = 1;
+            gameState.player.totalScore = 0;
+            gameState.state.phasesCompleted = [false, false, false, false, false];
+            document.getElementById('gamePhase').textContent = 1;
+            updatePointsDisplay();
+            showPhaseModal(0);
+        }
+
+        function startGame() {
+            closeIntro();
+            showPhaseModal(0);
+        }
+
+        // ===========================================
+        // FUNÇÕES DO JOGO PARKOUR
+        // ===========================================
+        function carregarFase() {
+            const cfg = PHASES[faseAtual];
+            andarAtual = 0;
+            posX = 300;
+            posY = CHAO_INICIAL;
+            destinoX = 300;
+            destinoY = CHAO_INICIAL;
+            cameraY = posY - 300;
+            tempo = cfg.tempo;
+            
+            gameOver = false;
+            vitoria = false;
+            faseCompleta = false;
+            pulando = false;
+            vidas = 3;
+            moedas = 0;
+            diamantes = 0;
+
+            // Atualizar cor da borda
+            if (gameContainer) {
+                gameContainer.style.borderColor = cfg.cor;
+            }
+
+            // MOEDAS - posicionadas ACIMA da linha do andar
+            moedasNoJogo = [];
+            for (let a = 1; a <= cfg.andares; a++) {
+                let y = CHAO_INICIAL - a * ALTURA_PADRAO - 20; // 20px ACIMA da linha
+                let qtdMoedas = 4 + Math.floor(Math.random() * 3);
+                for (let i = 0; i < qtdMoedas; i++) {
+                    moedasNoJogo.push({
+                        x: 80 + Math.random() * 440,
+                        y: y,
+                        andar: a,
+                        coletada: false
+                    });
+                }
+            }
+
+            // DIAMANTE NO TOPO
+            let yTopo = CHAO_INICIAL - cfg.andares * ALTURA_PADRAO - 30;
+            diamanteTopo = {
+                x: 300,
+                y: yTopo,
+                andar: cfg.andares,
+                coletado: false
+            };
+
+            // GUARDAS
+            guardas = [];
+            for (let i = 0; i < cfg.guardas; i++) {
+                let andar = 1 + Math.floor(Math.random() * cfg.andares);
+                guardas.push({
+                    x: 200 + Math.random() * 200,
+                    andar: andar,
+                    dir: Math.random() > 0.5 ? 1 : -1,
+                    vel: cfg.velocidade * (0.8 + Math.random() * 0.6)
+                });
+            }
+
+            // LASERS
+            lasersMoveis = [];
+            let andaresDisponiveis = [];
+            for (let a = 2; a <= cfg.andares - 1; a++) {
+                andaresDisponiveis.push(a);
+            }
+            
+            andaresDisponiveis.sort(() => Math.random() - 0.5);
+            
+            for (let i = 0; i < Math.min(cfg.lasersMoveis, andaresDisponiveis.length); i++) {
+                let andar = andaresDisponiveis[i];
+                let yAndarCima = CHAO_INICIAL - (andar + 1) * ALTURA_PADRAO;
+                let yLaser = yAndarCima + 40;
+                
+                lasersMoveis.push({
+                    x: 150 + Math.random() * 300,
+                    y: yLaser,
+                    andar: andar,
+                    direcao: Math.random() > 0.5 ? 1 : -1,
+                    velocidade: 2 + Math.random() * 3,
+                    raio: 14,
+                    limiteEsquerdo: 40,
+                    limiteDireito: 560,
+                    ativo: true,
+                    canto: Math.random() > 0.5 ? 'esquerdo' : 'direito'
+                });
+            }
+
+            atualizarDisplay();
+            iniciarTimer();
+        }
+
+        function iniciarTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (!gameOver && !vitoria && !faseCompleta) {
+                    tempo = Math.max(0, tempo - 1);
+                    atualizarDisplay();
+                    if (tempo <= 0) {
+                        gameOver = true;
+                        clearInterval(timerInterval);
+                        showGameOver('Tempo esgotado!');
+                    }
+                }
+            }, 1000);
+        }
+
+        function atualizarDisplay() {
+            document.getElementById('vidasDisplay').textContent = vidas;
+            document.getElementById('moedasDisplay').textContent = moedas;
+            document.getElementById('diamantesDisplay').textContent = diamantes;
+            document.getElementById('timerDisplay').textContent = tempo.toString().padStart(2, '0');
+            document.getElementById('faseDisplay').textContent = `FASE ${faseAtual+1}/5 - ${PHASES[faseAtual].name}`;
+            document.getElementById('lootValue').textContent = gameState.player.totalScore;
+            
+            const actionBtn = document.getElementById('actionBtn');
+            if (faseAtual === 4) {
+                actionBtn.innerHTML = '<span><i class="fas fa-trophy"></i> FINAL</span>';
+            } else {
+                actionBtn.innerHTML = '<span><i class="fas fa-forward"></i> PRÓXIMO</span>';
+            }
+        }
+
+        function tentarMovimento(dx, dy) {
+            if (gameOver || vitoria || faseCompleta || pulando) return;
+
+            const cfg = PHASES[faseAtual];
+            let novoAndar = andarAtual;
+            
+            if (dy === -1) novoAndar = andarAtual + 1;
+            else if (dy === 1) novoAndar = andarAtual - 1;
+
+            if (novoAndar < 0 || novoAndar > cfg.andares) return;
+
+            let alvoX = posX + dx * 90;
+            let alvoY = CHAO_INICIAL - novoAndar * ALTURA_PADRAO;
+
+            if (alvoX - RAIO < 10) alvoX = RAIO + 10;
+            if (alvoX + RAIO > LARGURA - 10) alvoX = LARGURA - RAIO - 10;
+
+            pulando = true;
+            destinoX = alvoX;
+            destinoY = alvoY;
+            inicioPulo = performance.now();
+            andarAtual = novoAndar;
+        }
+
+        function atualizarPulo(agora) {
+            if (!pulando) return;
+            let t = (agora - inicioPulo) / DURACAO_PULO;
+            if (t >= 1) {
+                posX = destinoX;
+                posY = destinoY;
+                pulando = false;
+            } else {
+                let alturaArco = Math.sin(t * Math.PI) * 60;
+                posX = posX + (destinoX - posX) * t;
+                posY = posY + (destinoY - posY) * t - alturaArco;
+            }
+            
+            let targetCameraY = posY - 300;
+            cameraY += (targetCameraY - cameraY) * 0.1;
+            
+            let maxCameraY = CHAO_INICIAL - 100;
+            let minCameraY = -1000;
+            cameraY = Math.max(minCameraY, Math.min(maxCameraY, cameraY));
+        }
+
+        function moverGuardas() {
+            guardas.forEach(g => {
+                g.x += g.dir * g.vel;
+                if (g.x < 50) { g.x = 50; g.dir *= -1; }
+                if (g.x > LARGURA - 50) { g.x = LARGURA - 50; g.dir *= -1; }
+            });
+        }
+
+        function moverLasers() {
+            lasersMoveis.forEach(laser => {
+                laser.x += laser.direcao * laser.velocidade;
+                
+                if (laser.x > laser.limiteDireito) {
+                    laser.x = laser.limiteDireito;
+                    laser.direcao *= -1;
+                } else if (laser.x < laser.limiteEsquerdo) {
+                    laser.x = laser.limiteEsquerdo;
+                    laser.direcao *= -1;
+                }
+            });
+        }
+
+        function coletarMoedas() {
+            moedasNoJogo.forEach(m => {
+                if (!m.coletada && m.andar === andarAtual) {
+                    let dx = m.x - posX;
+                    let dy = m.y - posY;
+                    if (Math.sqrt(dx*dx + dy*dy) < RAIO + 15) {
+                        m.coletada = true;
+                        moedas++;
+                        tempo = Math.min(tempo + 2, 99);
+                        atualizarDisplay();
+                    }
+                }
+            });
+        }
+
+        function coletarDiamante() {
+            if (diamanteTopo && !diamanteTopo.coletado && diamanteTopo.andar === andarAtual) {
+                let dx = diamanteTopo.x - posX;
+                let dy = diamanteTopo.y - posY;
+                if (Math.sqrt(dx*dx + dy*dy) < RAIO + 30) {
+                    diamanteTopo.coletado = true;
+                    diamantes++;
+                    tempo = Math.min(tempo + 35, 99);
+                    atualizarDisplay();
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function verificarColisaoGuardas() {
+            for (let g of guardas) {
+                if (g.andar === andarAtual) {
+                    let guardaY = CHAO_INICIAL - g.andar * ALTURA_PADRAO;
+                    let dx = g.x - posX;
+                    let dy = guardaY - posY;
+                    if (Math.sqrt(dx*dx + dy*dy) < RAIO + 20) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        function verificarColisaoLasers() {
+            for (let laser of lasersMoveis) {
+                if (laser.andar === andarAtual && laser.ativo) {
+                    let dx = laser.x - posX;
+                    let dy = laser.y - posY;
+                    if (Math.sqrt(dx*dx + dy*dy) < RAIO + laser.raio) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        function verificarDano() {
+            if (verificarColisaoGuardas() || verificarColisaoLasers()) {
+                vidas--;
+                
+                posX = 300;
+                posY = CHAO_INICIAL - andarAtual * ALTURA_PADRAO;
+                destinoX = posX;
+                destinoY = posY;
+                
+                atualizarDisplay();
+                
+                if (vidas <= 0) {
+                    gameOver = true;
+                    clearInterval(timerInterval);
+                    showGameOver('Suas vidas acabaram!');
+                }
+            }
+        }
+
+        function verificarVitoria() {
+            const cfg = PHASES[faseAtual];
+            
+            if (andarAtual === cfg.andares && diamanteTopo && diamanteTopo.coletado && !vitoria && !faseCompleta) {
+                faseCompleta = true;
+                clearInterval(timerInterval);
+                
+                tempo = Math.min(tempo + 45, 99);
+                atualizarDisplay();
+                
+                if (faseAtual === 4) {
+                    vitoria = true;
+                }
+                
+                showResultModal(true);
+            }
+        }
+
+        function desenhar() {
+            ctx.clearRect(0, 0, 600, 600);
+            const cfg = PHASES[faseAtual];
+
+            // Fundo escuro
+            ctx.fillStyle = '#0a1a2a';
+            ctx.fillRect(0, 0, 600, 600);
+
+            // PAREDES LATERAIS
+            ctx.fillStyle = '#2a3a44';
+            ctx.fillRect(0, 0, 30, 600);
+            ctx.fillRect(570, 0, 30, 600);
+            
+            // Textura das paredes
+            ctx.strokeStyle = '#4a6a7a';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < 20; i++) {
+                ctx.beginPath();
+                ctx.moveTo(15, i * 30 - cameraY % 30);
+                ctx.lineTo(25, i * 30 - cameraY % 30);
+                ctx.strokeStyle = '#5a7a8a';
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(575, i * 30 - cameraY % 30);
+                ctx.lineTo(585, i * 30 - cameraY % 30);
+                ctx.stroke();
+            }
+
+            // ANDARES
+            ctx.lineWidth = 6;
+            for (let a = 0; a <= cfg.andares; a++) {
+                let y = CHAO_INICIAL - a * ALTURA_PADRAO - cameraY;
+                
+                if (y > -100 && y < 700) {
+                    // Linha do chão
+                    ctx.beginPath();
+                    ctx.moveTo(35, y);
+                    ctx.lineTo(565, y);
+                    ctx.strokeStyle = a === 0 ? '#8B7355' : '#5a8a9f';
+                    ctx.lineWidth = a === 0 ? 10 : 8;
+                    ctx.stroke();
+                    
+                    // Sombra da linha
+                    ctx.beginPath();
+                    ctx.moveTo(35, y+2);
+                    ctx.lineTo(565, y+2);
+                    ctx.strokeStyle = '#ffffff22';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                    
+                    // Número do andar
+                    if (a > 0) {
+                        ctx.fillStyle = '#ffd966';
+                        ctx.font = 'bold 18px monospace';
+                        ctx.fillText(a + 'º ANDAR', 50, y-50);
+                        
+                        // TETO da sala
+                        ctx.beginPath();
+                        ctx.moveTo(35, y - ALTURA_PADRAO);
+                        ctx.lineTo(565, y - ALTURA_PADRAO);
+                        ctx.strokeStyle = '#3a5a6a';
+                        ctx.lineWidth = 4;
+                        ctx.stroke();
+                        
+                        // Preenchimento da parede
+                        ctx.fillStyle = '#1a2a33';
+                        ctx.globalAlpha = 0.3;
+                        ctx.fillRect(35, y - ALTURA_PADRAO + 2, 530, ALTURA_PADRAO - 4);
+                        ctx.globalAlpha = 1;
+                    }
+                }
+            }
+
+            // MOEDAS - APENAS EMOJI
+            moedasNoJogo.forEach(m => {
+                if (!m.coletada) {
+                    let y = m.y - cameraY;
+                    if (y > -40 && y < 640) {
+                        ctx.shadowBlur = 15;
+                        ctx.shadowColor = '#f0b000';
+                        ctx.font = '28px "Segoe UI", "Arial", sans-serif';
+                        ctx.fillStyle = '#f7d44a';
+                        ctx.fillText('🪙', m.x-14, y+8);
+                        ctx.shadowBlur = 0;
+                    }
+                }
+            });
+
+            // DIAMANTE - APENAS EMOJI
+            if (diamanteTopo && !diamanteTopo.coletado) {
+                let y = diamanteTopo.y - cameraY;
+                if (y > -50 && y < 650) {
+                    ctx.shadowBlur = 25;
+                    ctx.shadowColor = '#00ffff';
+                    ctx.font = '40px "Segoe UI", "Arial", sans-serif';
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillText('💎', diamanteTopo.x-22, y+10);
+                    ctx.shadowBlur = 0;
+                }
+            }
+
+            // GUARDAS - APENAS EMOJI
+            guardas.forEach(g => {
+                let guardaY = CHAO_INICIAL - g.andar * ALTURA_PADRAO - cameraY;
+                if (guardaY > -40 && guardaY < 640) {
+                    ctx.shadowBlur = 12;
+                    ctx.shadowColor = '#ff0000';
+                    ctx.font = '36px "Segoe UI", "Arial", sans-serif';
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillText('👮', g.x-18, guardaY+8);
+                    ctx.shadowBlur = 0;
+                }
+            });
+
+            // LASERS
+            lasersMoveis.forEach(laser => {
+                if (laser.ativo) {
+                    let y = laser.y - cameraY;
+                    if (y > -40 && y < 640) {
+                        
+                        let tetoX, tetoY;
+                        let linhaAndarCima = CHAO_INICIAL - (laser.andar + 1) * ALTURA_PADRAO - cameraY;
+                        
+                        if (laser.canto === 'esquerdo') {
+                            tetoX = 40;
+                            tetoY = linhaAndarCima;
+                        } else {
+                            tetoX = 560;
+                            tetoY = linhaAndarCima;
+                        }
+                        
+                        ctx.shadowBlur = 20;
+                        ctx.shadowColor = '#ff0000';
+                        ctx.beginPath();
+                        ctx.setLineDash([5, 5]);
+                        ctx.moveTo(laser.x, y);
+                        ctx.lineTo(tetoX, tetoY);
+                        ctx.strokeStyle = '#ff5555';
+                        ctx.lineWidth = 4;
+                        ctx.stroke();
+                        
+                        ctx.setLineDash([]);
+                        ctx.shadowBlur = 25;
+                        ctx.beginPath();
+                        ctx.arc(laser.x, y, laser.raio-2, 0, 2 * Math.PI);
+                        ctx.fillStyle = '#ff3333';
+                        ctx.fill();
+                        
+                        ctx.beginPath();
+                        ctx.arc(tetoX, tetoY, 8, 0, 2 * Math.PI);
+                        ctx.fillStyle = '#ff5555';
+                        ctx.fill();
+                        
+                        ctx.shadowBlur = 0;
+                    }
+                }
+            });
+
+            // GATO - APENAS EMOJI
+            let playerScreenY = posY - cameraY;
+            
+            ctx.shadowBlur = 20;
+            ctx.shadowColor = '#ffaa00';
+            ctx.font = '48px "Segoe UI", "Arial", sans-serif';
+            ctx.fillStyle = '#ffffff';
+            ctx.fillText('🐱', posX-22, playerScreenY+10);
+            ctx.shadowBlur = 0;
+
+            // Mensagens
+            if (gameOver) {
+                ctx.fillStyle = '#000000cc';
+                ctx.fillRect(0, 0, 600, 600);
+                ctx.fillStyle = '#ffcccc';
+                ctx.font = 'bold 40px monospace';
+                ctx.fillText('GAME OVER', 140, 300);
+            } else if (vitoria) {
+                ctx.fillStyle = '#1b4d3dd9';
+                ctx.fillRect(0, 0, 600, 600);
+                ctx.fillStyle = '#fef7ac';
+                ctx.font = 'bold 36px monospace';
+                ctx.fillText('VITÓRIA TOTAL!', 120, 300);
+            } else if (faseCompleta && faseAtual < 4) {
+                ctx.fillStyle = '#1b4d3dd9';
+                ctx.fillRect(0, 0, 600, 600);
+                ctx.fillStyle = '#fef7ac';
+                ctx.font = 'bold 32px monospace';
+                ctx.fillText('FASE CONCLUÍDA!', 120, 280);
+                ctx.font = 'bold 20px monospace';
+                ctx.fillText('Clique PRÓXIMO para avançar', 120, 350);
+            }
+        }
+
+        function loop(agora) {
+            if (!gameOver && !vitoria && !faseCompleta) {
+                moverGuardas();
+                moverLasers();
+                if (pulando) atualizarPulo(agora);
+                coletarMoedas();
+                coletarDiamante();
+                verificarDano();
+                verificarVitoria();
+            }
+            desenhar();
+            animFrame = requestAnimationFrame(loop);
+        }
+
+        function init() {
+            canvas = document.getElementById('gameCanvas');
+            ctx = canvas.getContext('2d');
+            gameContainer = document.getElementById('gameContainer');
+            
+            canvas.addEventListener('click', (e) => {
+                if (gameOver || vitoria || faseCompleta || pulando) return;
+                
+                let rect = canvas.getBoundingClientRect();
+                let scaleX = canvas.width / rect.width;
+                let scaleY = canvas.height / rect.height;
+                let mouseX = (e.clientX - rect.left) * scaleX;
+                let mouseY = (e.clientY - rect.top) * scaleY;
+
+                let dx = mouseX - posX;
+                let dy = mouseY - (posY - cameraY);
+                let limiar = 35;
+
+                if (dx > limiar && dy < -limiar) tentarMovimento(1, -1);
+                else if (dx < -limiar && dy < -limiar) tentarMovimento(-1, -1);
+                else if (dx > limiar && dy > limiar) tentarMovimento(1, 1);
+                else if (dx < -limiar && dy > limiar) tentarMovimento(-1, 1);
+                else if (dy < -limiar) tentarMovimento(0, -1);
+                else if (dy > limiar) tentarMovimento(0, 1);
+                else if (dx > limiar) tentarMovimento(1, 0);
+                else if (dx < -limiar) tentarMovimento(-1, 0);
+            });
+
+            document.getElementById('actionBtn').addEventListener('click', () => {
+                if (gameOver) {
+                    iniciarJogo();
+                } else if (faseCompleta) {
+                    nextPhase();
+                } else if (vitoria) {
+                    iniciarJogo();
+                } else {
+                    carregarFase();
+                }
+            });
+
+            loadGameState();
+            loop();
+        }
+
+        function updatePointsDisplay() {
+            document.getElementById('pointsDisplay').textContent = `💰 ${gameState.player.totalScore}`;
+        }
+
+        function loadGameState() {
+            const saved = localStorage.getItem('catwomanState');
+            if (saved) {
+                try {
+                    const state = JSON.parse(saved);
+                    if ((Date.now() - state.timestamp) < 86400000) {
+                        gameState.player.totalScore = state.loot || 0;
+                        gameState.player.phase = state.level || 1;
+                    }
+                } catch (e) { }
+            }
+            updatePointsDisplay();
+        }
+
+        function iniciarJogo() {
+            faseAtual = 0;
+            vidas = 3;
+            moedas = 0;
+            diamantes = 0;
+            gameState.state.currentPhase = 0;
+            gameState.player.phase = 1;
+            document.getElementById('gamePhase').textContent = 1;
+            carregarFase();
+        }
+
+        // Inicializar
+        window.addEventListener('DOMContentLoaded', () => {
+            init();
+            // O modal de introdução já tem a classe 'active' no HTML
+            document.getElementById('introOverlay').classList.add('active');
+        });
+    </script>
+</body>
+
+</html>

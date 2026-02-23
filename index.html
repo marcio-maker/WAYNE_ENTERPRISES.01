@@ -1,0 +1,1657 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description"
+        content="Bat-Sinal + Gotham Skyline + Chat Arrastável LIVRE (qualquer direção) + Logo PNG Oficial">
+    <title>Bat-Sinal | Gotham City | FINAL</title>
+
+    <style>
+        /* ===== FUNDAÇÃO COMPLETA - 100% INTACTA ===== */
+        :root {
+            --primary-color: rgba(120, 160, 255, 0.9);
+            --secondary-color: rgba(30, 50, 150, 0.1);
+            --bg-dark: #050510;
+            --bg-darker: #020208;
+            --building-color: #0f1118;
+            --window-color: #2a3a5a;
+            --window-glow: #4a6fa5;
+            --building-dark: #090c12;
+            --building-medium: #121622;
+            --building-light: #1a2030;
+            --gothic-purple: #2a1e5c;
+            --gothic-blue: #1a2342;
+            --rain-color: rgba(180, 200, 255, 0.1);
+            --brick-red: #3a2525;
+            --industrial-gray: #2a2a30;
+            --whatsapp-dark: rgba(13, 20, 24, 0.92);
+            --whatsapp-darker: rgba(9, 14, 17, 0.95);
+            --batman-yellow: #f5c518;
+            --alfred-green: #2ecc71;
+            --text-light: #f0f0f0;
+            --text-muted: #a0a0a0;
+            --unread-indicator: #ff4757;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            touch-action: none;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            overflow: hidden;
+            height: 100vh;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            transition: opacity 0.3s ease;
+            touch-action: none;
+        }
+
+        .container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            isolation: isolate;
+        }
+
+        /* ===== CÉU CINEMATOGRÁFICO ===== */
+        .night-sky {
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 30% 20%, rgba(26, 35, 66, 0.8) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 30%, rgba(42, 30, 92, 0.6) 0%, transparent 50%),
+                linear-gradient(to bottom, #020308 0%, #0a0a1a 30%, #1a1b2e 100%);
+            z-index: 1;
+        }
+
+        /* ===== ESTRELAS COM PARALLAX ===== */
+        .stars-layer {
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            will-change: transform;
+        }
+
+        .stars {
+            position: absolute;
+            inset: 0;
+        }
+
+        .star {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            animation: twinkle 4s infinite;
+        }
+
+        .star.small {
+            width: 1.5px;
+            height: 1.5px;
+        }
+
+        .star.medium {
+            width: 2.5px;
+            height: 2.5px;
+        }
+
+        .star.large {
+            width: 4px;
+            height: 4px;
+        }
+
+        /* ===== NUVENS COM PARALLAX ===== */
+        .cloud {
+            position: absolute;
+            background-color: rgba(30, 45, 70, 0.5);
+            border-radius: 50%;
+            filter: blur(40px);
+            z-index: 3;
+            will-change: transform;
+        }
+
+        .cloud1 {
+            width: 350px;
+            height: 120px;
+            top: 60px;
+            left: 5%;
+        }
+
+        .cloud2 {
+            width: 450px;
+            height: 140px;
+            top: 120px;
+            right: 2%;
+        }
+
+        .cloud3 {
+            width: 300px;
+            height: 100px;
+            top: 200px;
+            left: 15%;
+            animation: cloud-drift 50s linear infinite;
+        }
+
+        /* ===== CHUVA ATMOSFÉRICA ===== */
+        .rain-container {
+            position: absolute;
+            inset: 0;
+            z-index: 3;
+            pointer-events: none;
+        }
+
+        .rain-drop {
+            position: absolute;
+            width: 1.2px;
+            height: 25px;
+            background: linear-gradient(to bottom, transparent, rgba(180, 220, 255, 0.2) 50%, transparent);
+            animation: rain-fall linear infinite;
+        }
+
+        /* ===== FUMO/GÁS ===== */
+        .smoke-container {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 300px;
+            z-index: 8;
+            pointer-events: none;
+        }
+
+        .smoke {
+            position: absolute;
+            bottom: 0;
+            width: 220px;
+            height: 120px;
+            background: radial-gradient(ellipse at center, rgba(40, 60, 100, 0.25) 0%, transparent 80%);
+            filter: blur(35px);
+            animation: smoke-rise 20s linear infinite;
+        }
+
+        /* ===== BAT-SINAL - FEIXE COM MOVIMENTO AUTOMÁTICO ===== */
+        .signal-beam {
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: min(500px, 85vw);
+            height: calc(100vh - 180px);
+            background: linear-gradient(to top,
+                    transparent 0%,
+                    rgba(30, 50, 150, 0.15) 10%,
+                    rgba(70, 100, 200, 0.5) 30%,
+                    rgba(120, 160, 255, 0.8) 60%,
+                    rgba(255, 255, 255, 1) 80%,
+                    rgba(255, 255, 255, 0) 95%);
+            clip-path: polygon(20% 0%, 80% 0%, 60% 100%, 40% 100%);
+            filter: blur(20px);
+            z-index: 4;
+            pointer-events: none;
+            opacity: 0;
+            animation:
+                beam-expand 3s ease-out forwards,
+                beam-pulse 2.5s 3s infinite alternate,
+                beam-sway 14s 3s ease-in-out infinite;
+        }
+
+        /* ===== LOGO DO BATMAN NO TOPO DO FEIXE - PNG OFICIAL ===== */
+        .logo-container {
+            position: absolute;
+            bottom: calc(100vh - 180px);
+            left: 50%;
+            transform: translateX(-50%);
+            width: min(140px, 30vw);
+            height: auto;
+            aspect-ratio: 1/1;
+            z-index: 5;
+            pointer-events: none;
+            opacity: 0;
+            animation:
+                logo-reveal 3s ease-out forwards,
+                logo-sway 14s 3s ease-in-out infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .bat-logo {
+            width: 100%;
+            height: 100%;
+            background-image: url("https://i.ibb.co/4T7M5Hh/baixados.png");
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-color: transparent;
+            filter:
+                drop-shadow(0 0 15px rgba(255, 255, 255, 0.9)) drop-shadow(0 0 30px rgba(120, 160, 255, 0.8)) drop-shadow(0 0 60px rgba(120, 160, 255, 0.6));
+            transform: scale(0.3);
+            animation: logo-grow 2.5s ease-out forwards;
+        }
+
+        .bat-logo.image-error {
+            background-image: url("https://i.ibb.co/4T7M5Hh/baixados.png") !important;
+        }
+
+        .bat-logo.image-error::after {
+            content: "🦇";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 48px;
+            color: white;
+            opacity: 1;
+            filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.9));
+            z-index: 1;
+            display: none;
+        }
+
+        .signal-source {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 85px;
+            height: 65px;
+            background-color: #0a0a12;
+            border-radius: 10px 10px 0 0;
+            z-index: 6;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.9);
+        }
+
+        .signal-source::before {
+            content: "";
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 55px;
+            height: 18px;
+            background-color: #1a1a2a;
+            border-radius: 5px;
+        }
+
+        /* ===== GOTHAM CITY - ULTRA DENSAMENTE POPULADA (40 PRÉDIOS) ===== */
+        .city-container {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 450px;
+            z-index: 7;
+            background: linear-gradient(to top, rgba(4, 8, 20, 0.95) 0%, transparent 100%);
+            overflow: hidden;
+        }
+
+        .skyline {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            padding: 0 1%;
+            gap: 4px;
+        }
+
+        .building {
+            position: relative;
+            flex-shrink: 0;
+            border-radius: 4px 4px 0 0;
+            box-shadow:
+                inset 0 0 30px rgba(0, 0, 0, 0.8),
+                inset 0 0 60px rgba(0, 0, 0, 0.4),
+                0 5px 25px rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border-left: 1px solid rgba(255, 255, 255, 0.02);
+            border-right: 1px solid rgba(255, 255, 255, 0.02);
+            border-bottom: 2px solid rgba(0, 0, 0, 0.8);
+            min-width: 18px;
+            transition: transform 0.2s ease;
+            cursor: pointer;
+        }
+
+        .building:hover {
+            transform: translateY(-3px);
+            z-index: 15;
+        }
+
+        .gothic-tower {
+            background: linear-gradient(135deg, #1a1542 0%, #2a1e5c 30%, #0d0a2a 70%, #050515 100%);
+            clip-path: polygon(50% 0%, 100% 15%, 100% 100%, 0 100%, 0 15%);
+        }
+
+        .modern-skyscraper {
+            background: linear-gradient(135deg, #1a2030 0%, #121622 50%, #090c12 100%);
+            border-left: 3px solid rgba(120, 160, 255, 0.1);
+            border-right: 3px solid rgba(120, 160, 255, 0.1);
+        }
+
+        .industrial-building {
+            background: linear-gradient(135deg, #2a2a30 0%, #222228 50%, #1a1a20 100%);
+        }
+
+        .brick-building {
+            background: repeating-linear-gradient(90deg, #3a2525, #3a2525 10px, #2a1a1a 10px, #2a1a1a 20px);
+        }
+
+        .art-deco {
+            background: linear-gradient(135deg, #2a2835 0%, #1a1825 50%, #0a0815 100%);
+        }
+
+        .clock-tower {
+            background: linear-gradient(135deg, #333244 0%, #2a2a3a 50%, #1a1a2a 100%);
+        }
+
+        .wayne-tower {
+            background: linear-gradient(135deg, #6b4e3a 0%, #5a3e2a 30%, #3e2a1a 70%, #2a1a0a 100%);
+            border-left: 3px solid rgba(200, 180, 100, 0.15);
+            border-right: 3px solid rgba(200, 180, 100, 0.15);
+        }
+
+        .gcpd-building {
+            background: linear-gradient(135deg, #0a0e1a 0%, #050815 50%, #020510 100%);
+            z-index: 10;
+            position: relative;
+        }
+
+        .gcpd-building::before {
+            content: 'GCPD';
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #4a6fa5;
+            font-size: 14px;
+            letter-spacing: 6px;
+            text-shadow: 0 0 10px rgba(74, 111, 165, 0.8);
+            font-weight: bold;
+            z-index: 4;
+            white-space: nowrap;
+        }
+
+        .tall-1 {
+            height: 400px;
+        }
+
+        .tall-2 {
+            height: 360px;
+        }
+
+        .tall-3 {
+            height: 330px;
+        }
+
+        .tall-4 {
+            height: 300px;
+        }
+
+        .tall-5 {
+            height: 270px;
+        }
+
+        .tall-6 {
+            height: 250px;
+        }
+
+        .tall-7 {
+            height: 230px;
+        }
+
+        .tall-8 {
+            height: 210px;
+        }
+
+        .tall-9 {
+            height: 190px;
+        }
+
+        .tall-10 {
+            height: 170px;
+        }
+
+        .tall-11 {
+            height: 150px;
+        }
+
+        .tall-12 {
+            height: 130px;
+        }
+
+        .wide-1 {
+            width: 70px;
+        }
+
+        .wide-2 {
+            width: 60px;
+        }
+
+        .wide-3 {
+            width: 52px;
+        }
+
+        .wide-4 {
+            width: 45px;
+        }
+
+        .wide-5 {
+            width: 40px;
+        }
+
+        .wide-6 {
+            width: 36px;
+        }
+
+        .wide-7 {
+            width: 32px;
+        }
+
+        .wide-8 {
+            width: 28px;
+        }
+
+        .wide-9 {
+            width: 25px;
+        }
+
+        .wide-10 {
+            width: 22px;
+        }
+
+        .wide-11 {
+            width: 20px;
+        }
+
+        .wide-12 {
+            width: 18px;
+        }
+
+        .window-row {
+            display: flex;
+            justify-content: space-around;
+            width: 90%;
+            margin: 4px 0;
+        }
+
+        .window {
+            width: 7px;
+            height: 11px;
+            background: linear-gradient(to bottom, #1a2438, #0d1525);
+            border-radius: 1.5px;
+            margin: 0 1px;
+            box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(0, 0, 0, 0.3);
+        }
+
+        .window.glow {
+            background: linear-gradient(to bottom, #3a5a8c, #2a4a7c);
+            box-shadow: 0 0 8px rgba(74, 111, 165, 0.8), 0 0 15px rgba(74, 111, 165, 0.4);
+            animation: window-glow 3s infinite alternate;
+        }
+
+        .with-spire::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 20px;
+            background: linear-gradient(to top, #666, #999);
+            z-index: 3;
+        }
+
+        .with-antenna::after {
+            content: '';
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 12px;
+            background: radial-gradient(circle at center, rgba(120, 160, 255, 0.9) 0%, rgba(120, 160, 255, 0.6) 30%, transparent 80%);
+            border-radius: 50%;
+            animation: antenna-glow 2s infinite alternate;
+            box-shadow: 0 0 20px rgba(120, 160, 255, 0.8);
+            z-index: 3;
+        }
+
+        .with-clock {
+            position: relative;
+        }
+
+        .with-clock::before {
+            content: '';
+            position: absolute;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 28px;
+            height: 28px;
+            background: #cc9933;
+            border-radius: 50%;
+            box-shadow: 0 0 15px #ffaa33;
+            z-index: 3;
+        }
+
+        .with-clock::after {
+            content: '';
+            position: absolute;
+            top: 73px;
+            left: 50%;
+            width: 2px;
+            height: 10px;
+            background: #000;
+            transform-origin: bottom center;
+            animation: clock-rotate 60s linear infinite;
+            z-index: 4;
+        }
+
+        /* ===== PRÉDIOS DISTANTES COM PARALLAX ===== */
+        .distant-buildings {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 300px;
+            display: flex;
+            justify-content: center;
+            padding: 0 3%;
+            opacity: 0.6;
+            filter: blur(3px) brightness(0.6);
+            z-index: 6;
+            gap: 6px;
+            will-change: transform;
+        }
+
+        .distant-building {
+            background: linear-gradient(to bottom, rgba(20, 30, 50, 0.95) 0%, rgba(10, 15, 30, 0.95) 100%);
+            border-radius: 3px 3px 0 0;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.7);
+        }
+
+        /* ===== CHAT ARRASTÁVEL - CORRIGIDO ===== */
+        .chat-container {
+            position: fixed;
+            width: 280px !important;
+            height: auto;
+            max-height: 400px;
+            background-color: var(--whatsapp-darker);
+            border-radius: 14px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            z-index: 1000;
+            opacity: 0;
+            animation: chat-appear 0.6s ease-out forwards;
+            animation-delay: 2s;
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(120, 160, 255, 0.2);
+            cursor: move;
+            touch-action: none;
+            user-select: none;
+            visibility: hidden;
+            right: 20px;
+            top: 20px;
+            left: auto;
+            will-change: left, top;
+            font-size: 13px;
+            line-height: 1.4;
+            word-wrap: break-word;
+            word-break: break-word;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-container.dragging {
+            cursor: grabbing !important;
+            opacity: 0.98;
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.7), 0 0 0 2px rgba(120, 160, 255, 0.4);
+            transition: none;
+        }
+
+        .drag-indicator {
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 5px;
+            background-color: rgba(120, 160, 255, 0.4);
+            border-radius: 3px;
+            z-index: 1001;
+            cursor: move;
+        }
+
+        .chat-container.dragging .drag-indicator {
+            background-color: rgba(120, 160, 255, 0.9);
+            width: 80px;
+            height: 6px;
+        }
+
+        .drag-side-left,
+        .drag-side-right {
+            position: absolute;
+            top: 0;
+            width: 45px;
+            height: 100%;
+            cursor: move;
+            z-index: 999;
+        }
+
+        .drag-side-left {
+            left: 0;
+        }
+
+        .drag-side-right {
+            right: 0;
+        }
+
+        .chat-header {
+            background-color: var(--whatsapp-dark);
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            margin-top: 10px;
+            flex-shrink: 0;
+        }
+
+        .chat-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+            color: white;
+            border: 2px solid rgba(46, 204, 113, 0.3);
+            flex-shrink: 0;
+        }
+
+        .chat-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .chat-info h3 {
+            color: var(--text-light);
+            font-size: 14px;
+            margin-bottom: 4px;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .chat-info p {
+            color: var(--text-muted);
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .online-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #2ecc71;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+            flex-shrink: 0;
+        }
+
+        .unread-indicator {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: #ff4757;
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 10px rgba(255, 71, 87, 0.6);
+            flex-shrink: 0;
+        }
+
+        .chat-messages {
+            padding: 16px;
+            max-height: 280px;
+            overflow-y: auto;
+            background-color: var(--whatsapp-darker);
+            transition: max-height 0.3s ease, padding 0.3s ease;
+            -webkit-overflow-scrolling: touch;
+            word-wrap: break-word;
+            word-break: break-word;
+            line-height: 1.4;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(120, 160, 255, 0.3) transparent;
+            flex: 1;
+        }
+
+        .chat-messages::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: rgba(120, 160, 255, 0.3);
+            border-radius: 4px;
+        }
+
+        .chat-messages.collapsed {
+            max-height: 0;
+            padding: 0 16px;
+            visibility: hidden;
+        }
+
+        .message {
+            margin-bottom: 12px;
+            display: flex;
+            opacity: 0;
+            transform: translateY(8px);
+            animation: message-appear 0.4s forwards;
+            width: 100%;
+        }
+
+        .message.received {
+            justify-content: flex-start;
+        }
+
+        .message.sent {
+            justify-content: flex-end;
+        }
+
+        .message-content {
+            max-width: 85%;
+            padding: 8px 12px;
+            border-radius: 16px;
+            font-size: 13px;
+            word-wrap: break-word;
+            word-break: break-word;
+            line-height: 1.4;
+        }
+
+        .received .message-content {
+            background: linear-gradient(135deg, rgba(46, 204, 113, 0.2), rgba(39, 174, 96, 0.15));
+            border: 1px solid rgba(46, 204, 113, 0.3);
+            color: var(--text-light);
+            border-bottom-left-radius: 5px;
+        }
+
+        .sent .message-content {
+            background: linear-gradient(135deg, rgba(120, 160, 255, 0.2), rgba(100, 140, 235, 0.15));
+            border: 1px solid rgba(120, 160, 255, 0.3);
+            color: var(--text-light);
+            border-bottom-right-radius: 5px;
+        }
+
+        .message-time {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.4);
+            margin-top: 3px;
+            text-align: right;
+        }
+
+        .chat-footer {
+            padding: 14px 16px;
+            background-color: var(--whatsapp-dark);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .chat-footer.hidden {
+            opacity: 0;
+            height: 0;
+            padding: 0;
+            overflow: hidden;
+            border-top: none;
+            visibility: hidden;
+        }
+
+        .go-button {
+            background: linear-gradient(135deg, #f5c518, #d4a017);
+            color: #000;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(245, 197, 24, 0.4);
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .go-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .chat-controls {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            display: flex;
+            gap: 6px;
+            z-index: 1001;
+        }
+
+        .chat-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background-color: #ff4757;
+            color: white;
+            font-size: 9px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-buttons {
+            position: absolute;
+            right: 10px;
+            bottom: 10px;
+            display: flex;
+            gap: 6px;
+            z-index: 100;
+            opacity: 0;
+            animation: nav-buttons-appear 0.5s forwards;
+            animation-delay: 3s;
+        }
+
+        .nav-button {
+            background: rgba(30, 30, 40, 0.8);
+            border: 1px solid rgba(120, 160, 255, 0.3);
+            color: rgba(220, 220, 240, 0.9);
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 10px;
+            text-decoration: none;
+        }
+
+        /* ===== ANIMAÇÕES ===== */
+        @keyframes chat-appear {
+            0% {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes message-appear {
+            0% {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.7;
+                transform: scale(1.2);
+            }
+        }
+
+        @keyframes beam-expand {
+            0% {
+                clip-path: polygon(50% 0%, 50% 0%, 50% 100%, 50% 100%);
+                opacity: 0;
+            }
+
+            100% {
+                clip-path: polygon(35% 0%, 65% 0%, 60% 100%, 40% 100%);
+                opacity: 0.95;
+            }
+        }
+
+        @keyframes beam-pulse {
+            0% {
+                opacity: 0.8;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        @keyframes beam-sway {
+
+            0%,
+            100% {
+                left: 50%;
+                transform: translateX(-50%) rotate(0deg);
+            }
+
+            25% {
+                left: 48%;
+                transform: translateX(-50%) rotate(-1deg);
+            }
+
+            50% {
+                left: 50%;
+                transform: translateX(-50%) rotate(0deg);
+            }
+
+            75% {
+                left: 52%;
+                transform: translateX(-50%) rotate(1deg);
+            }
+        }
+
+        @keyframes logo-sway {
+
+            0%,
+            100% {
+                left: 50%;
+                transform: translateX(-50%) rotate(0deg);
+            }
+
+            25% {
+                left: 48.5%;
+                transform: translateX(-50%) rotate(-0.8deg);
+            }
+
+            50% {
+                left: 50%;
+                transform: translateX(-50%) rotate(0deg);
+            }
+
+            75% {
+                left: 51.5%;
+                transform: translateX(-50%) rotate(0.8deg);
+            }
+        }
+
+        @keyframes logo-grow {
+            0% {
+                transform: scale(0.3);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes logo-reveal {
+            0% {
+                opacity: 0;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        @keyframes twinkle {
+
+            0%,
+            100% {
+                opacity: 0.4;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
+        @keyframes rain-fall {
+            0% {
+                transform: translateY(-100px);
+                opacity: 0;
+            }
+
+            100% {
+                transform: translateY(100vh);
+                opacity: 0.7;
+            }
+        }
+
+        @keyframes smoke-rise {
+            0% {
+                transform: translateY(0);
+                opacity: 0;
+            }
+
+            100% {
+                transform: translateY(-300px);
+                opacity: 0.3;
+            }
+        }
+
+        @keyframes cloud-drift {
+            0% {
+                transform: translateX(-100px);
+            }
+
+            100% {
+                transform: translateX(calc(100vw + 100px));
+            }
+        }
+
+        @keyframes clock-rotate {
+            0% {
+                transform: translateX(-50%) rotate(0deg);
+            }
+
+            100% {
+                transform: translateX(-50%) rotate(360deg);
+            }
+        }
+
+        @keyframes nav-buttons-appear {
+            0% {
+                opacity: 0;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        @keyframes window-glow {
+            0% {
+                opacity: 0.6;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        @keyframes antenna-glow {
+            0% {
+                opacity: 0.4;
+            }
+
+            100% {
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .chat-container {
+                width: 280px !important;
+                right: 10px !important;
+                top: 10px !important;
+                left: auto !important;
+                max-height: 380px;
+            }
+
+            .message-content {
+                max-width: 90%;
+                font-size: 12px;
+            }
+        }
+
+        @media (max-height: 600px) {
+            .chat-container {
+                max-height: 320px;
+            }
+
+            .chat-messages {
+                max-height: 200px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- FUNDO FIXO -->
+        <div class="night-sky"></div>
+
+        <!-- CAMADA PARALLAX: ESTRELAS -->
+        <div class="stars-layer" id="starsLayer">
+            <div class="stars" id="stars"></div>
+        </div>
+
+        <!-- NUVENS COM PARALLAX -->
+        <div class="cloud cloud1" id="cloud1"></div>
+        <div class="cloud cloud2" id="cloud2"></div>
+        <div class="cloud cloud3" id="cloud3"></div>
+
+        <!-- CHUVA E FUMAÇA -->
+        <div class="rain-container" id="rain"></div>
+        <div class="smoke-container" id="smoke"></div>
+
+        <!-- BAT-SINAL COM MOVIMENTO AUTOMÁTICO -->
+        <div class="signal-beam" id="signalBeam"></div>
+
+        <!-- LOGO DO BATMAN NO TOPO DO FEIXE - PNG OFICIAL -->
+        <div class="logo-container" id="logoContainer">
+            <div class="bat-logo" id="batLogo"
+                style="background-image: url('https://upload.wikimedia.org/wikipedia/commons/b/b9/Bat-Logo.png');">
+            </div>
+        </div>
+
+        <!-- PRÉDIOS DISTANTES COM PARALLAX -->
+        <div class="distant-buildings" id="distantBuildings"></div>
+
+        <!-- SKYLINE PRINCIPAL - FIXO (40 PRÉDIOS) -->
+        <div class="city-container">
+            <div class="skyline" id="mainSkyline"></div>
+        </div>
+
+        <!-- FONTE DO SINAL -->
+        <div class="signal-source"></div>
+
+        <!-- CHAT - ARRASTE LIVRE - CORRIGIDO -->
+        <div class="chat-container" id="chatContainer">
+            <div class="drag-indicator"></div>
+            <div class="drag-side-left" id="dragSideLeft"></div>
+            <div class="drag-side-right" id="dragSideRight"></div>
+
+            <div class="chat-controls">
+                <button class="chat-btn" id="collapseBtn" title="Recolher">
+                    <span id="collapseIcon">−</span>
+                </button>
+                <button class="chat-btn" id="notificationBtn" title="Notificações">
+                    🔔
+                    <span class="notification-badge" id="notificationBadge">3</span>
+                </button>
+            </div>
+
+            <div class="chat-header" id="chatHeader">
+                <div class="chat-avatar">A</div>
+                <div class="chat-info">
+                    <h3>Alfred Pennyworth</h3>
+                    <p><span class="online-dot"></span> Digitando...</p>
+                </div>
+                <div class="unread-indicator" id="unreadIndicator">3</div>
+            </div>
+
+            <div class="chat-messages" id="messagesContainer"></div>
+
+            <div class="chat-footer" id="chatFooter">
+                <button class="go-button" id="goButton" disabled>
+                    <span id="buttonText">AGUARDANDO...</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- NAVEGAÇÃO -->
+        <div class="nav-buttons">
+            <a href="batman.png" class="nav-button">Batman</a>
+            <a href="batmovel.html" class="nav-button">Batmóvel</a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // ========== ELEMENTOS ==========
+            const chatContainer = document.getElementById('chatContainer');
+            const dragIndicator = document.querySelector('.drag-indicator');
+            const dragSideLeft = document.getElementById('dragSideLeft');
+            const dragSideRight = document.getElementById('dragSideRight');
+            const messagesContainer = document.getElementById('messagesContainer');
+            const goButton = document.getElementById('goButton');
+            const buttonText = document.getElementById('buttonText');
+            const chatHeader = document.getElementById('chatHeader');
+            const chatFooter = document.getElementById('chatFooter');
+            const collapseBtn = document.getElementById('collapseBtn');
+            const collapseIcon = document.getElementById('collapseIcon');
+            const notificationBtn = document.getElementById('notificationBtn');
+            const notificationBadge = document.getElementById('notificationBadge');
+            const unreadIndicator = document.getElementById('unreadIndicator');
+            const batLogo = document.getElementById('batLogo');
+
+            // ========== ESTADO ==========
+            let isChatCollapsed = false;
+            let unreadCount = 3;
+            let isDragging = false;
+            let dragOffset = { x: 0, y: 0 };
+            let currentPosition = { x: window.innerWidth - 300, y: 20 };
+            let lastTouchTime = 0;
+            const tapThreshold = 300;
+
+            // ========== INICIALIZAÇÃO ==========
+            initChatPosition();
+            createStars(200);
+            createRain(70);
+            createSmoke(6);
+            createDistantBuildings(25);
+            createMainSkyline(40);
+            // ===== LOGO CORRIGIDO - USANDO ARQUIVO LOCAL =====
+            if (batLogo) {
+                batLogo.style.backgroundImage = "url('logo.png')";
+                batLogo.style.backgroundSize = "contain";
+                batLogo.style.backgroundRepeat = "no-repeat";
+                batLogo.style.backgroundPosition = "center";
+            }
+
+            setupDragAndDrop();
+            setupParallax();;
+
+            // ========== CONVERSA ==========
+            const conversation = [
+                { sender: 'Alfred', message: 'Patrão Bruce, o Coringa escapou de Arkham novamente.', time: '22:45', delay: 1500 },
+                { sender: 'Alfred', message: 'Ele está a caminho do Asilo de Arkham com um esquadrão de capangas fortemente armados.', time: '22:46', delay: 3000 },
+                { sender: 'Alfred', message: 'Recomendo cautela. Há relatos de gás do riso na área.', time: '22:46', delay: 4500 },
+                { sender: 'Batman', message: 'Estou indo atrás dele. Mantenha o Batmóvel pronto.', time: '22:47', delay: 6000 }
+            ];
+            setTimeout(startConversation, 2000);
+
+            // ========== FUNÇÕES DE POSIÇÃO - ARRASTE LIVRE ==========
+            function initChatPosition() {
+                chatContainer.style.left = (window.innerWidth - 300) + 'px';
+                chatContainer.style.top = '20px';
+                chatContainer.style.right = 'auto';
+                currentPosition = { x: window.innerWidth - 300, y: 20 };
+                setTimeout(() => {
+                    chatContainer.style.visibility = 'visible';
+                }, 100);
+            }
+
+            function setupDragAndDrop() {
+                const draggableElements = [dragIndicator, dragSideLeft, dragSideRight, chatHeader];
+                draggableElements.forEach(el => {
+                    if (el) {
+                        el.addEventListener('mousedown', startDrag);
+                        el.addEventListener('touchstart', startDrag, { passive: false });
+                    }
+                });
+
+                document.addEventListener('mousemove', handleDrag);
+                document.addEventListener('touchmove', handleDrag, { passive: false });
+                document.addEventListener('mouseup', stopDrag);
+                document.addEventListener('touchend', stopDrag);
+                document.addEventListener('touchcancel', stopDrag);
+                document.addEventListener('dragstart', (e) => e.preventDefault());
+            }
+
+            function startDrag(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const now = Date.now();
+                if (now - lastTouchTime < tapThreshold) return;
+                lastTouchTime = now;
+
+                isDragging = true;
+                chatContainer.classList.add('dragging');
+
+                const rect = chatContainer.getBoundingClientRect();
+                let clientX, clientY;
+
+                if (e.touches) {
+                    clientX = e.touches[0].clientX;
+                    clientY = e.touches[0].clientY;
+                } else {
+                    clientX = e.clientX;
+                    clientY = e.clientY;
+                }
+
+                dragOffset.x = clientX - rect.left;
+                dragOffset.y = clientY - rect.top;
+                chatContainer.style.transition = 'none';
+            }
+
+            function handleDrag(e) {
+                if (!isDragging) return;
+                e.preventDefault();
+
+                let clientX, clientY;
+
+                if (e.touches) {
+                    clientX = e.touches[0].clientX;
+                    clientY = e.touches[0].clientY;
+                } else {
+                    clientX = e.clientX;
+                    clientY = e.clientY;
+                }
+
+                let x = clientX - dragOffset.x;
+                let y = clientY - dragOffset.y;
+
+                const containerWidth = chatContainer.offsetWidth;
+                const containerHeight = chatContainer.offsetHeight;
+
+                x = Math.max(5, Math.min(x, window.innerWidth - containerWidth - 5));
+                y = Math.max(5, Math.min(y, window.innerHeight - containerHeight - 5));
+
+                chatContainer.style.left = `${x}px`;
+                chatContainer.style.top = `${y}px`;
+                chatContainer.style.right = 'auto';
+                currentPosition = { x, y };
+            }
+
+            function stopDrag() {
+                if (!isDragging) return;
+                isDragging = false;
+                chatContainer.classList.remove('dragging');
+                chatContainer.style.transition = '';
+            }
+
+            // ========== PARALLAX ==========
+            function setupParallax() {
+                const starsLayer = document.getElementById('starsLayer');
+                const cloud1 = document.getElementById('cloud1');
+                const cloud2 = document.getElementById('cloud2');
+                const cloud3 = document.getElementById('cloud3');
+                const distantBuildings = document.getElementById('distantBuildings');
+
+                let mouseX = 0, mouseY = 0;
+                let targetX = 0, targetY = 0;
+
+                document.addEventListener('mousemove', (e) => {
+                    targetX = (e.clientX / window.innerWidth - 0.5) * 2;
+                    targetY = (e.clientY / window.innerHeight - 0.5) * 2;
+                });
+
+                document.addEventListener('touchmove', (e) => {
+                    if (e.touches.length) {
+                        targetX = (e.touches[0].clientX / window.innerWidth - 0.5) * 2;
+                        targetY = (e.touches[0].clientY / window.innerHeight - 0.5) * 2;
+                    }
+                }, { passive: true });
+
+                function animateParallax() {
+                    mouseX += (targetX - mouseX) * 0.08;
+                    mouseY += (targetY - mouseY) * 0.08;
+
+                    if (starsLayer) starsLayer.style.transform = `translate(${mouseX * 20}px, ${mouseY * 12}px)`;
+                    if (cloud1) cloud1.style.transform = `translate(${mouseX * 30}px, ${mouseY * 18}px)`;
+                    if (cloud2) cloud2.style.transform = `translate(${mouseX * 40}px, ${mouseY * 22}px)`;
+                    if (cloud3) cloud3.style.transform = `translate(${mouseX * 25}px, ${mouseY * 15}px)`;
+                    if (distantBuildings) distantBuildings.style.transform = `translate(${mouseX * 10}px, ${mouseY * 5}px)`;
+
+                    requestAnimationFrame(animateParallax);
+                }
+                animateParallax();
+            }
+
+            // ========== FUNÇÕES GRÁFICAS ==========
+            function createStars(count) {
+                const stars = document.getElementById('stars');
+                for (let i = 0; i < count; i++) {
+                    const s = document.createElement('div');
+                    s.className = 'star ' + (Math.random() < 0.33 ? 'small' : Math.random() < 0.66 ? 'medium' : 'large');
+                    s.style.left = Math.random() * 100 + '%';
+                    s.style.top = Math.random() * 80 + '%';
+                    s.style.animationDelay = Math.random() * 5 + 's';
+                    stars.appendChild(s);
+                }
+            }
+
+            function createRain(count) {
+                const rain = document.getElementById('rain');
+                for (let i = 0; i < count; i++) {
+                    const d = document.createElement('div');
+                    d.className = 'rain-drop';
+                    d.style.left = Math.random() * 100 + '%';
+                    d.style.animationDuration = (Math.random() * 1.5 + 0.8) + 's';
+                    d.style.animationDelay = Math.random() * 2 + 's';
+                    rain.appendChild(d);
+                }
+            }
+
+            function createSmoke(count) {
+                const smoke = document.getElementById('smoke');
+                for (let i = 0; i < count; i++) {
+                    const s = document.createElement('div');
+                    s.className = 'smoke';
+                    s.style.left = Math.random() * 80 + 10 + '%';
+                    s.style.animationDuration = (Math.random() * 15 + 20) + 's';
+                    s.style.animationDelay = Math.random() * 5 + 's';
+                    smoke.appendChild(s);
+                }
+            }
+
+            function createDistantBuildings(count) {
+                const db = document.getElementById('distantBuildings');
+                for (let i = 0; i < count; i++) {
+                    const b = document.createElement('div');
+                    b.className = 'distant-building';
+                    b.style.height = Math.floor(Math.random() * 120 + 70) + 'px';
+                    b.style.width = Math.floor(Math.random() * 18 + 8) + 'px';
+                    db.appendChild(b);
+                }
+            }
+
+            function createMainSkyline(count) {
+                const skyline = document.getElementById('mainSkyline');
+                const types = ['gothic-tower', 'modern-skyscraper', 'industrial-building', 'brick-building', 'art-deco', 'clock-tower', 'wayne-tower', 'gcpd-building'];
+                const heights = ['tall-1', 'tall-2', 'tall-3', 'tall-4', 'tall-5', 'tall-6', 'tall-7', 'tall-8', 'tall-9', 'tall-10', 'tall-11', 'tall-12'];
+                const widths = ['wide-1', 'wide-2', 'wide-3', 'wide-4', 'wide-5', 'wide-6', 'wide-7', 'wide-8', 'wide-9', 'wide-10', 'wide-11', 'wide-12'];
+                let clockAdded = false;
+
+                for (let i = 0; i < count; i++) {
+                    const b = document.createElement('div');
+                    let type = types[Math.floor(Math.random() * types.length)];
+                    if (i === 8) type = 'wayne-tower';
+                    if (i === 16) type = 'gcpd-building';
+                    if (i === 24 && !clockAdded) { type = 'clock-tower'; clockAdded = true; }
+                    if (i === 30) type = 'gothic-tower';
+
+                    const h = heights[Math.floor(Math.random() * heights.length)];
+                    const w = widths[Math.floor(Math.random() * widths.length)];
+                    b.className = `building ${type} ${h} ${w}`;
+
+                    if (Math.random() > 0.65) b.classList.add('with-antenna');
+                    if (Math.random() > 0.7) b.classList.add('with-spire');
+                    if (type.includes('clock') && !clockAdded) { b.classList.add('with-clock'); clockAdded = true; }
+
+                    let floors = parseInt(h.split('-')[1]) || 10;
+                    floors = Math.min(floors, 15);
+
+                    for (let f = 0; f < floors; f++) {
+                        const row = document.createElement('div');
+                        row.className = 'window-row';
+                        let wCount = 4;
+                        if (w.includes('1') || w.includes('2')) wCount = 6;
+                        else if (w.includes('3') || w.includes('4')) wCount = 5;
+                        else if (w.includes('5') || w.includes('6')) wCount = 4;
+                        else wCount = 3;
+                        for (let wi = 0; wi < wCount; wi++) {
+                            const win = document.createElement('div');
+                            win.className = 'window';
+                            if (Math.random() > 0.6) win.classList.add('glow');
+                            row.appendChild(win);
+                        }
+                        b.appendChild(row);
+                    }
+                    skyline.appendChild(b);
+                }
+            }
+
+            // ========== FUNÇÕES DO CHAT ==========
+            function startConversation() {
+                updateTypingStatus(true);
+                conversation.forEach((msg, idx) => {
+                    setTimeout(() => {
+                        if (idx > 0) {
+                            updateTypingStatus(true);
+                            setTimeout(() => {
+                                updateTypingStatus(false);
+                                addMessage(msg);
+                            }, 800);
+                        } else {
+                            updateTypingStatus(false);
+                            addMessage(msg);
+                        }
+                    }, msg.delay);
+                });
+            }
+
+            function updateTypingStatus(typing) {
+                const status = chatHeader.querySelector('.chat-info p');
+                if (typing) {
+                    status.innerHTML = '<span class="online-dot"></span> Digitando...';
+                } else {
+                    status.innerHTML = '<span class="online-dot"></span> Online';
+                }
+            }
+
+            function addMessage(msg, notif = true) {
+                const el = document.createElement('div');
+                el.className = `message ${msg.sender === 'Alfred' ? 'received' : 'sent'}`;
+                el.innerHTML = `<div class="message-content">${msg.message}<div class="message-time">${msg.time}</div></div>`;
+                messagesContainer.appendChild(el);
+                setTimeout(() => {
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                }, 50);
+
+                if (document.querySelectorAll('.message').length === conversation.length) {
+                    setTimeout(() => {
+                        goButton.disabled = false;
+                        buttonText.textContent = "VAMOS LÁ 🦇";
+                        updateUnreadCount(0);
+                    }, 1000);
+                }
+
+                if (notif && msg.sender === 'Alfred') {
+                    unreadCount++;
+                    updateUnreadCount(unreadCount);
+                }
+            }
+
+            function updateUnreadCount(count) {
+                unreadCount = count;
+                unreadIndicator.textContent = count || '';
+                notificationBadge.textContent = count;
+                unreadIndicator.style.display = count ? 'flex' : 'none';
+                notificationBadge.style.display = count ? 'flex' : 'none';
+            }
+
+            // ========== EVENTOS ==========
+            if (goButton) {
+                goButton.addEventListener('click', function () {
+                    if (goButton.disabled) return;
+                    goButton.disabled = true;
+                    buttonText.textContent = "REDIRECIONANDO...";
+                    addMessage({ sender: 'Batman', message: 'Coringa, estou chegando.', time: '22:48' }, false);
+                    setTimeout(() => {
+                        document.body.style.opacity = '0';
+                        setTimeout(() => {
+                            window.location.href = 'dash3.html';
+                        }, 300);
+                    }, 800);
+                });
+            }
+
+            if (collapseBtn) {
+                collapseBtn.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    isChatCollapsed = !isChatCollapsed;
+                    if (isChatCollapsed) {
+                        messagesContainer.classList.add('collapsed');
+                        chatFooter.classList.add('hidden');
+                        collapseIcon.textContent = '+';
+                    } else {
+                        messagesContainer.classList.remove('collapsed');
+                        chatFooter.classList.remove('hidden');
+                        collapseIcon.textContent = '−';
+                    }
+                });
+            }
+
+            if (notificationBtn) {
+                notificationBtn.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    updateUnreadCount(0);
+                });
+            }
+
+            if (chatHeader) {
+                chatHeader.addEventListener('click', function (e) {
+                    if (e.target.closest('.chat-btn')) return;
+                    if (isChatCollapsed) {
+                        isChatCollapsed = false;
+                        messagesContainer.classList.remove('collapsed');
+                        chatFooter.classList.remove('hidden');
+                        collapseIcon.textContent = '−';
+                    }
+                    updateUnreadCount(0);
+                });
+            }
+
+            window.addEventListener('resize', function () {
+                const w = chatContainer.offsetWidth;
+                const h = chatContainer.offsetHeight;
+                let x = Math.min(currentPosition.x, window.innerWidth - w - 5);
+                let y = Math.min(currentPosition.y, window.innerHeight - h - 5);
+                x = Math.max(5, x);
+                y = Math.max(5, y);
+                chatContainer.style.left = `${x}px`;
+                chatContainer.style.top = `${y}px`;
+                chatContainer.style.right = 'auto';
+                currentPosition = { x, y };
+            });
+
+            setTimeout(() => {
+                if (chatContainer.style.visibility !== 'visible') {
+                    chatContainer.style.visibility = 'visible';
+                }
+            }, 100);
+
+            console.log('✅ LOGO CORRIGIDO - DEFINIDO VIA JAVASCRIPT DIRETO');
+            console.log('✅ LOGO NÃO SOME MAIS - FIXO CARALHO');
+            console.log('✅ CHAT CORRIGIDO - TEXTO NÃO CORTA');
+            console.log('✅ ESTRUTURA 100% INTACTA');
+        });
+    </script>
+</body>
+
+</html>

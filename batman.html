@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BATCOMPUTER • DEEP BLACK HOLOGRÁFICO</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #000000;
+            /* Fundo totalmente preto */
+            overflow: hidden;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        /* Container do Holograma */
+        .hologram-stage {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            height: 90vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Batman - Imagem Principal */
+        .batman-container {
+            position: relative;
+            z-index: 5;
+            height: 80%;
+            animation: float 4s ease-in-out infinite;
+            filter: drop-shadow(0 0 25px rgba(0, 212, 255, 0.7));
+        }
+
+        .batman-container img {
+            height: 100%;
+            object-fit: contain;
+            opacity: 0.85;
+            mask-image: linear-gradient(to bottom, black 85%, transparent 100%);
+            /* Efeito de Flicker sutil */
+            animation: flicker 4s linear infinite;
+        }
+
+        /* Linha de Scan Horizontal */
+        .scan-line {
+            position: absolute;
+            width: 120%;
+            left: -10%;
+            height: 3px;
+            background: rgba(0, 212, 255, 0.5);
+            box-shadow: 0 0 15px #00d4ff, 0 0 30px #00d4ff;
+            z-index: 6;
+            pointer-events: none;
+            animation: scanMove 4s linear infinite;
+        }
+
+        /* Base Holográfica Circular */
+        .hologram-base {
+            position: absolute;
+            bottom: 50px;
+            width: 500px;
+            height: 150px;
+            background: radial-gradient(ellipse at center, rgba(0, 212, 255, 0.15) 0%, transparent 70%);
+            transform: rotateX(75deg);
+            z-index: 1;
+        }
+
+        .base-ring {
+            position: absolute;
+            inset: 0;
+            border: 3px solid rgba(0, 212, 255, 0.4);
+            border-radius: 50%;
+            box-shadow: 0 0 40px rgba(0, 212, 255, 0.5), inset 0 0 40px rgba(0, 212, 255, 0.5);
+        }
+
+        .inner-ring {
+            position: absolute;
+            inset: 20%;
+            border: 2px dashed rgba(0, 212, 255, 0.6);
+            border-radius: 50%;
+            animation: rotateBase 10s linear infinite;
+        }
+
+        /* Painéis de Dados Laterais */
+        .hud-panel {
+            position: absolute;
+            color: #00d4ff;
+            background: rgba(0, 212, 255, 0.05);
+            border-left: 3px solid #00d4ff;
+            padding: 15px;
+            font-size: 11px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            backdrop-filter: blur(2px);
+            z-index: 10;
+        }
+
+        .left-panel {
+            top: 20%;
+            left: 5%;
+        }
+
+        .right-panel {
+            bottom: 30%;
+            right: 5%;
+        }
+
+        /* Animações */
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-25px);
+            }
+        }
+
+        @keyframes scanMove {
+            0% {
+                top: 10%;
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            90% {
+                opacity: 1;
+            }
+
+            100% {
+                top: 90%;
+                opacity: 0;
+            }
+        }
+
+        @keyframes rotateBase {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes flicker {
+            0% {
+                opacity: 0.8;
+            }
+
+            95% {
+                opacity: 0.8;
+            }
+
+            96% {
+                opacity: 0.4;
+            }
+
+            97% {
+                opacity: 0.8;
+            }
+
+            98% {
+                opacity: 0.6;
+            }
+
+            100% {
+                opacity: 0.8;
+            }
+        }
+
+        /* Scanlines da tela (Efeito CRT sutil) */
+        body::after {
+            content: " ";
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%),
+                linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+            background-size: 100% 4px, 3px 100%;
+            z-index: 100;
+            pointer-events: none;
+        }
+
+        /* ===== BOTÃO VOLTAR ===== */
+        .back-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            color: #00d4ff;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Courier New', Courier, monospace;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-decoration: none;
+            z-index: 100;
+            backdrop-filter: blur(2px);
+        }
+
+        .back-button:hover {
+            background: rgba(0, 212, 255, 0.2);
+            border-color: rgba(0, 212, 255, 0.6);
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .back-button:active {
+            transform: translateY(0);
+        }
+
+        /* Responsivo */
+        @media (max-width: 768px) {
+            .back-button {
+                top: 10px;
+                right: 10px;
+                padding: 6px 12px;
+                font-size: 11px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="hologram-stage">
+        <div
+            style="position: absolute; top: 20px; color: #00d4ff; letter-spacing: 8px; font-weight: bold; text-shadow: 0 0 10px #00d4ff;">
+            ◥ BAT-DIAGNOSTIC ◤
+        </div>
+
+        <div class="hud-panel left-panel">
+            <b>INTEGRIDADE:</b> 98.4%<br>
+            <b>SINAIS VITAIS:</b> ESTÁVEIS<br>
+            <b>SCANNER:</b> ATIVO
+        </div>
+
+        <div class="hud-panel right-panel" style="border-left: 0; border-right: 3px solid #00d4ff; text-align: right;">
+            <b>GOTHAM CITY</b><br>
+            <b>SETOR:</b> 04-G<br>
+            <b>PROTOCOLO:</b> KNIGHTFALL
+        </div>
+
+        <div class="batman-container">
+            <div class="scan-line"></div>
+            <img src="batman.png" alt="Batman" onerror="this.src='https://i.imgur.com/3Y2m7Vp.png'">
+        </div>
+
+        <div class="hologram-base">
+            <div class="base-ring"></div>
+            <div class="inner-ring"></div>
+        </div>
+    </div>
+
+        <!-- Botão Voltar -->
+    <a href="intro.html" class="back-button">← Voltar</a>
+
+    <script>
+        // Pequeno efeito extra: Tremedeira aleatória (Glitch)
+        const batman = document.querySelector('.batman-container img');
+        setInterval(() => {
+            if (Math.random() > 0.95) {
+                batman.style.transform = `translateX(${Math.random() * 5 - 2}px)`;
+                setTimeout(() => {
+                    batman.style.transform = 'translateX(0)';
+                }, 50);
+            }
+        }, 100);
+    </script>
+</body>
+
+</html>

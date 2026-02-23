@@ -1,0 +1,2031 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>🎭 DUAS-CARAS - O JULGAMENTO</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- ===== ARKHAM CORE ADICIONADO ===== -->
+    <script src="../sistemas/arkham-core.js"></script>
+    <style>
+        /* =========================================== */
+        /* BATMAN HUD SYSTEM - VERSÃO SIMPLIFICADA */
+        /* =========================================== */
+        :root {
+            --primary: #00d9ff;
+            --primary-dark: #0066cc;
+            --success: #00ff88;
+            --warning: #ffaa00;
+            --danger: #ff0040;
+            --info: #bb86fc;
+            --purple: #9d4edd;
+            --twoface: #9d4edd;
+            --twoface-light: #b57edc;
+            --twoface-dark: #6a1b9a;
+            --bg-dark: #000;
+            --bg-panel: rgba(10, 20, 40, 0.75);
+            --bg-card: rgba(10, 20, 40, 0.65);
+            --text: #ffffff;
+            --text-dim: #e0e0e0;
+            --border: rgba(157, 78, 221, 0.3);
+            --border-strong: rgba(157, 78, 221, 0.6);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            --shadow-glow: 0 0 20px rgba(157, 78, 221, 0.3);
+            --font-mono: 'Courier New', monospace;
+            --safe-area-inset: env(safe-area-inset-top, 0px);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Remoção completa das barras de rolagem */
+        html,
+        body {
+            overflow: hidden !important;
+            height: 100%;
+            width: 100%;
+            position: fixed;
+            overscroll-behavior: none;
+        }
+
+        body {
+            background: #000000;
+            /* Fundo preto sólido */
+            color: var(--text);
+            font-family: 'Arial', sans-serif;
+            height: 100vh;
+            width: 100vw;
+            position: relative;
+            overflow-y: auto !important;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Scrollbar invisível mas funcional */
+        body::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+
+        .hub-back-link {
+            position: fixed;
+            top: max(15px, env(safe-area-inset-top));
+            left: 15px;
+            z-index: 10001;
+            color: var(--twoface-light);
+            text-decoration: none;
+            padding: clamp(6px, 2vw, 8px) clamp(12px, 3vw, 16px);
+            border: 2px solid var(--twoface);
+            border-radius: 8px;
+            background: var(--bg-card);
+            font-size: clamp(0.75rem, 2vw, 0.85rem);
+            font-weight: bold;
+            letter-spacing: 1px;
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-glow);
+            transition: all 0.3s ease;
+        }
+
+        .points-display {
+            position: fixed;
+            top: max(15px, env(safe-area-inset-top));
+            right: 15px;
+            background: var(--bg-card);
+            border: 2px solid var(--twoface);
+            border-radius: 8px;
+            padding: clamp(6px, 2vw, 8px) clamp(12px, 3vw, 16px);
+            color: var(--twoface-light);
+            font-weight: bold;
+            font-size: clamp(0.85rem, 2.5vw, 1rem);
+            z-index: 10001;
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        /* ===== LOADING ANIMATION ===== */
+        .loading-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(15px);
+            z-index: 20000;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loading-container.active {
+            display: flex;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .loading-icon {
+            font-size: clamp(3rem, 15vw, 5rem);
+            margin-bottom: 20px;
+            animation: spin 1s linear infinite;
+            filter: drop-shadow(0 0 30px var(--twoface));
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-text {
+            color: #fff;
+            font-size: clamp(1rem, 4vw, 1.2rem);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: bold;
+            text-shadow: 0 0 10px var(--twoface);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        .loading-progress {
+            width: min(200px, 80%);
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            margin-top: 30px;
+            overflow: hidden;
+        }
+
+        .loading-progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, transparent, var(--twoface), transparent);
+            animation: progress 2s infinite;
+        }
+
+        /* ===== SISTEMA DE MODAIS GLASSMORPH ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 9999;
+            display: none;
+        }
+
+        .modal-overlay.active {
+            display: block;
+        }
+
+        .intro-overlay {
+            background: url('https://wallpaperaccess.com/full/6231809.jpg') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        .phase-overlay {
+            background: url('https://static1.cbrimages.com/wordpress/wp-content/uploads/2025/03/bruce-and-damian-in-batman-and-robin-volume-2.jpg') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        .result-overlay {
+            background: url('https://static1.srcdn.com/wordpress/wp-content/uploads/2022/07/Batman-Villains.jpg') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        .modal-overlay::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(5px);
+            z-index: -1;
+        }
+
+        .modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--bg-card);
+            border: 3px solid var(--twoface);
+            border-radius: 20px;
+            padding: clamp(15px, 4vw, 30px);
+            width: min(95%, 500px);
+            max-height: 90vh;
+            overflow-y: auto;
+            z-index: 10000;
+            backdrop-filter: blur(15px);
+            box-shadow: var(--shadow), 0 0 50px var(--twoface);
+            display: none;
+            animation: modalAppear 0.4s ease-out;
+        }
+
+        .modal.active {
+            display: block;
+        }
+
+        /* Esconder scrollbar do modal mas manter funcional */
+        .modal::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+
+        @keyframes modalAppear {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -45%);
+            }
+
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--twoface);
+        }
+
+        .modal-title {
+            color: var(--twoface-light);
+            font-size: clamp(1.1rem, 4vw, 1.3rem);
+            font-weight: bold;
+            letter-spacing: 1px;
+            line-height: 1.2;
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            font-size: clamp(1.5rem, 5vw, 1.8rem);
+            cursor: pointer;
+            transition: color 0.3s;
+            padding: 0 8px;
+            line-height: 1;
+        }
+
+        .modal-icon {
+            font-size: clamp(2.5rem, 10vw, 3.5rem);
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        .modal-content {
+            margin: 15px 0;
+        }
+
+        .modal-text {
+            color: var(--text);
+            line-height: 1.5;
+            font-size: clamp(0.9rem, 3vw, 1rem);
+        }
+
+        .modal-text-secondary {
+            color: var(--text-dim);
+            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+            margin-top: 10px;
+        }
+
+        .modal-stats {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--twoface);
+            border-radius: 8px;
+            padding: clamp(10px, 3vw, 15px);
+            margin: 15px 0;
+        }
+
+        .modal-stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(157, 78, 221, 0.2);
+            font-size: clamp(0.85rem, 2.5vw, 0.9rem);
+        }
+
+        .modal-stat-label {
+            color: var(--text-dim);
+        }
+
+        .modal-stat-value {
+            color: var(--twoface-light);
+            font-weight: bold;
+        }
+
+        .modal-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(157, 78, 221, 0.2);
+            border: 1px solid var(--twoface);
+            border-radius: 20px;
+            color: var(--twoface-light);
+            font-size: clamp(0.7rem, 2vw, 0.8rem);
+            margin-top: 10px;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .modal-btn {
+            flex: 1 1 auto;
+            min-width: 120px;
+            padding: clamp(10px, 3vw, 12px) clamp(12px, 4vw, 15px);
+            border: 2px solid;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-btn.primary {
+            border-color: var(--twoface);
+            color: var(--twoface-light);
+        }
+
+        .modal-btn.primary:hover {
+            background: var(--twoface);
+            color: #000;
+            box-shadow: 0 0 20px var(--twoface);
+        }
+
+        .modal-btn.secondary {
+            border-color: var(--text-dim);
+            color: var(--text-dim);
+        }
+
+        .modal-btn.secondary:hover {
+            border-color: #fff;
+            color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-btn.success {
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .modal-btn.success:hover {
+            background: var(--success);
+            color: #000;
+            box-shadow: 0 0 20px var(--success);
+        }
+
+        /* ===== PREVIEW DO VILÃO ===== */
+        .villain-preview {
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid var(--twoface);
+            border-radius: 10px;
+            padding: clamp(15px, 4vw, 20px);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: clamp(10px, 3vw, 20px);
+            backdrop-filter: blur(5px);
+        }
+
+        .villain-preview-icon {
+            font-size: clamp(3rem, 12vw, 4rem);
+            filter: drop-shadow(0 0 20px var(--twoface));
+        }
+
+        .villain-preview-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .villain-preview-name {
+            color: var(--twoface-light);
+            font-size: clamp(1.2rem, 5vw, 1.5rem);
+            font-weight: bold;
+            margin-bottom: 8px;
+            line-height: 1.2;
+            word-wrap: break-word;
+        }
+
+        .villain-preview-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            color: var(--text-dim);
+            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+        }
+
+        /* ===== CONTEÚDO PRINCIPAL ===== */
+        .container {
+            max-width: 1400px;
+            margin: max(60px, env(safe-area-inset-top)) auto 0;
+            width: 100%;
+            height: calc(100vh - 80px);
+            overflow-y: auto;
+            padding: 0 10px 20px;
+            background: #000000;
+            /* Fundo preto sólido */
+        }
+
+        .container::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            color: var(--twoface);
+            font-size: clamp(1.5rem, 5vw, 2.2rem);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 20px var(--twoface);
+            line-height: 1.3;
+        }
+
+        .threat-level {
+            display: inline-block;
+            margin: 10px 5px 0 0;
+            padding: clamp(6px, 2vw, 8px) clamp(15px, 4vw, 20px);
+            background: rgba(157, 78, 221, 0.2);
+            border: 2px solid var(--twoface);
+            border-radius: 20px;
+            color: var(--twoface-light);
+            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+            font-weight: bold;
+            backdrop-filter: blur(5px);
+        }
+
+        .coin-flip {
+            display: inline-block;
+            margin: 10px 0 0 5px;
+            padding: clamp(6px, 2vw, 8px) clamp(12px, 3vw, 15px);
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid var(--warning);
+            border-radius: 20px;
+            color: var(--warning);
+            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            backdrop-filter: blur(5px);
+        }
+
+        .coin-flip:hover {
+            background: rgba(255, 170, 0, 0.2);
+            transform: scale(1.05);
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: clamp(10px, 2vw, 20px);
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: var(--bg-panel);
+            border: 2px solid var(--twoface);
+            border-radius: 12px;
+            padding: clamp(15px, 3vw, 20px);
+            backdrop-filter: blur(15px);
+            box-shadow: var(--shadow), 0 0 20px var(--twoface);
+            margin-bottom: 15px;
+        }
+
+        .panel:last-child {
+            margin-bottom: 0;
+        }
+
+        .panel-title {
+            color: var(--twoface);
+            font-size: clamp(0.85rem, 2.5vw, 0.9rem);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--twoface);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(140px, 100%), 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .stat-card {
+            background: rgba(0, 0, 0, 0.5);
+            border-left: 4px solid var(--twoface);
+            border-radius: 8px;
+            padding: clamp(10px, 2.5vw, 15px);
+            transition: all 0.3s ease;
+        }
+
+        .stat-label {
+            color: var(--twoface);
+            font-size: clamp(0.65rem, 2vw, 0.7rem);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: clamp(1.5rem, 5vw, 2rem);
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 0 10px var(--twoface);
+            line-height: 1.2;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            transition: width 0.5s ease;
+        }
+
+        .fill-energy {
+            background: linear-gradient(90deg, var(--twoface), var(--twoface-light));
+        }
+
+        .fill-threat {
+            background: linear-gradient(90deg, var(--warning), var(--danger));
+        }
+
+        .fill-reputation {
+            background: linear-gradient(90deg, var(--success), var(--twoface));
+        }
+
+        .districts-grid {
+            display: grid;
+            gap: 8px;
+        }
+
+        .district-card {
+            background: rgba(0, 0, 0, 0.5);
+            border-left: 4px solid var(--twoface);
+            border-radius: 8px;
+            padding: clamp(8px, 2vw, 12px);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .district-card:hover {
+            transform: translateX(5px);
+            background: rgba(157, 78, 221, 0.2);
+        }
+
+        .district-card.critical {
+            border-left-color: var(--danger);
+        }
+
+        .district-card.warning {
+            border-left-color: var(--warning);
+        }
+
+        .district-card.safe {
+            border-left-color: var(--success);
+        }
+
+        .district-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+        }
+
+        .district-name {
+            color: var(--twoface);
+            font-weight: bold;
+        }
+
+        .district-threat {
+            color: var(--text-dim);
+        }
+
+        .district-bar {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 4px;
+        }
+
+        .district-bar-fill {
+            height: 100%;
+            transition: width 0.5s ease;
+        }
+
+        .district-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: clamp(0.65rem, 2vw, 0.7rem);
+            color: var(--text-dim);
+        }
+
+        .radar-container {
+            position: relative;
+            width: 100%;
+            height: min(400px, 50vh);
+            background: #000000;
+            /* Fundo preto sólido */
+            border: 2px solid var(--twoface);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .radar-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(rgba(157, 78, 221, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(157, 78, 221, 0.1) 1px, transparent 1px);
+            background-size: min(40px, 5vw) min(40px, 5vw);
+            animation: radar-scan 4s linear infinite;
+        }
+
+        @keyframes radar-scan {
+
+            0%,
+            100% {
+                opacity: 0.3;
+            }
+
+            50% {
+                opacity: 0.6;
+            }
+        }
+
+        .radar-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 12px;
+            height: 12px;
+            background: var(--twoface);
+            border-radius: 50%;
+            box-shadow: 0 0 20px var(--twoface);
+        }
+
+        .crime-marker {
+            position: absolute;
+            width: clamp(12px, 3vw, 16px);
+            height: clamp(12px, 3vw, 16px);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            animation: pulse-marker 2s infinite;
+            z-index: 10;
+        }
+
+        .crime-marker:hover {
+            transform: scale(1.5);
+            z-index: 100;
+        }
+
+        @keyframes pulse-marker {
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.7;
+                transform: scale(1.1);
+            }
+        }
+
+        .crime-low {
+            background: var(--success);
+            box-shadow: 0 0 15px var(--success);
+        }
+
+        .crime-medium {
+            background: var(--warning);
+            box-shadow: 0 0 15px var(--warning);
+        }
+
+        .crime-high {
+            background: var(--danger);
+            box-shadow: 0 0 20px var(--danger);
+        }
+
+        .crime-tooltip {
+            position: fixed;
+            background: var(--bg-card);
+            border: 2px solid var(--twoface);
+            border-radius: 10px;
+            padding: clamp(12px, 3vw, 16px);
+            min-width: min(280px, 90vw);
+            max-width: 90vw;
+            z-index: 1000;
+            backdrop-filter: blur(15px);
+            box-shadow: var(--shadow), 0 0 30px var(--twoface);
+        }
+
+        .tooltip-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--twoface);
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .tooltip-title {
+            color: var(--twoface);
+            font-size: clamp(0.9rem, 3vw, 1rem);
+            font-weight: bold;
+        }
+
+        .tooltip-timer {
+            background: rgba(255, 0, 64, 0.2);
+            color: var(--danger);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: clamp(0.7rem, 2vw, 0.8rem);
+        }
+
+        .tooltip-actions {
+            display: grid;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .crime-action {
+            padding: clamp(8px, 2.5vw, 10px);
+            border: 1px solid var(--twoface);
+            border-radius: 6px;
+            background: rgba(0, 0, 0, 0.5);
+            color: var(--twoface);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            font-size: clamp(0.75rem, 2.5vw, 0.8rem);
+            font-weight: bold;
+        }
+
+        .event-feed {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--twoface);
+            border-radius: 8px;
+            padding: 10px;
+            max-height: 120px;
+            overflow-y: auto;
+            font-family: var(--font-mono);
+            font-size: clamp(0.7rem, 2vw, 0.8rem);
+        }
+
+        .event-feed::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+
+        .event-item {
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            animation: slideIn 0.3s;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .event-time {
+            color: var(--twoface);
+            font-weight: bold;
+            margin-right: 5px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .btn {
+            flex: 1 1 auto;
+            min-width: 120px;
+            padding: clamp(10px, 2.5vw, 12px) clamp(15px, 3vw, 20px);
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid var(--twoface);
+            border-radius: 8px;
+            color: var(--twoface);
+            cursor: pointer;
+            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        .btn:hover {
+            background: var(--twoface);
+            color: #000;
+            box-shadow: 0 0 25px var(--twoface);
+            transform: translateY(-2px);
+        }
+
+        .btn.danger {
+            border-color: var(--danger);
+            color: var(--danger);
+        }
+
+        .btn.danger:hover {
+            background: var(--danger);
+            color: #000;
+            box-shadow: 0 0 25px var(--danger);
+        }
+
+        .radar-filters {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: clamp(4px, 1.5vw, 6px) clamp(8px, 2vw, 12px);
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--twoface);
+            border-radius: 6px;
+            color: var(--text-dim);
+            cursor: pointer;
+            font-size: clamp(0.65rem, 2vw, 0.7rem);
+            transition: all 0.2s;
+            backdrop-filter: blur(5px);
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            border-color: var(--twoface);
+            color: var(--twoface);
+            background: rgba(157, 78, 221, 0.2);
+        }
+
+        /* Media Queries para ajustes finos */
+        @media (max-width: 768px) {
+            .villain-preview {
+                flex-direction: column;
+                text-align: center;
+                gap: 8px;
+            }
+
+            .villain-preview-icon {
+                font-size: 3.5rem;
+            }
+
+            .villain-preview-name {
+                font-size: 1.3rem;
+            }
+
+            .villain-preview-stats {
+                font-size: 0.8rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .modal {
+                width: 95%;
+                padding: 20px;
+            }
+
+            .modal-title {
+                font-size: 1.1rem;
+            }
+
+            .modal-icon {
+                font-size: 3rem;
+            }
+
+            .modal-actions {
+                flex-direction: column;
+            }
+
+            .modal-btn {
+                width: 100%;
+            }
+
+            .loading-icon {
+                font-size: 4rem;
+            }
+
+            .loading-text {
+                font-size: 1rem;
+            }
+
+            .points-display {
+                font-size: 0.8rem;
+                padding: 4px 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.3rem;
+            }
+
+            .threat-level,
+            .coin-flip {
+                display: block;
+                width: fit-content;
+                margin: 5px auto;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .stat-value {
+                font-size: 1.3rem;
+            }
+        }
+
+        @media (orientation: landscape) and (max-height: 600px) {
+            .container {
+                margin-top: 50px;
+            }
+
+            .radar-container {
+                height: 250px;
+            }
+
+            .event-feed {
+                max-height: 80px;
+            }
+        }
+
+        /* Ajustes para telas muito pequenas */
+        @media (max-width: 360px) {
+            .stat-label {
+                font-size: 0.6rem;
+            }
+
+            .stat-value {
+                font-size: 1.1rem;
+            }
+
+            .filter-btn {
+                padding: 4px 6px;
+                font-size: 0.6rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <a href="../dash3.html" class="hub-back-link">← HUB</a>
+
+    <div class="points-display" id="pointsDisplay">💰 0</div>
+
+    <!-- LOADING OVERLAY -->
+    <div class="loading-container" id="loadingContainer">
+        <div class="loading-icon">🎭</div>
+        <div class="loading-text" id="loadingText">CARREGANDO...</div>
+        <div class="loading-progress">
+            <div class="loading-progress-fill"></div>
+        </div>
+    </div>
+
+    <!-- MODAL DE INTRODUÇÃO -->
+    <div class="modal-overlay intro-overlay" id="introOverlay"></div>
+
+    <div class="modal modal-twoface active" id="modalIntro">
+        <div class="modal-header">
+            <div class="modal-title">🎭 DUAS-CARAS - O JULGAMENTO</div>
+            <button class="modal-close" onclick="closeIntro()">×</button>
+        </div>
+        <div class="modal-icon">🪙</div>
+        <div class="modal-content">
+            <div class="modal-text">
+                Harvey Dent era o herói de Gotham... até que o ácido queimou metade de seu rosto.
+                Agora, a moeda decide tudo: <span style="color: var(--success)">CARA = JUSTIÇA</span> |
+                <span style="color: var(--danger)">COROA = CAOS</span>
+            </div>
+            <div class="modal-text-secondary">
+                <strong>🎯 INSTRUÇÕES:</strong><br>
+                • Monitore os crimes nos distritos de Gotham<br>
+                • Clique nos marcadores vermelhos no radar<br>
+                • Escolha: INTERCEPTAR (gasta energia), MONITORAR ou IGNORAR<br>
+                • A moeda influencia os crimes a cada 8s<br>
+                • Complete 5 fases para vencer
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn primary" onclick="startGame()">INICIAR JULGAMENTO</button>
+        </div>
+    </div>
+
+    <!-- MODAL DE FASE -->
+    <div class="modal-overlay phase-overlay" id="phaseOverlay"></div>
+
+    <div class="modal modal-twoface" id="modalPhase">
+        <div class="modal-header">
+            <div class="modal-title" id="phaseModalTitle">FASE 1 - INICIANTE</div>
+            <button class="modal-close" onclick="closePhaseModal()">×</button>
+        </div>
+        <div class="modal-icon">🎭</div>
+        <div class="modal-content">
+            <div class="villain-preview" id="villainPreview"></div>
+
+            <div class="modal-stats">
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">⏰ TEMPO:</span>
+                    <span class="modal-stat-value" id="phaseTime">60s</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">⚡ ENERGIA:</span>
+                    <span class="modal-stat-value" id="phaseEnergy">100</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">🎯 CRIMES:</span>
+                    <span class="modal-stat-value" id="phaseTargets">6</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">🪙 MOEDA:</span>
+                    <span class="modal-stat-value" id="phaseCoin">8s</span>
+                </div>
+            </div>
+            <div class="modal-badge">
+                💡 A moeda influencia a intensidade dos crimes
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn secondary" onclick="closePhaseModal()">AGUARDAR</button>
+            <button class="modal-btn primary" onclick="startPhase()">INICIAR FASE</button>
+        </div>
+    </div>
+
+    <!-- MODAL DE RESULTADO -->
+    <div class="modal-overlay result-overlay" id="resultOverlay"></div>
+
+    <div class="modal modal-twoface" id="modalResult">
+        <div class="modal-header">
+            <div class="modal-title" id="resultTitle">RESULTADO</div>
+            <button class="modal-close" onclick="closeResultModal()">×</button>
+        </div>
+        <div class="modal-icon" id="resultIcon">🏆</div>
+        <div class="modal-content">
+            <div class="modal-text" id="resultMessage"></div>
+            <div class="modal-stats" id="resultStats">
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">Pontuação:</span>
+                    <span class="modal-stat-value success" id="resultScore">0</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">Reputação:</span>
+                    <span class="modal-stat-value" id="resultRep">0</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">Crimes resolvidos:</span>
+                    <span class="modal-stat-value" id="resultCrimes">0</span>
+                </div>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn secondary" onclick="closeResultModal()">FECHAR</button>
+            <button class="modal-btn primary" onclick="nextPhase()">PRÓXIMA FASE</button>
+        </div>
+    </div>
+
+    <!-- MODAL DE GAME OVER -->
+    <div class="modal-overlay result-overlay" id="gameOverOverlay"></div>
+
+    <div class="modal modal-twoface" id="modalGameOver">
+        <div class="modal-header">
+            <div class="modal-title">💀 DERROTA</div>
+            <button class="modal-close" onclick="closeGameOver()">×</button>
+        </div>
+        <div class="modal-icon">💀</div>
+        <div class="modal-content">
+            <div class="modal-text" id="gameOverMessage">A ameaça tomou conta de Gotham...</div>
+            <div class="modal-stats" id="gameOverStats"></div>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn secondary" onclick="closeGameOver()">FECHAR</button>
+            <button class="modal-btn primary" onclick="retryPhase()">TENTAR NOVAMENTE</button>
+        </div>
+    </div>
+
+    <!-- MODAL DE VITÓRIA FINAL -->
+    <div class="modal-overlay result-overlay" id="finalVictoryOverlay"></div>
+
+    <div class="modal modal-twoface" id="modalFinalVictory">
+        <div class="modal-header">
+            <div class="modal-title">🎉 VITÓRIA TOTAL!</div>
+            <button class="modal-close" onclick="closeFinalVictory()">×</button>
+        </div>
+        <div class="modal-icon">🏆</div>
+        <div class="modal-content">
+            <div class="modal-text">
+                Parabéns! Você completou todas as 5 fases e derrotou Duas-Caras!
+            </div>
+            <div class="modal-stats" id="finalVictoryStats"></div>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn primary" onclick="restartGame()">JOGAR NOVAMENTE</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>🎭 DUAS-CARAS - SISTEMA TÁTICO</h1>
+            <div>
+                <span class="threat-level" id="threatLevelBadge">NÍVEL DE AMEAÇA: BAIXO</span>
+                <span class="coin-flip" id="coinFlip" onclick="flipCoin()">🪙 CARA</span>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <div>
+                <div class="panel">
+                    <div class="panel-title">📊 STATUS DO SISTEMA</div>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">⚡ ENERGIA</div>
+                            <div class="stat-value" id="energyValue">100</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill fill-energy" id="energyBar" style="width: 100%"></div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">🌆 AMEAÇA</div>
+                            <div class="stat-value" id="threatValue">0<span class="stat-unit">%</span></div>
+                            <div class="progress-bar">
+                                <div class="progress-fill fill-threat" id="threatBar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">🏆 REPUTAÇÃO</div>
+                            <div class="stat-value" id="reputationValue">0</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill fill-reputation" id="reputationBar" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">💰 PONTOS</div>
+                            <div class="stat-value" id="scoreValue">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-title">🎯 RADAR TÁTICO - GOTHAM CITY</div>
+                    <div class="radar-filters">
+                        <div class="filter-btn active" data-filter="all">TODOS</div>
+                        <div class="filter-btn" data-filter="financial">CENTRO</div>
+                        <div class="filter-btn" data-filter="industrial">INDUSTRIAL</div>
+                        <div class="filter-btn" data-filter="port">PORTO</div>
+                        <div class="filter-btn" data-filter="arkham">ARKHAM</div>
+                        <div class="filter-btn" data-filter="residential">RESIDENCIAL</div>
+                    </div>
+                    <div class="radar-container" id="radarContainer">
+                        <div class="radar-grid"></div>
+                        <div class="radar-center"></div>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <div class="panel-title">📡 LOG DE EVENTOS</div>
+                    <div class="event-feed" id="eventFeed">
+                        <div class="event-item"><span class="event-time">[SISTEMA]</span> <span
+                                class="event-info">Monitoramento ativo</span></div>
+                    </div>
+                </div>
+
+                <div class="controls">
+                    <button class="btn" onclick="flipCoin()">🪙 JOGAR MOEDA</button>
+                    <button class="btn" onclick="emergencyProtocol()">🚨 PROTOCOLO EMERGÊNCIA</button>
+                    <button class="btn danger" onclick="resetGame()">⚠️ REINICIAR</button>
+                </div>
+            </div>
+
+            <div>
+                <div class="panel">
+                    <div class="panel-title">🗺️ DISTRITOS DE GOTHAM</div>
+                    <div class="districts-grid" id="districtsGrid"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===========================================
+        // CONFIGURAÇÃO DAS FASES - PADRÃO UNIFICADO (igual ao 1.2)
+        // ===========================================
+        const PHASES = [
+            {
+                phase: 1,
+                name: 'INICIANTE',
+                time: 60,
+                energy: 100,
+                targets: 6,
+                coinInterval: 8,
+                threatMultiplier: 1,
+                description: 'Crimes de baixa intensidade'
+            },
+            {
+                phase: 2,
+                name: 'INTERMEDIÁRIO',
+                time: 55,
+                energy: 100,
+                targets: 8,
+                coinInterval: 7,
+                threatMultiplier: 1.2,
+                description: 'Aumento na atividade criminosa'
+            },
+            {
+                phase: 3,
+                name: 'AVANÇADO',
+                time: 50,
+                energy: 100,
+                targets: 10,
+                coinInterval: 6,
+                threatMultiplier: 1.5,
+                description: 'Crimes mais violentos'
+            },
+            {
+                phase: 4,
+                name: 'ESPECIALISTA',
+                time: 45,
+                energy: 100,
+                targets: 12,
+                coinInterval: 5,
+                threatMultiplier: 1.8,
+                description: 'Caos generalizado'
+            },
+            {
+                phase: 5,
+                name: 'MESTRE',
+                time: 40,
+                energy: 100,
+                targets: 15,
+                coinInterval: 4,
+                threatMultiplier: 2,
+                description: 'O julgamento final de Duas-Caras'
+            }
+        ];
+
+        // ===========================================
+        // ESTADO DO JOGO UNIFICADO (igual ao 1.1 e 1.2)
+        // ===========================================
+        let gameState = {
+            player: {
+                points: 0,
+                totalScore: 0,
+                phase: 1
+            },
+            state: {
+                gameActive: false,
+                currentPhase: 0,
+                phaseScore: 0,
+                crimesSolved: 0,
+                energy: 100,
+                threat: 0,
+                reputation: 0,
+                coinSide: 'CARA',
+                activeCrimes: [],
+                districts: {},
+                phaseCompleted: false,
+                totalShots: 0,
+                hits: 0
+            }
+        };
+
+        // Configuração
+        const CONFIG = {
+            maxEnergy: 100,
+            maxThreat: 100,
+            spawnInterval: 8000
+        };
+
+        // Distritos
+        const DISTRICTS = {
+            financial: { name: 'Centro Financeiro', icon: '🏦', threat: 0, crimes: 0, color: '#9d4edd' },
+            industrial: { name: 'Industrial', icon: '🏭', threat: 0, crimes: 0, color: '#ffaa00' },
+            port: { name: 'Porto', icon: '⚓', threat: 0, crimes: 0, color: '#ff0040' },
+            arkham: { name: 'Arkham', icon: '🏥', threat: 0, crimes: 0, color: '#bb86fc' },
+            residential: { name: 'Residencial', icon: '🏘️', threat: 0, crimes: 0, color: '#00ff88' }
+        };
+
+        // Tipos de crime
+        const CRIME_TYPES = {
+            financial: [
+                { name: 'Assalto a Banco', risk: 'high', energy: 25, reputation: 15, threatReduction: 10, duration: 60 },
+                { name: 'Fraude', risk: 'medium', energy: 15, reputation: 10, threatReduction: 6, duration: 90 }
+            ],
+            industrial: [
+                { name: 'Sabotagem', risk: 'high', energy: 30, reputation: 18, threatReduction: 12, duration: 50 },
+                { name: 'Roubo', risk: 'medium', energy: 18, reputation: 12, threatReduction: 7, duration: 80 }
+            ],
+            port: [
+                { name: 'Contrabando', risk: 'high', energy: 28, reputation: 20, threatReduction: 15, duration: 70 },
+                { name: 'Tráfico', risk: 'high', energy: 32, reputation: 22, threatReduction: 16, duration: 60 }
+            ],
+            arkham: [
+                { name: 'Fuga', risk: 'high', energy: 35, reputation: 25, threatReduction: 18, duration: 40 },
+                { name: 'Motim', risk: 'medium', energy: 20, reputation: 14, threatReduction: 8, duration: 70 }
+            ],
+            residential: [
+                { name: 'Revolta', risk: 'medium', energy: 12, reputation: 8, threatReduction: 5, duration: 30 },
+                { name: 'Assalto', risk: 'low', energy: 8, reputation: 5, threatReduction: 3, duration: 45 }
+            ]
+        };
+
+        let currentFilter = 'all';
+        let gameInterval, spawnInterval, coinInterval;
+
+        // ===========================================
+        // FUNÇÃO DE LOADING
+        // ===========================================
+        async function showLoading(message = 'CARREGANDO...', duration = 2000) {
+            return new Promise((resolve) => {
+                const container = document.getElementById('loadingContainer');
+                const text = document.getElementById('loadingText');
+
+                text.textContent = message;
+                container.classList.add('active');
+
+                setTimeout(() => {
+                    container.classList.remove('active');
+                    resolve();
+                }, duration);
+            });
+        }
+
+        // ===========================================
+        // FUNÇÕES DOS MODAIS
+        // ===========================================
+        function closeIntro() {
+            document.getElementById('introOverlay').classList.remove('active');
+            document.getElementById('modalIntro').classList.remove('active');
+            showPhaseModal(0);
+        }
+
+        function showPhaseModal(phaseIndex) {
+            gameState.state.currentPhase = phaseIndex;
+            const phase = PHASES[phaseIndex];
+            gameState.player.phase = phase.phase;
+
+            document.getElementById('phaseModalTitle').textContent = `FASE ${phase.phase} - ${phase.name}`;
+            document.getElementById('phaseTime').textContent = phase.time + 's';
+            document.getElementById('phaseEnergy').textContent = phase.energy;
+            document.getElementById('phaseTargets').textContent = phase.targets;
+            document.getElementById('phaseCoin').textContent = phase.coinInterval + 's';
+
+            document.getElementById('villainPreview').innerHTML = `
+                <div class="villain-preview-icon">🎭</div>
+                <div class="villain-preview-info">
+                    <div class="villain-preview-name">DUAS-CARAS</div>
+                    <div class="villain-preview-stats">
+                        <div>⏰ ${phase.time}s</div>
+                        <div>⚡ ${phase.energy}</div>
+                        <div>🎯 ${phase.targets}</div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('phaseOverlay').classList.add('active');
+            document.getElementById('modalPhase').classList.add('active');
+        }
+
+        function closePhaseModal() {
+            document.getElementById('phaseOverlay').classList.remove('active');
+            document.getElementById('modalPhase').classList.remove('active');
+        }
+
+        async function startPhase() {
+            closePhaseModal();
+
+            await showLoading('PREPARANDO JULGAMENTO...', 2500);
+
+            const phase = PHASES[gameState.state.currentPhase];
+
+            // Resetar estado da fase
+            gameState.state.gameActive = true;
+            gameState.state.energy = phase.energy;
+            gameState.state.threat = 0;
+            gameState.state.reputation = 0;
+            gameState.state.phaseScore = 0;
+            gameState.state.crimesSolved = 0;
+            gameState.state.activeCrimes = [];
+            gameState.state.phaseCompleted = false;
+            gameState.state.totalShots = 0;
+            gameState.state.hits = 0;
+
+            // Inicializar distritos
+            gameState.state.districts = JSON.parse(JSON.stringify(DISTRICTS));
+
+            // Configurar timers
+            if (gameInterval) clearInterval(gameInterval);
+            if (spawnInterval) clearInterval(spawnInterval);
+            if (coinInterval) clearInterval(coinInterval);
+
+            gameInterval = setInterval(gameLoop, 1000);
+            spawnInterval = setInterval(spawnRandomCrime, CONFIG.spawnInterval);
+            coinInterval = setInterval(flipCoin, phase.coinInterval * 1000);
+
+            renderDistricts();
+            updateUI();
+
+            // Crimes iniciais
+            setTimeout(() => {
+                spawnRandomCrime();
+                spawnRandomCrime();
+            }, 2000);
+
+            addEvent('⚡ Sistema tático ativado', 'info');
+        }
+
+        function showResultModal(victory) {
+            const phase = PHASES[gameState.state.currentPhase];
+            const title = victory ? 'VITÓRIA!' : 'DERROTA';
+            const icon = victory ? '🏆' : '💀';
+            const message = victory ?
+                `Fase ${phase.phase} concluída! Duas-Caras recuou.` :
+                'A ameaça tomou conta de Gotham...';
+
+            document.getElementById('resultTitle').textContent = title;
+            document.getElementById('resultIcon').textContent = icon;
+            document.getElementById('resultMessage').textContent = message;
+            document.getElementById('resultScore').textContent = gameState.state.phaseScore;
+            document.getElementById('resultRep').textContent = Math.round(gameState.state.reputation);
+            document.getElementById('resultCrimes').textContent = gameState.state.crimesSolved;
+
+            document.getElementById('resultOverlay').classList.add('active');
+            document.getElementById('modalResult').classList.add('active');
+        }
+
+        function closeResultModal() {
+            document.getElementById('resultOverlay').classList.remove('active');
+            document.getElementById('modalResult').classList.remove('active');
+        }
+
+        // ===== FUNÇÃO PARA ADICIONAR PONTOS AO SISTEMA GLOBAL =====
+        function addToGlobalPoints(p) {
+            if (window.ArkhamCore && typeof ArkhamCore.addPoints === 'function') {
+                ArkhamCore.addPoints(p, 'duascaras');
+            } else {
+                console.warn("ArkhamCore não encontrado, salvando pontos localmente.");
+                const cur = parseInt(localStorage.getItem('batmanPoints') || '0', 10);
+                localStorage.setItem('batmanPoints', (cur + p).toString());
+            }
+            if (typeof updatePointsDisplay === 'function') {
+                updatePointsDisplay();
+            } else {
+                const pointsDisplay = document.getElementById('pointsDisplay');
+                if (pointsDisplay) {
+                    let totalScore = gameState.player?.totalScore || 0;
+                    pointsDisplay.textContent = `💰 ${totalScore}`;
+                }
+            }
+        }
+
+        // Substituir a função nextPhase (aproximadamente linha 650)
+        async function nextPhase() {
+            closeResultModal();
+
+            // Salvar pontuação
+            if (window.ArkhamCore) {
+                ArkhamCore.addPoints(gameState.state.phaseScore, 'duascaras');
+
+                // CORREÇÃO: Registrar progresso da fase
+                ArkhamCore.registerPhaseCompletion('duascaras');
+            } else {
+                const cur = parseInt(localStorage.getItem('batmanPoints') || '0', 10);
+                localStorage.setItem('batmanPoints', (cur + gameState.state.phaseScore).toString());
+            }
+
+            if (gameState.state.currentPhase < PHASES.length - 1) {
+                gameState.state.currentPhase++;
+                gameState.player.phase = gameState.state.currentPhase + 1;
+                await showLoading('AVANÇANDO PARA PRÓXIMA FASE...', 2000);
+                showPhaseModal(gameState.state.currentPhase);
+            } else {
+                await showLoading('VITÓRIA! CARREGANDO RESULTADO...', 2500);
+                showFinalVictory();
+            }
+        }
+
+        function showGameOver(message) {
+            document.getElementById('gameOverMessage').textContent = message;
+
+            const accuracy = gameState.state.totalShots > 0 ? Math.round((gameState.state.hits / gameState.state.totalShots) * 100) : 0;
+
+            document.getElementById('gameOverStats').innerHTML = `
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">⚡ Energia restante:</span>
+                    <span class="modal-stat-value">${Math.round(gameState.state.energy)}</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">📊 Ameaça:</span>
+                    <span class="modal-stat-value">${Math.round(gameState.state.threat)}%</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">🏆 Reputação:</span>
+                    <span class="modal-stat-value">${Math.round(gameState.state.reputation)}</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">💯 Pontuação:</span>
+                    <span class="modal-stat-value">${gameState.state.phaseScore}</span>
+                </div>
+            `;
+
+            document.getElementById('gameOverOverlay').classList.add('active');
+            document.getElementById('modalGameOver').classList.add('active');
+        }
+
+        function closeGameOver() {
+            document.getElementById('gameOverOverlay').classList.remove('active');
+            document.getElementById('modalGameOver').classList.remove('active');
+        }
+
+        async function retryPhase() {
+            closeGameOver();
+
+            await showLoading('REINICIANDO FASE...', 1500);
+
+            showPhaseModal(gameState.state.currentPhase);
+        }
+
+        function showFinalVictory() {
+            gameState.player.totalScore += gameState.state.phaseScore;
+
+            document.getElementById('finalVictoryStats').innerHTML = `
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">🏆 Pontuação Total:</span>
+                    <span class="modal-stat-value success">${gameState.player.totalScore}</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">⭐ Título:</span>
+                    <span class="modal-stat-value">O JULGADOR</span>
+                </div>
+            `;
+
+            document.getElementById('finalVictoryOverlay').classList.add('active');
+            document.getElementById('modalFinalVictory').classList.add('active');
+        }
+
+        function closeFinalVictory() {
+            document.getElementById('finalVictoryOverlay').classList.remove('active');
+            document.getElementById('modalFinalVictory').classList.remove('active');
+        }
+
+        async function restartGame() {
+            closeFinalVictory();
+
+            await showLoading('REINICIANDO JULGAMENTO...', 1500);
+
+            gameState.state.currentPhase = 0;
+            gameState.player.phase = 1;
+            gameState.player.totalScore = 0;
+            gameState.state.gameActive = false;
+            resetGame();
+            showPhaseModal(0);
+        }
+
+        function startGame() {
+            closeIntro();
+            showPhaseModal(0);
+        }
+
+        // ===========================================
+        // FUNÇÕES DO JOGO
+        // ===========================================
+        function flipCoin() {
+            if (!gameState.state.gameActive) return;
+
+            const random = Math.random();
+            gameState.state.coinSide = random < 0.5 ? 'CARA' : 'COROA';
+            document.getElementById('coinFlip').textContent = `🪙 ${gameState.state.coinSide}`;
+            document.getElementById('coinFlip').style.color = gameState.state.coinSide === 'CARA' ? 'var(--success)' : 'var(--danger)';
+            addEvent(`🪙 Moeda girou: ${gameState.state.coinSide}`, 'info');
+
+            if (gameState.state.coinSide === 'COROA') {
+                if (Math.random() < 0.4) spawnRandomCrime();
+                addEvent('⚠️ Lado COROA: Caos aumentado!', 'warning');
+            } else {
+                gameState.state.energy = Math.min(100, gameState.state.energy + 10);
+                addEvent('✨ Lado CARA: Energia recuperada!', 'success');
+            }
+
+            updateUI();
+        }
+
+        function gameLoop() {
+            if (!gameState.state.gameActive) return;
+
+            // Regeneração de energia
+            if (gameState.state.energy < CONFIG.maxEnergy) {
+                gameState.state.energy = Math.min(CONFIG.maxEnergy, gameState.state.energy + 0.5);
+            }
+
+            // Decaimento de ameaça
+            if (gameState.state.threat > 0 && gameState.state.activeCrimes.length === 0) {
+                gameState.state.threat = Math.max(0, gameState.state.threat - 0.3);
+            }
+
+            // Atualizar crimes
+            gameState.state.activeCrimes = gameState.state.activeCrimes.filter(crime => {
+                crime.timeLeft--;
+                if (crime.timeLeft <= 0) {
+                    handleCrimeTimeout(crime);
+                    return false;
+                }
+                return true;
+            });
+
+            updateUI();
+            checkGameOver();
+        }
+
+        function spawnRandomCrime() {
+            if (!gameState.state.gameActive) return;
+
+            const phase = PHASES[gameState.state.currentPhase];
+            const districts = Object.keys(DISTRICTS);
+            const district = districts[Math.floor(Math.random() * districts.length)];
+            const crimeOptions = CRIME_TYPES[district];
+            const crimeType = crimeOptions[Math.floor(Math.random() * crimeOptions.length)];
+
+            let durationMod = 1;
+            if (gameState.state.coinSide === 'COROA') {
+                durationMod = 0.7;
+            }
+
+            const crime = {
+                id: Date.now() + Math.random(),
+                district: district,
+                name: crimeType.name,
+                risk: crimeType.risk,
+                energy: Math.floor(crimeType.energy * phase.threatMultiplier),
+                reputation: Math.floor(crimeType.reputation * phase.threatMultiplier),
+                threatReduction: Math.floor(crimeType.threatReduction * phase.threatMultiplier),
+                timeLeft: Math.floor(crimeType.duration * durationMod),
+                x: Math.random() * 85 + 5,
+                y: Math.random() * 85 + 5
+            };
+
+            gameState.state.activeCrimes.push(crime);
+            gameState.state.districts[district].crimes++;
+            gameState.state.districts[district].threat = Math.min(100, gameState.state.districts[district].threat + 15);
+
+            renderCrime(crime);
+            addEvent(`🚨 ${crime.name} em ${gameState.state.districts[district].name}`, 'danger');
+            updateUI();
+        }
+
+        function renderCrime(crime) {
+            const marker = document.createElement('div');
+            marker.className = `crime-marker crime-${crime.risk}`;
+            marker.id = `crime-${crime.id}`;
+            marker.style.left = `${crime.x}%`;
+            marker.style.top = `${crime.y}%`;
+            marker.dataset.district = crime.district;
+            marker.onclick = (e) => showCrimeTooltip(e, crime);
+            marker.style.display = (currentFilter === 'all' || currentFilter === crime.district) ? 'block' : 'none';
+            document.getElementById('radarContainer').appendChild(marker);
+        }
+
+        function showCrimeTooltip(event, crime) {
+            event.stopPropagation();
+            document.querySelectorAll('.crime-tooltip').forEach(t => t.remove());
+
+            const tooltip = document.createElement('div');
+            tooltip.className = 'crime-tooltip';
+            const rect = event.target.getBoundingClientRect();
+
+            // Posicionamento responsivo
+            let left = rect.right + 10;
+            if (left + 280 > window.innerWidth) {
+                left = rect.left - 290;
+            }
+            tooltip.style.left = `${left}px`;
+            tooltip.style.top = `${rect.top}px`;
+
+            tooltip.innerHTML = `
+                <div class="tooltip-header">
+                    <div class="tooltip-title">${crime.name}</div>
+                    <div class="tooltip-timer">${Math.ceil(crime.timeLeft)}s</div>
+                </div>
+                <div class="tooltip-actions">
+                    <div class="crime-action intercept" onclick="handleCrime('intercept', ${crime.id})">🦇 INTERCEPTAR</div>
+                    <div class="crime-action monitor" onclick="handleCrime('monitor', ${crime.id})">👁️ MONITORAR</div>
+                    <div class="crime-action ignore" onclick="handleCrime('ignore', ${crime.id})">❌ IGNORAR</div>
+                </div>
+            `;
+
+            document.body.appendChild(tooltip);
+        }
+
+        function handleCrime(action, crimeId) {
+            document.querySelectorAll('.crime-tooltip').forEach(t => t.remove());
+
+            const crimeIndex = gameState.state.activeCrimes.findIndex(c => c.id === crimeId);
+            if (crimeIndex === -1) return;
+            const crime = gameState.state.activeCrimes[crimeIndex];
+
+            let energyCost = crime.energy;
+            let threatReduction = crime.threatReduction;
+
+            if (gameState.state.coinSide === 'CARA') {
+                energyCost = Math.floor(energyCost * 0.8);
+            } else {
+                threatReduction = Math.floor(threatReduction * 0.7);
+            }
+
+            gameState.state.totalShots++;
+
+            switch (action) {
+                case 'intercept':
+                    if (gameState.state.energy >= energyCost) {
+                        gameState.state.energy -= energyCost;
+                        gameState.state.threat = Math.max(0, gameState.state.threat - threatReduction);
+                        gameState.state.reputation += crime.reputation;
+                        gameState.state.phaseScore += crime.reputation * 10;
+                        gameState.state.crimesSolved++;
+                        gameState.state.hits++;
+                        gameState.state.districts[crime.district].threat = Math.max(0, gameState.state.districts[crime.district].threat - 20);
+                        gameState.state.districts[crime.district].crimes--;
+                        addEvent(`✅ ${crime.name} interceptado!`, 'success');
+                        addToGlobalPoints(crime.reputation * 10);
+                    } else {
+                        addEvent(`⚠️ Energia insuficiente`, 'warning');
+                        return;
+                    }
+                    break;
+                case 'monitor':
+                    gameState.state.energy = Math.max(0, gameState.state.energy - 5);
+                    gameState.state.threat = Math.min(100, gameState.state.threat + 2);
+                    gameState.state.districts[crime.district].crimes--;
+                    addEvent(`👁️ ${crime.name} monitorado`, 'info');
+                    break;
+                case 'ignore':
+                    gameState.state.threat = Math.min(100, gameState.state.threat + threatReduction);
+                    gameState.state.districts[crime.district].threat = Math.min(100, gameState.state.districts[crime.district].threat + 10);
+                    gameState.state.districts[crime.district].crimes--;
+                    addEvent(`❌ ${crime.name} ignorado`, 'warning');
+                    break;
+            }
+
+            removeCrime(crimeId);
+            updateUI();
+            checkGameOver();
+        }
+
+        function handleCrimeTimeout(crime) {
+            gameState.state.threat = Math.min(100, gameState.state.threat + crime.threatReduction * 1.5);
+            gameState.state.districts[crime.district].threat = Math.min(100, gameState.state.districts[crime.district].threat + 20);
+            gameState.state.districts[crime.district].crimes--;
+            addEvent(`⏰ TEMPO ESGOTADO: ${crime.name}`, 'danger');
+            removeCrime(crime.id);
+            checkGameOver();
+        }
+
+        function removeCrime(crimeId) {
+            const marker = document.getElementById(`crime-${crimeId}`);
+            if (marker) marker.remove();
+            gameState.state.activeCrimes = gameState.state.activeCrimes.filter(c => c.id !== crimeId);
+            updateUI();
+        }
+
+        function filterCrimes() {
+            document.querySelectorAll('.crime-marker').forEach(marker => {
+                marker.style.display = (currentFilter === 'all' || marker.dataset.district === currentFilter) ? 'block' : 'none';
+            });
+        }
+
+        function renderDistricts() {
+            const grid = document.getElementById('districtsGrid');
+            grid.innerHTML = '';
+            Object.entries(gameState.state.districts).forEach(([key, district]) => {
+                let statusClass = 'safe';
+                if (district.threat > 70) statusClass = 'critical';
+                else if (district.threat > 40) statusClass = 'warning';
+
+                const card = document.createElement('div');
+                card.className = `district-card ${statusClass}`;
+                card.innerHTML = `
+                    <div class="district-header">
+                        <div class="district-name">${district.icon} ${district.name}</div>
+                        <div class="district-threat">${Math.round(district.threat)}%</div>
+                    </div>
+                    <div class="district-bar">
+                        <div class="district-bar-fill" style="width: ${district.threat}%; background: ${district.color}"></div>
+                    </div>
+                    <div class="district-info">
+                        <span>🚨 ${district.crimes} crime(s)</span>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function updateUI() {
+            document.getElementById('energyValue').textContent = Math.round(gameState.state.energy);
+            document.getElementById('threatValue').textContent = Math.round(gameState.state.threat);
+            document.getElementById('reputationValue').textContent = Math.round(gameState.state.reputation);
+            document.getElementById('scoreValue').textContent = gameState.state.phaseScore;
+
+            document.getElementById('energyBar').style.width = `${(gameState.state.energy / CONFIG.maxEnergy) * 100}%`;
+            document.getElementById('threatBar').style.width = `${gameState.state.threat}%`;
+            document.getElementById('reputationBar').style.width = `${Math.min(100, gameState.state.reputation)}%`;
+
+            const badge = document.getElementById('threatLevelBadge');
+            if (gameState.state.threat < 30) {
+                badge.textContent = 'NÍVEL DE AMEAÇA: BAIXO';
+                badge.style.borderColor = 'var(--success)';
+            } else if (gameState.state.threat < 70) {
+                badge.textContent = 'NÍVEL DE AMEAÇA: MÉDIO';
+                badge.style.borderColor = 'var(--warning)';
+            } else {
+                badge.textContent = 'NÍVEL DE AMEAÇA: CRÍTICO';
+                badge.style.borderColor = 'var(--danger)';
+            }
+
+            renderDistricts();
+        }
+
+        function addEvent(message, type = 'info') {
+            const feed = document.getElementById('eventFeed');
+            const time = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const item = document.createElement('div');
+            item.className = 'event-item';
+            item.innerHTML = `<span class="event-time">[${time}]</span> <span class="event-${type}">${message}</span>`;
+            feed.insertBefore(item, feed.firstChild);
+            while (feed.children.length > 15) feed.removeChild(feed.lastChild);
+        }
+
+        function emergencyProtocol() {
+            if (!gameState.state.gameActive) return;
+            gameState.state.energy = Math.min(100, gameState.state.energy + 30);
+            gameState.state.threat = Math.max(0, gameState.state.threat - 20);
+            addEvent('🚨 Protocolo de emergência ativado!', 'warning');
+            updateUI();
+        }
+
+        function resetGame() {
+            gameState.state.gameActive = false;
+            gameState.state.energy = 100;
+            gameState.state.threat = 0;
+            gameState.state.reputation = 0;
+            gameState.state.phaseScore = 0;
+            gameState.state.crimesSolved = 0;
+            gameState.state.activeCrimes = [];
+
+            Object.keys(gameState.state.districts).forEach(key => {
+                gameState.state.districts[key].threat = 0;
+                gameState.state.districts[key].crimes = 0;
+            });
+
+            document.querySelectorAll('.crime-marker').forEach(m => m.remove());
+            document.querySelectorAll('.crime-tooltip').forEach(t => t.remove());
+
+            if (gameInterval) clearInterval(gameInterval);
+            if (spawnInterval) clearInterval(spawnInterval);
+            if (coinInterval) clearInterval(coinInterval);
+
+            document.getElementById('coinFlip').textContent = '🪙 CARA';
+            document.getElementById('coinFlip').style.color = 'var(--success)';
+
+            addEvent('🔄 Sistema reinicializado', 'info');
+            updateUI();
+        }
+
+        function checkGameOver() {
+            const phase = PHASES[gameState.state.currentPhase];
+
+            if (gameState.state.threat >= 100) {
+                gameState.state.gameActive = false;
+                showGameOver('⚠️ Ameaça máxima atingida! Gotham está em caos.');
+            } else if (gameState.state.energy <= 0 && gameState.state.activeCrimes.length > 0) {
+                gameState.state.gameActive = false;
+                showGameOver('⚡ Energia esgotada! Sistema desligado.');
+            } else if (gameState.state.crimesSolved >= phase.targets && gameState.state.gameActive) {
+                gameState.state.gameActive = false;
+                showResultModal(true);
+            }
+        }
+
+        function loadPoints() {
+            const saved = localStorage.getItem('batmanPoints') || '0';
+            gameState.player.totalScore = parseInt(saved);
+            document.getElementById('pointsDisplay').textContent = `💰 ${saved}`;
+        }
+
+        function updatePointsDisplay() {
+            document.getElementById('pointsDisplay').textContent = `💰 ${gameState.player.totalScore}`;
+        }
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', () => {
+            gameState.state.districts = JSON.parse(JSON.stringify(DISTRICTS));
+            renderDistricts();
+            loadPoints();
+
+            // Configurar filtros
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    currentFilter = this.dataset.filter;
+                    filterCrimes();
+                });
+            });
+
+            // O modal de introdução já tem a classe 'active' no HTML
+            document.getElementById('introOverlay').classList.add('active');
+        });
+    </script>
+</body>
+
+</html>

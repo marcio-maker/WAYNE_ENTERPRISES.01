@@ -1,0 +1,1792 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>💪 BANE - ANÁLISE DO VENENO</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- ===== ARKHAM CORE ADICIONADO ===== -->
+    <script src="../sistemas/arkham-core.js"></script>
+    <style>
+        /* =========================================== */
+        /* BATMAN HUD SYSTEM - VERSÃO SIMPLIFICADA */
+        /* =========================================== */
+        :root {
+            --primary: #00d9ff;
+            --primary-dark: #0066cc;
+            --success: #00ff88;
+            --warning: #ffaa00;
+            --danger: #ff0040;
+            --info: #bb86fc;
+            --purple: #9d4edd;
+            --bane: #8B4513;
+            --bane-light: #CD853F;
+            --bane-dark: #5D3A1A;
+            --bg-dark: #000;
+            --bg-panel: rgba(10, 20, 40, 0.75);
+            --bg-card: rgba(10, 20, 40, 0.65);
+            --text: #ffffff;
+            --text-dim: #e0e0e0;
+            --border: rgba(139, 69, 19, 0.3);
+            --border-strong: rgba(139, 69, 19, 0.6);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            --shadow-glow: 0 0 20px rgba(139, 69, 19, 0.3);
+            --font-mono: 'Courier New', monospace;
+            --safe-area-inset: env(safe-area-inset-top, 0px);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Remoção completa das barras de rolagem */
+        html,
+        body {
+            overflow: hidden !important;
+            height: 100%;
+            width: 100%;
+            position: fixed;
+            overscroll-behavior: none;
+        }
+
+        body {
+            background: #000000;
+            /* Fundo preto sólido */
+            color: var(--text);
+            font-family: 'Arial', sans-serif;
+            height: 100vh;
+            width: 100vw;
+            position: relative;
+            overflow-y: auto !important;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Scrollbar invisível mas funcional */
+        body::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+
+        /* ===== BOTÃO DE VOLTA ===== */
+        .hub-back-link {
+            position: fixed;
+            top: max(15px, env(safe-area-inset-top));
+            left: 15px;
+            z-index: 10001;
+            color: var(--bane-light);
+            text-decoration: none;
+            padding: clamp(6px, 2vw, 8px) clamp(12px, 3vw, 16px);
+            border: 2px solid var(--bane);
+            border-radius: 8px;
+            background: var(--bg-card);
+            font-size: clamp(0.75rem, 2vw, 0.85rem);
+            font-weight: bold;
+            letter-spacing: 1px;
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-glow);
+            transition: all 0.3s ease;
+        }
+
+        .points-display {
+            position: fixed;
+            top: max(15px, env(safe-area-inset-top));
+            right: 15px;
+            background: var(--bg-card);
+            border: 2px solid var(--bane);
+            border-radius: 8px;
+            padding: clamp(6px, 2vw, 8px) clamp(12px, 3vw, 16px);
+            color: var(--bane-light);
+            font-weight: bold;
+            font-size: clamp(0.85rem, 2.5vw, 1rem);
+            z-index: 10001;
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        /* ===== LOADING ANIMATION ===== */
+        .loading-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(15px);
+            z-index: 20000;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loading-container.active {
+            display: flex;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .loading-icon {
+            font-size: clamp(3rem, 15vw, 5rem);
+            margin-bottom: 20px;
+            animation: spin 1s linear infinite;
+            filter: drop-shadow(0 0 30px var(--bane));
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-text {
+            color: #fff;
+            font-size: clamp(1rem, 4vw, 1.2rem);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: bold;
+            text-shadow: 0 0 10px var(--bane);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        .loading-progress {
+            width: min(200px, 80%);
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            margin-top: 30px;
+            overflow: hidden;
+        }
+
+        .loading-progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, transparent, var(--bane), transparent);
+            animation: progress 2s infinite;
+        }
+
+        /* ===== SISTEMA DE MODAIS GLASSMORPH ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 9999;
+            display: none;
+        }
+
+        .modal-overlay.active {
+            display: block;
+        }
+
+        .intro-overlay {
+            background: url('https://images.pexels.com/photos/1111318/pexels-photo-1111318.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        .phase-overlay {
+            background: url('https://images.pexels.com/photos/2097628/pexels-photo-2097628.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        .result-overlay {
+            background: url('https://images.pexels.com/photos/669996/pexels-photo-669996.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        .modal-overlay::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(5px);
+            z-index: -1;
+        }
+
+        .modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--bg-card);
+            border: 3px solid var(--bane);
+            border-radius: 20px;
+            padding: clamp(15px, 4vw, 30px);
+            width: min(95%, 500px);
+            max-height: 90vh;
+            overflow-y: auto;
+            z-index: 10000;
+            backdrop-filter: blur(15px);
+            box-shadow: var(--shadow), 0 0 50px var(--bane);
+            display: none;
+            animation: modalAppear 0.4s ease-out;
+        }
+
+        .modal.active {
+            display: block;
+        }
+
+        /* Esconder scrollbar do modal mas manter funcional */
+        .modal::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+
+        @keyframes modalAppear {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -45%);
+            }
+
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--bane);
+        }
+
+        .modal-title {
+            color: var(--bane-light);
+            font-size: clamp(1.1rem, 4vw, 1.3rem);
+            font-weight: bold;
+            letter-spacing: 1px;
+            line-height: 1.2;
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            font-size: clamp(1.5rem, 5vw, 1.8rem);
+            cursor: pointer;
+            transition: color 0.3s;
+            padding: 0 8px;
+            line-height: 1;
+        }
+
+        .modal-icon {
+            font-size: clamp(2.5rem, 10vw, 3.5rem);
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        .modal-content {
+            margin: 15px 0;
+        }
+
+        .modal-text {
+            color: var(--text);
+            line-height: 1.5;
+            font-size: clamp(0.9rem, 3vw, 1rem);
+        }
+
+        .modal-text-secondary {
+            color: var(--text-dim);
+            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+            margin-top: 10px;
+        }
+
+        .modal-stats {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--bane);
+            border-radius: 8px;
+            padding: clamp(10px, 3vw, 15px);
+            margin: 15px 0;
+        }
+
+        .modal-stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(139, 69, 19, 0.2);
+            font-size: clamp(0.85rem, 2.5vw, 0.9rem);
+        }
+
+        .modal-stat-label {
+            color: var(--text-dim);
+        }
+
+        .modal-stat-value {
+            color: var(--bane-light);
+            font-weight: bold;
+        }
+
+        .modal-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(139, 69, 19, 0.2);
+            border: 1px solid var(--bane);
+            border-radius: 20px;
+            color: var(--bane-light);
+            font-size: clamp(0.7rem, 2vw, 0.8rem);
+            margin-top: 10px;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .modal-btn {
+            flex: 1 1 auto;
+            min-width: 120px;
+            padding: clamp(10px, 3vw, 12px) clamp(12px, 4vw, 15px);
+            border: 2px solid;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-btn.primary {
+            border-color: var(--bane);
+            color: var(--bane-light);
+        }
+
+        .modal-btn.primary:hover {
+            background: var(--bane);
+            color: #000;
+            box-shadow: 0 0 20px var(--bane);
+        }
+
+        .modal-btn.secondary {
+            border-color: var(--text-dim);
+            color: var(--text-dim);
+        }
+
+        .modal-btn.secondary:hover {
+            border-color: #fff;
+            color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-btn.success {
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .modal-btn.success:hover {
+            background: var(--success);
+            color: #000;
+            box-shadow: 0 0 20px var(--success);
+        }
+
+        /* ===== PREVIEW DO VILÃO ===== */
+        .villain-preview {
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid var(--bane);
+            border-radius: 10px;
+            padding: clamp(15px, 4vw, 20px);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: clamp(10px, 3vw, 20px);
+            backdrop-filter: blur(5px);
+        }
+
+        .villain-preview-icon {
+            font-size: clamp(3rem, 12vw, 4rem);
+            filter: drop-shadow(0 0 20px var(--bane));
+        }
+
+        .villain-preview-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .villain-preview-name {
+            color: var(--bane-light);
+            font-size: clamp(1.2rem, 5vw, 1.5rem);
+            font-weight: bold;
+            margin-bottom: 8px;
+            line-height: 1.2;
+            word-wrap: break-word;
+        }
+
+        .villain-preview-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            color: var(--text-dim);
+            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+        }
+
+        /* ===== CONTEÚDO PRINCIPAL ===== */
+        .game-container {
+            max-width: 1200px;
+            margin: max(60px, env(safe-area-inset-top)) auto 0;
+            width: 100%;
+            height: calc(100vh - 80px);
+            overflow-y: auto;
+            padding: 0 15px 20px;
+            background: #000000;
+            /* Fundo preto sólido */
+        }
+
+        .game-container::-webkit-scrollbar {
+            width: 0px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: var(--bane);
+            font-size: clamp(1.5rem, 5vw, 2.2rem);
+            text-shadow: 0 0 20px var(--bane);
+            margin-bottom: 5px;
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            color: var(--bane-light);
+            font-size: clamp(0.7rem, 2vw, 0.85rem);
+            letter-spacing: 2px;
+        }
+
+        .stats-display {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: clamp(8px, 2vw, 12px);
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 2px solid var(--bane);
+            border-radius: 10px;
+            padding: clamp(10px, 2.5vw, 15px);
+            text-align: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-value {
+            font-size: clamp(1.2rem, 4vw, 1.8rem);
+            font-weight: bold;
+            color: var(--bane-light);
+            text-shadow: 0 0 10px var(--bane);
+            line-height: 1.2;
+        }
+
+        .stat-label {
+            font-size: clamp(0.6rem, 2vw, 0.7rem);
+            color: var(--text-dim);
+            margin-top: 5px;
+            text-transform: uppercase;
+        }
+
+        .case-header {
+            background: var(--bg-panel);
+            border: 2px solid var(--bane);
+            border-radius: 12px;
+            padding: clamp(15px, 3vw, 20px);
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 15px;
+            align-items: center;
+            backdrop-filter: blur(15px);
+            box-shadow: var(--shadow), 0 0 20px var(--bane);
+        }
+
+        .case-info-left,
+        .case-info-right {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .case-info-right {
+            text-align: right;
+        }
+
+        .case-number {
+            color: var(--text-dim);
+            font-size: clamp(0.7rem, 2vw, 0.8rem);
+        }
+
+        .case-id {
+            color: var(--bane-light);
+            font-size: clamp(1rem, 3vw, 1.2rem);
+            font-weight: bold;
+        }
+
+        .timer-display {
+            background: #000;
+            border: 3px solid var(--bane);
+            border-radius: 50%;
+            width: min(100px, 20vw);
+            height: min(100px, 20vw);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 30px var(--bane);
+            margin: 0 auto;
+        }
+
+        .timer-display.degrading {
+            border-color: var(--danger);
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 30px var(--danger);
+            }
+
+            50% {
+                box-shadow: 0 0 50px var(--danger);
+            }
+        }
+
+        .timer-value {
+            font-size: clamp(1.2rem, 4vw, 1.8rem);
+            font-weight: bold;
+            color: var(--bane-light);
+        }
+
+        .degrading .timer-value {
+            color: var(--danger);
+        }
+
+        .timer-label {
+            font-size: clamp(0.6rem, 2vw, 0.7rem);
+            color: var(--text-dim);
+        }
+
+        .venom-status {
+            font-size: clamp(0.6rem, 2vw, 0.7rem);
+            margin-top: 3px;
+            font-weight: bold;
+            color: var(--bane);
+        }
+
+        .venom-sample-panel {
+            background: var(--bg-card);
+            border: 2px solid var(--bane);
+            border-radius: 12px;
+            padding: clamp(15px, 3vw, 20px);
+            margin-bottom: 20px;
+            box-shadow: 0 0 20px rgba(139, 69, 19, 0.3);
+        }
+
+        .venom-sample-panel h3 {
+            color: var(--bane);
+            font-size: clamp(0.9rem, 2.5vw, 1rem);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .venom-sequence-display {
+            display: flex;
+            justify-content: center;
+            gap: clamp(5px, 2vw, 8px);
+            flex-wrap: wrap;
+        }
+
+        .venom-base {
+            width: clamp(35px, 8vw, 50px);
+            height: clamp(35px, 8vw, 50px);
+            border: 2px solid var(--bane);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(1rem, 3vw, 1.5rem);
+            font-weight: bold;
+            background: rgba(139, 69, 19, 0.1);
+            color: var(--bane-light);
+            text-shadow: 0 0 10px var(--bane);
+        }
+
+        .venom-base.mutant {
+            border-color: var(--danger);
+            color: var(--danger);
+            background: rgba(255, 0, 64, 0.1);
+        }
+
+        .suspects-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .suspect-card {
+            background: var(--bg-card);
+            border: 2px solid var(--bane);
+            border-radius: 12px;
+            padding: clamp(12px, 3vw, 20px);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .suspect-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 30px rgba(139, 69, 19, 0.4);
+        }
+
+        .suspect-card.selected {
+            border-color: var(--primary);
+            box-shadow: 0 0 40px var(--primary);
+        }
+
+        .suspect-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .suspect-name {
+            color: var(--bane);
+            font-size: clamp(1rem, 3vw, 1.2rem);
+            font-weight: bold;
+        }
+
+        .suspect-icon {
+            font-size: 1.2rem;
+        }
+
+        .suspect-venom {
+            display: flex;
+            gap: 3px;
+            justify-content: center;
+            margin: 10px 0;
+            flex-wrap: wrap;
+        }
+
+        .suspect-venom .venom-base {
+            width: clamp(28px, 6vw, 35px);
+            height: clamp(28px, 6vw, 35px);
+            font-size: 0.9rem;
+        }
+
+        .match-percentage {
+            text-align: center;
+            font-size: clamp(1rem, 3vw, 1.2rem);
+            font-weight: bold;
+            margin: 8px 0;
+        }
+
+        .match-high {
+            color: var(--danger);
+        }
+
+        .match-medium {
+            color: var(--warning);
+        }
+
+        .match-low {
+            color: var(--bane);
+        }
+
+        .certainty-bar-container {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--bane);
+            border-radius: 8px;
+            padding: 10px;
+            margin: 10px 0;
+        }
+
+        .certainty-bar {
+            height: 15px;
+            background: #000;
+            border: 1px solid var(--bane);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        .certainty-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--danger), var(--warning), var(--bane));
+            transition: width 0.3s ease;
+        }
+
+        .evidence-list {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid var(--bane);
+        }
+
+        .evidence-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 4px 0;
+            font-size: clamp(0.7rem, 2vw, 0.8rem);
+        }
+
+        .evidence-collected {
+            color: var(--success);
+        }
+
+        .evidence-missing {
+            color: #666;
+        }
+
+        .evidence-panel {
+            background: var(--bg-card);
+            border: 2px solid var(--bane);
+            border-radius: 12px;
+            padding: clamp(15px, 3vw, 20px);
+            margin-bottom: 20px;
+        }
+
+        .evidence-panel h3 {
+            color: var(--bane);
+            margin-bottom: 12px;
+            text-align: center;
+            font-size: clamp(0.9rem, 2.5vw, 1rem);
+        }
+
+        .evidence-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(140px, 100%), 1fr));
+            gap: 8px;
+        }
+
+        .evidence-btn {
+            padding: clamp(8px, 2.5vw, 12px);
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid var(--bane);
+            border-radius: 8px;
+            color: var(--bane-light);
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: clamp(0.7rem, 2vw, 0.8rem);
+            backdrop-filter: blur(5px);
+        }
+
+        .evidence-btn:hover:not(:disabled) {
+            background: var(--bane);
+            color: #000;
+            border-color: var(--bane);
+            box-shadow: 0 0 20px var(--bane);
+            transform: translateY(-2px);
+        }
+
+        .evidence-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            flex: 1 1 auto;
+            min-width: 140px;
+            padding: clamp(10px, 2.5vw, 12px) clamp(15px, 4vw, 20px);
+            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+            font-weight: bold;
+            border: 2px solid;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .btn-antidote {
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .btn-antidote:hover:not(:disabled) {
+            background: var(--success);
+            color: #000;
+            box-shadow: 0 0 30px var(--success);
+        }
+
+        .btn-new {
+            border-color: var(--bane);
+            color: var(--bane);
+        }
+
+        .btn-new:hover {
+            background: var(--bane);
+            color: #000;
+            box-shadow: 0 0 30px var(--bane);
+        }
+
+        .btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .log-panel {
+            background: #000;
+            border: 2px solid var(--bane);
+            border-radius: 8px;
+            padding: 10px;
+            max-height: 100px;
+            overflow-y: auto;
+            font-family: var(--font-mono);
+            font-size: clamp(0.7rem, 2vw, 0.8rem);
+        }
+
+        .log-panel::-webkit-scrollbar {
+            width: 0px;
+        }
+
+        .log-entry {
+            padding: 3px 0;
+            border-left: 3px solid var(--bane);
+            padding-left: 8px;
+            margin: 3px 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .log-warning {
+            border-left-color: var(--warning);
+            color: var(--warning);
+        }
+
+        .log-error {
+            border-left-color: var(--danger);
+            color: var(--danger);
+        }
+
+        .log-success {
+            border-left-color: var(--success);
+            color: var(--success);
+        }
+
+        /* Media Queries */
+        @media (max-width: 768px) {
+            .villain-preview {
+                flex-direction: column;
+                text-align: center;
+                gap: 8px;
+            }
+
+            .villain-preview-icon {
+                font-size: 3.5rem;
+            }
+
+            .villain-preview-name {
+                font-size: 1.3rem;
+            }
+
+            .villain-preview-stats {
+                font-size: 0.8rem;
+            }
+
+            .case-header {
+                grid-template-columns: 1fr;
+                text-align: center;
+                gap: 10px;
+            }
+
+            .case-info-left,
+            .case-info-right {
+                text-align: center;
+            }
+
+            .stats-display {
+                grid-template-columns: 1fr;
+            }
+
+            .suspects-container {
+                grid-template-columns: 1fr;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            .modal {
+                width: 95%;
+                padding: 20px;
+            }
+
+            .modal-title {
+                font-size: 1.1rem;
+            }
+
+            .modal-icon {
+                font-size: 3rem;
+            }
+
+            .modal-actions {
+                flex-direction: column;
+            }
+
+            .modal-btn {
+                width: 100%;
+            }
+
+            .points-display {
+                font-size: 0.8rem;
+                padding: 4px 10px;
+            }
+
+            .loading-icon {
+                font-size: 4rem;
+            }
+
+            .loading-text {
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .game-container {
+                margin-top: 55px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .timer-display {
+                width: 80px;
+                height: 80px;
+            }
+
+            .timer-value {
+                font-size: 1.2rem;
+            }
+
+            .venom-base {
+                width: 30px;
+                height: 30px;
+                font-size: 0.9rem;
+            }
+
+            .evidence-buttons {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-value {
+                font-size: 1.2rem;
+            }
+
+            .stat-label {
+                font-size: 0.6rem;
+            }
+        }
+
+        @media (orientation: landscape) and (max-height: 600px) {
+            .game-container {
+                margin-top: 45px;
+            }
+
+            .timer-display {
+                width: 70px;
+                height: 70px;
+            }
+
+            .timer-value {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- BOTÃO DE VOLTA AO HUB (CORRIGIDO) -->
+    <a href="../dash3.html" class="hub-back-link">← HUB</a>
+
+    <div class="points-display" id="pointsDisplay">💪 0</div>
+
+    <!-- LOADING OVERLAY -->
+    <div class="loading-container" id="loadingContainer">
+        <div class="loading-icon">💪</div>
+        <div class="loading-text" id="loadingText">CARREGANDO...</div>
+        <div class="loading-progress">
+            <div class="loading-progress-fill"></div>
+        </div>
+    </div>
+
+    <!-- MODAL DE INTRODUÇÃO -->
+    <div class="modal-overlay intro-overlay" id="introOverlay"></div>
+
+    <div class="modal modal-bane active" id="modalIntro">
+        <div class="modal-header">
+            <div class="modal-title">💪 BANE - ANÁLISE DO VENENO</div>
+            <button class="modal-close" onclick="closeIntro()">×</button>
+        </div>
+        <div class="modal-icon">🧪</div>
+        <div class="modal-content">
+            <div class="modal-text">
+                Bane está distribuindo seu veneno letal por Gotham.
+                Como Batman, você precisa analisar amostras e identificar
+                o responsável antes que o veneno se degrade!
+            </div>
+            <div class="modal-text-secondary">
+                <strong>🎯 INSTRUÇÕES:</strong><br>
+                • Compare a sequência do veneno com os suspeitos<br>
+                • Colete evidências para aumentar sua certeza<br>
+                • O veneno degrada com o tempo - seja rápido!<br>
+                • Complete 5 fases para vencer
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn primary" onclick="startGame()">INICIAR ANÁLISE</button>
+        </div>
+    </div>
+
+    <!-- MODAL DE FASE -->
+    <div class="modal-overlay phase-overlay" id="phaseOverlay"></div>
+
+    <div class="modal modal-bane" id="modalPhase">
+        <div class="modal-header">
+            <div class="modal-title" id="phaseModalTitle">FASE 1 - INICIANTE</div>
+            <button class="modal-close" onclick="closePhaseModal()">×</button>
+        </div>
+        <div class="modal-icon">💪</div>
+        <div class="modal-content">
+            <div class="modal-text" id="phaseDescription">
+                Analise o veneno e identifique o traficante.
+            </div>
+
+            <!-- PREVIEW DO VILÃO - PADRÃO UNIFICADO -->
+            <div class="villain-preview" id="villainPreview"></div>
+
+            <div class="modal-stats">
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">⏰ Tempo:</span>
+                    <span class="modal-stat-value" id="phaseTime">60s</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">🧬 Compostos:</span>
+                    <span class="modal-stat-value" id="phaseLength">4</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">🔬 Suspeitos:</span>
+                    <span class="modal-stat-value" id="phaseSuspects">4</span>
+                </div>
+            </div>
+            <div class="modal-badge">💡 Quanto maior a certeza, mais pontos!</div>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn secondary" onclick="closePhaseModal()">AGUARDAR</button>
+            <button class="modal-btn primary" onclick="startPhase()">INICIAR FASE</button>
+        </div>
+    </div>
+
+    <!-- MODAL DE RESULTADO -->
+    <div class="modal-overlay result-overlay" id="resultOverlay"></div>
+
+    <div class="modal modal-bane" id="modalResult">
+        <div class="modal-header">
+            <div class="modal-title" id="resultTitle">RESULTADO</div>
+            <button class="modal-close" onclick="closeResultModal()">×</button>
+        </div>
+        <div class="modal-icon" id="resultIcon">🏆</div>
+        <div class="modal-content">
+            <div class="modal-text" id="resultMessage"></div>
+            <div class="modal-stats" id="resultStats">
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">Pontuação:</span>
+                    <span class="modal-stat-value success" id="resultScore">0</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">Certeza:</span>
+                    <span class="modal-stat-value" id="resultCertainty">0%</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">Antídotos:</span>
+                    <span class="modal-stat-value" id="resultAntidotes">0</span>
+                </div>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn secondary" onclick="closeResultModal()">FECHAR</button>
+            <button class="modal-btn primary" onclick="nextPhase()">PRÓXIMA FASE</button>
+        </div>
+    </div>
+
+    <!-- MODAL DE GAME OVER -->
+    <div class="modal-overlay result-overlay" id="gameOverOverlay"></div>
+
+    <div class="modal modal-bane" id="modalGameOver">
+        <div class="modal-header">
+            <div class="modal-title">💀 DERROTA</div>
+            <button class="modal-close" onclick="closeGameOver()">×</button>
+        </div>
+        <div class="modal-icon">💀</div>
+        <div class="modal-content">
+            <div class="modal-text" id="gameOverMessage">Análise falhou... O veneno se degradou completamente.</div>
+            <div class="modal-stats" id="gameOverStats"></div>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn secondary" onclick="closeGameOver()">FECHAR</button>
+            <button class="modal-btn primary" onclick="retryPhase()">TENTAR NOVAMENTE</button>
+        </div>
+    </div>
+
+    <!-- MODAL DE VITÓRIA FINAL -->
+    <div class="modal-overlay result-overlay" id="finalVictoryOverlay"></div>
+
+    <div class="modal modal-bane" id="modalFinalVictory">
+        <div class="modal-header">
+            <div class="modal-title">🎉 VITÓRIA TOTAL!</div>
+            <button class="modal-close" onclick="closeFinalVictory()">×</button>
+        </div>
+        <div class="modal-icon">🏆</div>
+        <div class="modal-content">
+            <div class="modal-text">
+                Parabéns! Você completou todas as 5 fases e neutralizou o veneno de Bane!
+            </div>
+            <div class="modal-stats" id="finalVictoryStats"></div>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn primary" onclick="restartGame()">JOGAR NOVAMENTE</button>
+        </div>
+    </div>
+
+    <div class="game-container">
+        <div class="header">
+            <h1>💉 ANÁLISE DO VENENO</h1>
+            <div class="subtitle">LABORATÓRIO TOXICOLÓGICO - GOTHAM PD</div>
+        </div>
+
+        <div class="stats-display">
+            <div class="stat-card">
+                <div class="stat-value" id="scoreDisplay">0</div>
+                <div class="stat-label">PONTOS</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="casesDisplay">0</div>
+                <div class="stat-label">ANTÍDOTOS</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="accuracyDisplay">100%</div>
+                <div class="stat-label">PRECISÃO</div>
+            </div>
+        </div>
+
+        <div class="case-header">
+            <div class="case-info-left">
+                <div class="case-number">CASO ATIVO</div>
+                <div class="case-id">#BANE-<span id="caseNumber">0001</span></div>
+            </div>
+            <div class="timer-display" id="timerDisplay">
+                <div class="timer-label">VENENO</div>
+                <div class="timer-value" id="timerValue">60</div>
+                <div class="venom-status" id="venomStatus">ESTÁVEL</div>
+            </div>
+            <div class="case-info-right">
+                <div class="case-number">NÍVEL</div>
+                <div class="case-id" id="difficultyDisplay">INICIANTE</div>
+            </div>
+        </div>
+
+        <div class="venom-sample-panel">
+            <h3><i class="fas fa-flask"></i> AMOSTRA DE VENENO COLETADA</h3>
+            <div class="venom-sequence-display" id="sampleVenom"></div>
+        </div>
+
+        <div class="suspects-container" id="suspectsContainer"></div>
+
+        <div class="evidence-panel">
+            <h3><i class="fas fa-search"></i> INVESTIGAR COMPOSIÇÃO</h3>
+            <div class="evidence-buttons">
+                <button class="evidence-btn" onclick="collectEvidence('fingerprint')"><i class="fas fa-fingerprint"></i>
+                    RESÍDUOS</button>
+                <button class="evidence-btn" onclick="collectEvidence('camera')"><i class="fas fa-video"></i> LOCAL DO
+                    CRIME</button>
+                <button class="evidence-btn" onclick="collectEvidence('witness')"><i class="fas fa-user-friends"></i>
+                    TRAFICANTES</button>
+                <button class="evidence-btn" onclick="collectEvidence('alibi')"><i class="fas fa-file-alt"></i>
+                    HISTÓRICO</button>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-antidote" id="antidoteBtn" onclick="createAntidote()" disabled><i
+                    class="fas fa-flask"></i> CRIAR ANTÍDOTO</button>
+            <button class="btn btn-new" onclick="newCase()"><i class="fas fa-folder-open"></i> NOVO CASO</button>
+        </div>
+
+        <div class="log-panel" id="logPanel">
+            <div class="log-entry log-success">> LABORATÓRIO INICIADO</div>
+            <div class="log-entry">> ANALISANDO COMPOSTOS DO VENENO</div>
+        </div>
+    </div>
+
+    <script>
+        // ===========================================
+        // CONFIGURAÇÃO DAS FASES - PADRÃO UNIFICADO
+        // ===========================================
+        const PHASES = [
+            { phase: 1, name: 'INICIANTE', time: 60, length: 4, suspects: 4, mutantChance: 0.1, basePoints: 100 },
+            { phase: 2, name: 'INTERMEDIÁRIO', time: 55, length: 5, suspects: 4, mutantChance: 0.15, basePoints: 150 },
+            { phase: 3, name: 'AVANÇADO', time: 50, length: 6, suspects: 5, mutantChance: 0.2, basePoints: 200 },
+            { phase: 4, name: 'ESPECIALISTA', time: 45, length: 7, suspects: 5, mutantChance: 0.25, basePoints: 250 },
+            { phase: 5, name: 'MESTRE', time: 40, length: 8, suspects: 6, mutantChance: 0.3, basePoints: 300 }
+        ];
+
+        // Compostos do Veneno
+        const VENOM_BASES = {
+            basic: ['V1', 'V2', 'V3', 'V4'],
+            mutant: ['X1', 'X2']
+        };
+
+        // ===========================================
+        // ESTADO DO JOGO UNIFICADO
+        // ===========================================
+        let gameState = {
+            player: {
+                points: 0,
+                totalScore: 0,
+                phase: 1
+            },
+            state: {
+                active: false,
+                currentPhase: 0,
+                phaseScore: 0,
+                sampleVenom: [],
+                suspects: [],
+                selectedSuspect: null,
+                timeLeft: 60,
+                timerInterval: null,
+                caseNumber: 1,
+                casesSolved: 0,
+                totalCases: 0,
+                evidenceCollected: { venom: true, fingerprint: false, camera: false, witness: false, alibi: false },
+                phaseCompleted: false
+            }
+        };
+
+        const suspectNames = ['BANE', 'CAPANGA 1', 'CAPANGA 2', 'TRAFICANTE', 'QUÍMICO', 'CONTATINHO'];
+
+        // ===========================================
+        // FUNÇÃO DE LOADING
+        // ===========================================
+        async function showLoading(message = 'CARREGANDO...', duration = 2000) {
+            return new Promise((resolve) => {
+                const container = document.getElementById('loadingContainer');
+                const text = document.getElementById('loadingText');
+
+                text.textContent = message;
+                container.classList.add('active');
+
+                setTimeout(() => {
+                    container.classList.remove('active');
+                    resolve();
+                }, duration);
+            });
+        }
+
+        // ===========================================
+        // FUNÇÕES DOS MODAIS
+        // ===========================================
+        function startGame() {
+            closeIntro();
+            loadPoints();
+            showPhaseModal(0);
+        }
+
+        function closeIntro() {
+            document.getElementById('introOverlay').classList.remove('active');
+            document.getElementById('modalIntro').classList.remove('active');
+        }
+
+        function showPhaseModal(phaseIndex) {
+            gameState.state.currentPhase = phaseIndex;
+            const phase = PHASES[phaseIndex];
+            gameState.player.phase = phase.phase;
+
+            document.getElementById('phaseModalTitle').textContent = `FASE ${phase.phase} - ${phase.name}`;
+            document.getElementById('phaseTime').textContent = phase.time + 's';
+            document.getElementById('phaseLength').textContent = phase.length;
+            document.getElementById('phaseSuspects').textContent = phase.suspects;
+
+            document.getElementById('villainPreview').innerHTML = `
+                <div class="villain-preview-icon">💪</div>
+                <div class="villain-preview-info">
+                    <div class="villain-preview-name">BANE</div>
+                    <div class="villain-preview-stats">
+                        <div>⏰ ${phase.time}s</div>
+                        <div>🧬 ${phase.length}</div>
+                        <div>🔬 ${phase.suspects}</div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('phaseOverlay').classList.add('active');
+            document.getElementById('modalPhase').classList.add('active');
+        }
+
+        function closePhaseModal() {
+            document.getElementById('phaseOverlay').classList.remove('active');
+            document.getElementById('modalPhase').classList.remove('active');
+        }
+
+        async function startPhase() {
+            closePhaseModal();
+
+            await showLoading('ANALISANDO AMOSTRAS...', 2500);
+
+            gameState.state.active = true;
+            newCase();
+        }
+
+        function showResultModal(victory, certainty) {
+            const phase = PHASES[gameState.state.currentPhase];
+            const title = victory ? 'VITÓRIA!' : 'DERROTA';
+            const icon = victory ? '🧪' : '💀';
+            const message = victory ?
+                `Fase ${phase.phase} concluída! Antídoto criado com ${certainty}% de certeza!` :
+                'Análise falhou... O veneno se degradou completamente.';
+
+            document.getElementById('resultTitle').textContent = title;
+            document.getElementById('resultIcon').textContent = icon;
+            document.getElementById('resultMessage').textContent = message;
+            document.getElementById('resultScore').textContent = gameState.state.phaseScore;
+            document.getElementById('resultCertainty').textContent = certainty + '%';
+            document.getElementById('resultAntidotes').textContent = gameState.state.casesSolved;
+
+            document.getElementById('resultOverlay').classList.add('active');
+            document.getElementById('modalResult').classList.add('active');
+        }
+
+        function closeResultModal() {
+            document.getElementById('resultOverlay').classList.remove('active');
+            document.getElementById('modalResult').classList.remove('active');
+        }
+
+        // ===== FUNÇÃO PARA ADICIONAR PONTOS AO SISTEMA GLOBAL =====
+        function addToGlobalPoints(p) {
+            if (window.ArkhamCore && typeof ArkhamCore.addPoints === 'function') {
+                ArkhamCore.addPoints(p, 'bane');
+            } else {
+                console.warn("ArkhamCore não encontrado, salvando pontos localmente.");
+                const cur = parseInt(localStorage.getItem('batmanPoints') || '0', 10);
+                localStorage.setItem('batmanPoints', (cur + p).toString());
+            }
+            if (typeof updatePointsDisplay === 'function') {
+                updatePointsDisplay();
+            } else {
+                const pointsDisplay = document.getElementById('pointsDisplay');
+                if (pointsDisplay) {
+                    let totalScore = gameState.player?.totalScore || 0;
+                    pointsDisplay.textContent = `💰 ${totalScore}`;
+                }
+            }
+        }
+
+        // Substituir a função nextPhase (aproximadamente linha 400)
+        async function nextPhase() {
+            closeResultModal();
+
+            if (gameState.state.currentPhase < PHASES.length - 1) {
+                gameState.state.currentPhase++;
+                gameState.player.phase = gameState.state.currentPhase + 1;
+
+                // CORREÇÃO: Registrar progresso da fase
+                if (window.ArkhamCore) {
+                    ArkhamCore.registerPhaseCompletion('bane');
+                }
+
+                await showLoading('AVANÇANDO PARA PRÓXIMA FASE...', 2000);
+                showPhaseModal(gameState.state.currentPhase);
+            } else {
+                await showLoading('VITÓRIA! CARREGANDO...', 2500);
+                showFinalVictory();
+            }
+        }
+
+        function showGameOver(message) {
+            document.getElementById('gameOverMessage').textContent = message;
+
+            document.getElementById('gameOverStats').innerHTML = `
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">🧪 Antídotos:</span>
+                    <span class="modal-stat-value">${gameState.state.casesSolved}</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">📊 Precisão:</span>
+                    <span class="modal-stat-value">${gameState.state.totalCases > 0 ? Math.round((gameState.state.casesSolved / gameState.state.totalCases) * 100) : 100}%</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">💯 Pontuação:</span>
+                    <span class="modal-stat-value">${gameState.state.phaseScore}</span>
+                </div>
+            `;
+
+            document.getElementById('gameOverOverlay').classList.add('active');
+            document.getElementById('modalGameOver').classList.add('active');
+        }
+
+        function closeGameOver() {
+            document.getElementById('gameOverOverlay').classList.remove('active');
+            document.getElementById('modalGameOver').classList.remove('active');
+        }
+
+        async function retryPhase() {
+            closeGameOver();
+
+            await showLoading('REINICIANDO FASE...', 1500);
+
+            showPhaseModal(gameState.state.currentPhase);
+        }
+
+        function showFinalVictory() {
+            gameState.player.totalScore += gameState.state.phaseScore;
+
+            document.getElementById('finalVictoryStats').innerHTML = `
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">🏆 Pontuação Total:</span>
+                    <span class="modal-stat-value success">${gameState.player.totalScore}</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">⭐ Título:</span>
+                    <span class="modal-stat-value">O QUÍMICO</span>
+                </div>
+            `;
+
+            document.getElementById('finalVictoryOverlay').classList.add('active');
+            document.getElementById('modalFinalVictory').classList.add('active');
+        }
+
+        function closeFinalVictory() {
+            document.getElementById('finalVictoryOverlay').classList.remove('active');
+            document.getElementById('modalFinalVictory').classList.remove('active');
+        }
+
+        async function restartGame() {
+            closeFinalVictory();
+
+            await showLoading('REINICIANDO ANÁLISE...', 1500);
+
+            gameState.state.currentPhase = 0;
+            gameState.player.phase = 1;
+            gameState.player.totalScore = 0;
+            gameState.state.active = false;
+            updatePointsDisplay();
+            showPhaseModal(0);
+        }
+
+        // ===========================================
+        // FUNÇÕES DO JOGO
+        // ===========================================
+        function generateVenom(length, mutantChance) {
+            const bases = VENOM_BASES.basic;
+            const mutantBases = VENOM_BASES.mutant;
+            const venom = [];
+            for (let i = 0; i < length; i++) {
+                if (mutantChance > 0 && Math.random() < mutantChance)
+                    venom.push(mutantBases[Math.floor(Math.random() * mutantBases.length)]);
+                else
+                    venom.push(bases[Math.floor(Math.random() * bases.length)]);
+            }
+            return venom;
+        }
+
+        function renderVenom(venom, containerId) {
+            document.getElementById(containerId).innerHTML = venom.map(v =>
+                `<div class="venom-base ${VENOM_BASES.mutant.includes(v) ? 'mutant' : ''}">${v}</div>`
+            ).join('');
+        }
+
+        function calculateVenomMatch(venom1, venom2) {
+            let matches = 0;
+            for (let i = 0; i < Math.min(venom1.length, venom2.length); i++) {
+                if (venom1[i] === venom2[i]) matches++;
+            }
+            return Math.round((matches / venom1.length) * 100);
+        }
+
+        function getVenomQuality() {
+            if (gameState.state.timeLeft > 45) return 100;
+            if (gameState.state.timeLeft > 30) return 95;
+            if (gameState.state.timeLeft > 15) return 80;
+            return 50;
+        }
+
+        function calculateCertainty(suspect) {
+            let certainty = 0;
+            const venomMatch = calculateVenomMatch(gameState.state.sampleVenom, suspect.venom);
+            const venomQuality = getVenomQuality();
+            certainty += (venomMatch / 100) * 50 * (venomQuality / 100);
+            if (gameState.state.evidenceCollected.fingerprint && suspect.evidence.fingerprint) certainty += 30;
+            if (gameState.state.evidenceCollected.camera && suspect.evidence.camera) certainty += 40;
+            if (gameState.state.evidenceCollected.witness && suspect.evidence.witness) certainty += 20;
+            if (gameState.state.evidenceCollected.alibi && suspect.evidence.alibi) certainty = Math.max(0, certainty - 50);
+            return Math.min(100, Math.round(certainty));
+        }
+
+        function renderSuspects() {
+            const container = document.getElementById('suspectsContainer');
+            container.innerHTML = gameState.state.suspects.map(s => {
+                const venomMatch = calculateVenomMatch(gameState.state.sampleVenom, s.venom);
+                const certainty = calculateCertainty(s);
+                const matchClass = venomMatch >= 75 ? 'match-high' : venomMatch >= 50 ? 'match-medium' : 'match-low';
+                return `
+                    <div class="suspect-card ${gameState.state.selectedSuspect?.id === s.id ? 'selected' : ''}" onclick="selectSuspect(${s.id})">
+                        <div class="suspect-header">
+                            <div class="suspect-name">${s.name}</div>
+                            <div class="suspect-icon">${s.icon}</div>
+                        </div>
+                        <div class="suspect-venom">${s.venom.map(v => `<div class="venom-base ${VENOM_BASES.mutant.includes(v) ? 'mutant' : ''}">${v}</div>`).join('')}</div>
+                        <div class="match-percentage ${matchClass}">VENENO: ${venomMatch}% compatível</div>
+                        <div class="certainty-bar-container">
+                            <div>CERTEZA ${certainty}%</div>
+                            <div class="certainty-bar"><div class="certainty-fill" style="width: ${certainty}%"></div></div>
+                        </div>
+                        <div class="evidence-list">
+                            <div class="evidence-item ${gameState.state.evidenceCollected.fingerprint ? (s.evidence.fingerprint ? 'evidence-collected' : 'evidence-missing') : 'evidence-missing'}">
+                                <i class="fas fa-fingerprint"></i> Resíduos: ${gameState.state.evidenceCollected.fingerprint ? (s.evidence.fingerprint ? 'Positivo' : 'Negativo') : 'Não coletado'}
+                            </div>
+                            <div class="evidence-item ${gameState.state.evidenceCollected.camera ? (s.evidence.camera ? 'evidence-collected' : 'evidence-missing') : 'evidence-missing'}">
+                                <i class="fas fa-video"></i> Local: ${gameState.state.evidenceCollected.camera ? (s.evidence.camera ? 'Presente' : 'Ausente') : 'Não verificado'}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function selectSuspect(id) {
+            gameState.state.selectedSuspect = gameState.state.suspects.find(s => s.id === id);
+            renderSuspects();
+            document.getElementById('antidoteBtn').disabled = false;
+        }
+
+        function collectEvidence(type) {
+            if (gameState.state.evidenceCollected[type]) return;
+            gameState.state.evidenceCollected[type] = true;
+            event.target.disabled = true;
+            addLog(`✓ Evidência coletada: ${type}`, 'success');
+            renderSuspects();
+        }
+
+        function createAntidote() {
+            if (!gameState.state.selectedSuspect) return;
+            clearInterval(gameState.state.timerInterval);
+
+            const certainty = calculateCertainty(gameState.state.selectedSuspect);
+            const suspect = gameState.state.selectedSuspect;
+            gameState.state.totalCases++;
+
+            let victory = false;
+            let points = 0;
+
+            if (suspect.isBane && certainty >= 60) {
+                points = certainty >= 95 ? 300 : certainty >= 80 ? 200 : 150;
+                gameState.state.phaseScore += points;
+                gameState.player.totalScore += points;
+                gameState.state.casesSolved++;
+                addToGlobalPoints(points);
+                victory = true;
+            } else if (!suspect.isBane) {
+                points = 0;
+                victory = false;
+            } else {
+                points = 50;
+                gameState.state.phaseScore += points;
+                gameState.player.totalScore += points;
+                victory = false;
+            }
+
+            gameState.state.active = false;
+            updateStats();
+            updatePointsDisplay();
+
+            if (victory) {
+                showResultModal(true, certainty);
+            } else {
+                showGameOver('❌ Antídoto falhou! O suspeito não era Bane.');
+            }
+        }
+
+        function newCase() {
+            const phase = PHASES[gameState.state.currentPhase];
+
+            gameState.state.evidenceCollected = { venom: true, fingerprint: false, camera: false, witness: false, alibi: false };
+            document.querySelectorAll('.evidence-btn').forEach(b => { b.disabled = false; });
+
+            gameState.state.sampleVenom = generateVenom(phase.length, phase.mutantChance);
+            renderVenom(gameState.state.sampleVenom, 'sampleVenom');
+
+            gameState.state.suspects = [];
+            const shuffled = [...suspectNames].sort(() => Math.random() - 0.5);
+            const baneIndex = Math.floor(Math.random() * phase.suspects);
+
+            for (let i = 0; i < phase.suspects; i++) {
+                const isBane = i === baneIndex;
+                let venom = isBane ? [...gameState.state.sampleVenom] : generateVenom(phase.length, phase.mutantChance);
+                if (!isBane) while (calculateVenomMatch(venom, gameState.state.sampleVenom) === 100)
+                    venom = generateVenom(phase.length, phase.mutantChance);
+
+                gameState.state.suspects.push({
+                    id: i,
+                    name: shuffled[i],
+                    venom: venom,
+                    isBane: isBane,
+                    icon: isBane ? '💪' : '👤',
+                    evidence: {
+                        fingerprint: isBane ? Math.random() > 0.3 : Math.random() > 0.7,
+                        camera: isBane ? Math.random() > 0.4 : Math.random() > 0.8,
+                        witness: isBane ? Math.random() > 0.5 : Math.random() > 0.8,
+                        alibi: isBane ? false : Math.random() > 0.5
+                    }
+                });
+            }
+
+            gameState.state.selectedSuspect = null;
+            gameState.state.caseNumber++;
+            document.getElementById('caseNumber').textContent = String(gameState.state.caseNumber).padStart(4, '0');
+            document.getElementById('difficultyDisplay').textContent = phase.name;
+
+            renderSuspects();
+            startTimer(phase.time);
+            document.getElementById('antidoteBtn').disabled = true;
+            addLog(`━━━ FASE ${phase.phase}: ${phase.name} ━━━`, 'success');
+        }
+
+        function startTimer(seconds) {
+            if (gameState.state.timerInterval) clearInterval(gameState.state.timerInterval);
+            gameState.state.timeLeft = seconds;
+
+            gameState.state.timerInterval = setInterval(() => {
+                gameState.state.timeLeft--;
+                document.getElementById('timerValue').textContent = gameState.state.timeLeft;
+
+                const quality = getVenomQuality();
+                const status = document.getElementById('venomStatus');
+                const timer = document.getElementById('timerDisplay');
+
+                if (quality === 100) {
+                    status.textContent = 'ESTÁVEL';
+                    status.style.color = 'var(--success)';
+                    timer.classList.remove('degrading');
+                }
+                else if (quality === 95) {
+                    status.textContent = 'DEGRADANDO';
+                    status.style.color = 'var(--warning)';
+                    timer.classList.remove('degrading');
+                }
+                else if (quality === 80) {
+                    status.textContent = 'INSTÁVEL';
+                    status.style.color = 'var(--danger)';
+                    timer.classList.add('degrading');
+                }
+                else {
+                    status.textContent = 'INUTILIZÁVEL';
+                    status.style.color = 'var(--danger)';
+                    timer.classList.add('degrading');
+                }
+
+                if (gameState.state.timeLeft <= 0) {
+                    clearInterval(gameState.state.timerInterval);
+                    addLog('✗ AMOSTRA DE VENENO DEGRADADA', 'error');
+                    gameState.player.totalScore += gameState.state.phaseScore;
+                    gameState.state.active = false;
+                    updatePointsDisplay();
+                    showGameOver('⏰ Tempo esgotado! A amostra se degradou.');
+                }
+
+                renderSuspects();
+            }, 1000);
+        }
+
+        function updateStats() {
+            document.getElementById('scoreDisplay').textContent = gameState.player.totalScore;
+            document.getElementById('casesDisplay').textContent = gameState.state.casesSolved;
+            const acc = gameState.state.totalCases > 0 ? Math.round((gameState.state.casesSolved / gameState.state.totalCases) * 100) : 100;
+            document.getElementById('accuracyDisplay').textContent = acc + '%';
+        }
+
+        function addLog(msg, type) {
+            const log = document.getElementById('logPanel');
+            const e = document.createElement('div');
+            e.className = `log-entry log-${type || ''}`;
+            e.textContent = '> ' + msg;
+            log.insertBefore(e, log.firstChild);
+            while (log.children.length > 10) log.removeChild(log.lastChild);
+        }
+
+        function updatePointsDisplay() {
+            document.getElementById('pointsDisplay').textContent = `💪 ${gameState.player.totalScore}`;
+        }
+
+        function loadPoints() {
+            const saved = localStorage.getItem('batmanPoints') || '0';
+            gameState.player.totalScore = parseInt(saved);
+            document.getElementById('pointsDisplay').textContent = `💪 ${saved}`;
+        }
+
+        window.addEventListener('DOMContentLoaded', function () {
+            loadPoints();
+            document.getElementById('introOverlay').classList.add('active');
+        });
+    </script>
+</body>
+
+</html>

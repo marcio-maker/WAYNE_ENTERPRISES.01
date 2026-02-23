@@ -1,0 +1,1851 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>❓ CHARADA - DECODIFICADOR DE ENIGMAS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- ===== ARKHAM CORE ADICIONADO ===== -->
+    <script src="../sistemas/arkham-core.js"></script>
+    <style>
+        /* =========================================== */
+        /* BATMAN HUD SYSTEM - VERSÃO SIMPLIFICADA */
+        /* =========================================== */
+        :root {
+            --primary: #00d9ff;
+            --primary-dark: #0066cc;
+            --success: #00ff88;
+            --warning: #ffaa00;
+            --danger: #ff0040;
+            --info: #bb86fc;
+            --purple: #9d4edd;
+            --riddler: #39ff14;
+            --riddler-dark: #00aa00;
+            --riddler-dim: #1a5a1a;
+            --bg-dark: #000;
+            --bg-panel: rgba(10, 20, 40, 0.75);
+            --bg-card: rgba(10, 20, 40, 0.65);
+            --text: #ffffff;
+            --text-dim: #e0e0e0;
+            --border: rgba(57, 255, 20, 0.3);
+            --border-strong: rgba(57, 255, 20, 0.6);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            --shadow-glow: 0 0 20px rgba(57, 255, 20, 0.3);
+            --font-mono: 'Courier New', monospace;
+            --safe-area-inset: env(safe-area-inset-top, 0px);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Remoção completa das barras de rolagem */
+        html,
+        body {
+            overflow: hidden !important;
+            height: 100%;
+            width: 100%;
+            position: fixed;
+            overscroll-behavior: none;
+        }
+
+        body {
+            background: #000000;
+            /* Fundo preto sólido */
+            color: var(--text);
+            font-family: 'Arial', sans-serif;
+            height: 100vh;
+            width: 100vw;
+            position: relative;
+            overflow-y: auto !important;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Scrollbar invisível mas funcional */
+        body::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+
+        /* ===== BOTÃO DE VOLTA ===== */
+        .hub-back-link {
+            position: fixed;
+            top: max(15px, env(safe-area-inset-top));
+            left: 15px;
+            z-index: 10002;
+            color: var(--riddler);
+            text-decoration: none;
+            padding: clamp(6px, 2vw, 8px) clamp(12px, 3vw, 16px);
+            border: 2px solid var(--riddler);
+            border-radius: 8px;
+            background: var(--bg-card);
+            font-size: clamp(0.75rem, 2vw, 0.85rem);
+            font-weight: bold;
+            letter-spacing: 1px;
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-glow);
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .points-display {
+            position: fixed;
+            top: max(15px, env(safe-area-inset-top));
+            right: 15px;
+            background: var(--bg-card);
+            border: 2px solid var(--riddler);
+            border-radius: 8px;
+            padding: clamp(6px, 2vw, 8px) clamp(12px, 3vw, 16px);
+            color: var(--riddler);
+            font-weight: bold;
+            font-size: clamp(0.85rem, 2.5vw, 1rem);
+            z-index: 10002;
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        /* ===== LOADING ANIMATION ===== */
+        .loading-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(15px);
+            z-index: 20000;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loading-container.active {
+            display: flex;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .loading-icon {
+            font-size: clamp(3rem, 15vw, 5rem);
+            margin-bottom: 20px;
+            animation: spin 1s linear infinite;
+            filter: drop-shadow(0 0 30px var(--riddler));
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-text {
+            color: #fff;
+            font-size: clamp(1rem, 4vw, 1.2rem);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: bold;
+            text-shadow: 0 0 10px var(--riddler);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        .loading-progress {
+            width: min(200px, 80%);
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            margin-top: 30px;
+            overflow: hidden;
+        }
+
+        .loading-progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, transparent, var(--riddler), transparent);
+            animation: progress 2s infinite;
+        }
+
+        /* ===== SISTEMA DE MODAIS GLASSMORPH ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 9999;
+            display: none;
+        }
+
+        .modal-overlay.active {
+            display: block;
+        }
+
+        .intro-overlay {
+            background: url('https://images.pexels.com/photos/1111318/pexels-photo-1111318.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        .phase-overlay {
+            background: url('https://images.pexels.com/photos/2097628/pexels-photo-2097628.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        .result-overlay {
+            background: url('https://images.pexels.com/photos/669996/pexels-photo-669996.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        .modal-overlay::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(5px);
+            z-index: -1;
+        }
+
+        .modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--bg-card);
+            border: 3px solid var(--riddler);
+            border-radius: 20px;
+            padding: clamp(15px, 4vw, 30px);
+            width: min(95%, 500px);
+            max-height: 90vh;
+            overflow-y: auto;
+            z-index: 10000;
+            backdrop-filter: blur(15px);
+            box-shadow: var(--shadow), 0 0 50px var(--riddler);
+            display: none;
+            animation: modalAppear 0.4s ease-out;
+        }
+
+        .modal.active {
+            display: block;
+        }
+
+        /* Esconder scrollbar do modal mas manter funcional */
+        .modal::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+
+        @keyframes modalAppear {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -45%);
+            }
+
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--riddler);
+        }
+
+        .modal-title {
+            color: var(--riddler);
+            font-size: clamp(1.1rem, 4vw, 1.3rem);
+            font-weight: bold;
+            letter-spacing: 1px;
+            line-height: 1.2;
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            font-size: clamp(1.5rem, 5vw, 1.8rem);
+            cursor: pointer;
+            transition: color 0.3s;
+            padding: 0 8px;
+            line-height: 1;
+        }
+
+        .modal-icon {
+            font-size: clamp(2.5rem, 10vw, 3.5rem);
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        .modal-content {
+            margin: 15px 0;
+        }
+
+        .modal-text {
+            color: var(--text);
+            line-height: 1.5;
+            font-size: clamp(0.9rem, 3vw, 1rem);
+        }
+
+        .modal-text-secondary {
+            color: var(--text-dim);
+            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+            margin-top: 10px;
+        }
+
+        .modal-stats {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--riddler);
+            border-radius: 8px;
+            padding: clamp(10px, 3vw, 15px);
+            margin: 15px 0;
+        }
+
+        .modal-stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(57, 255, 20, 0.2);
+            font-size: clamp(0.85rem, 2.5vw, 0.9rem);
+        }
+
+        .modal-stat-label {
+            color: var(--text-dim);
+        }
+
+        .modal-stat-value {
+            color: var(--riddler);
+            font-weight: bold;
+        }
+
+        .modal-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(57, 255, 20, 0.2);
+            border: 1px solid var(--riddler);
+            border-radius: 20px;
+            color: var(--riddler);
+            font-size: clamp(0.7rem, 2vw, 0.8rem);
+            margin-top: 10px;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .modal-btn {
+            flex: 1 1 auto;
+            min-width: 120px;
+            padding: clamp(10px, 3vw, 12px) clamp(12px, 4vw, 15px);
+            border: 2px solid;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-btn.primary {
+            border-color: var(--riddler);
+            color: var(--riddler);
+        }
+
+        .modal-btn.primary:hover {
+            background: var(--riddler);
+            color: #000;
+            box-shadow: 0 0 20px var(--riddler);
+        }
+
+        .modal-btn.secondary {
+            border-color: var(--text-dim);
+            color: var(--text-dim);
+        }
+
+        .modal-btn.secondary:hover {
+            border-color: #fff;
+            color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-btn.success {
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .modal-btn.success:hover {
+            background: var(--success);
+            color: #000;
+            box-shadow: 0 0 20px var(--success);
+        }
+
+        /* ===== PREVIEW DO VILÃO ===== */
+        .villain-preview {
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid var(--riddler);
+            border-radius: 10px;
+            padding: clamp(15px, 4vw, 20px);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: clamp(10px, 3vw, 20px);
+            backdrop-filter: blur(5px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .villain-preview::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 60px;
+            height: 60px;
+            background: var(--riddler);
+            opacity: 0.2;
+            border-radius: 50%;
+            filter: blur(20px);
+            z-index: 0;
+        }
+
+        .villain-preview-icon {
+            font-size: clamp(3rem, 12vw, 4rem);
+            filter: drop-shadow(0 0 20px var(--riddler));
+            position: relative;
+            z-index: 1;
+        }
+
+        .villain-preview-info {
+            flex: 1;
+            min-width: 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .villain-preview-name {
+            color: var(--riddler);
+            font-size: clamp(1.2rem, 5vw, 1.5rem);
+            font-weight: bold;
+            margin-bottom: 8px;
+            line-height: 1.2;
+            word-wrap: break-word;
+        }
+
+        .villain-preview-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            color: var(--text-dim);
+            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+        }
+
+        .villain-preview-stats div {
+            background: rgba(57, 255, 20, 0.1);
+            padding: 5px;
+            border-radius: 5px;
+            border-left: 2px solid var(--riddler);
+        }
+
+        /* ===== CONTEÚDO PRINCIPAL ===== */
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            background: var(--bg-panel);
+            border: 3px solid var(--riddler);
+            border-radius: 15px;
+            padding: clamp(15px, 4vw, 30px);
+            backdrop-filter: blur(15px);
+            box-shadow: var(--shadow), 0 0 60px var(--riddler);
+            position: relative;
+            margin: max(60px, env(safe-area-inset-top)) auto 20px;
+            max-height: calc(100vh - 80px);
+            overflow-y: auto;
+        }
+
+        .container::-webkit-scrollbar {
+            width: 0px;
+        }
+
+        .level-indicator {
+            position: absolute;
+            top: clamp(10px, 2vw, 15px);
+            right: clamp(10px, 2vw, 15px);
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid var(--riddler);
+            border-radius: 8px;
+            padding: 4px 10px;
+            color: var(--riddler);
+            font-size: clamp(0.7rem, 2vw, 0.8rem);
+            font-weight: bold;
+            backdrop-filter: blur(5px);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid var(--riddler);
+            padding-bottom: 15px;
+        }
+
+        h1 {
+            color: var(--riddler);
+            font-size: clamp(1.5rem, 5vw, 2rem);
+            text-shadow: 0 0 20px var(--riddler);
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            color: var(--text-dim);
+            font-size: clamp(0.7rem, 2vw, 0.8rem);
+            letter-spacing: 2px;
+        }
+
+        .mission-panel {
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid var(--riddler);
+            border-radius: 12px;
+            padding: clamp(15px, 3vw, 20px);
+            margin-bottom: 15px;
+        }
+
+        .mission-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--riddler);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .mission-title {
+            color: var(--riddler);
+            font-size: clamp(0.9rem, 3vw, 1rem);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .timer {
+            color: var(--warning);
+            font-size: clamp(1.5rem, 5vw, 1.8rem);
+            font-weight: bold;
+            font-family: var(--font-mono);
+        }
+
+        .timer.critical {
+            color: var(--danger);
+            animation: blink 0.5s infinite;
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .context-box {
+            background: rgba(57, 255, 20, 0.1);
+            border-left: 4px solid var(--riddler);
+            padding: 10px;
+            margin-bottom: 15px;
+            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+            color: var(--text-dim);
+            font-style: italic;
+        }
+
+        .sequence-container {
+            margin: 15px 0;
+        }
+
+        .sequence-label {
+            color: var(--riddler);
+            font-size: clamp(0.7rem, 2vw, 0.75rem);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .target-sequence,
+        .player-sequence {
+            display: flex;
+            justify-content: center;
+            gap: clamp(5px, 2vw, 8px);
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .symbol-slot {
+            width: clamp(45px, 10vw, 70px);
+            height: clamp(45px, 10vw, 70px);
+            background: #000;
+            border: 3px solid var(--riddler);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: clamp(1.5rem, 5vw, 2.5rem);
+            transition: all 0.3s;
+            box-shadow: 0 0 15px rgba(57, 255, 20, 0.2);
+        }
+
+        .symbol-slot.target {
+            border-color: var(--riddler);
+            color: var(--riddler);
+            text-shadow: 0 0 10px var(--riddler);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .symbol-slot.correct {
+            border-color: var(--success);
+            background: rgba(0, 255, 136, 0.1);
+            box-shadow: 0 0 20px var(--success);
+        }
+
+        .symbol-slot.wrong-position {
+            border-color: var(--warning);
+            background: rgba(255, 170, 0, 0.1);
+            box-shadow: 0 0 20px var(--warning);
+        }
+
+        .symbol-slot.wrong {
+            border-color: var(--danger);
+            background: rgba(255, 0, 64, 0.1);
+            box-shadow: 0 0 20px var(--danger);
+        }
+
+        .symbol-library {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(60px, 100%), 1fr));
+            gap: clamp(5px, 1.5vw, 8px);
+            margin: 15px 0;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 12px;
+            border: 1px solid var(--riddler);
+        }
+
+        .symbol-option {
+            background: #0a1a2a;
+            border: 2px solid var(--riddler);
+            border-radius: 8px;
+            padding: clamp(8px, 2vw, 10px);
+            text-align: center;
+            font-size: clamp(1.5rem, 4vw, 2rem);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .symbol-option:hover {
+            transform: translateY(-3px);
+            border-color: var(--riddler);
+            box-shadow: 0 0 20px var(--riddler);
+            background: rgba(57, 255, 20, 0.1);
+        }
+
+        .feedback-panel {
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid var(--riddler);
+            border-radius: 10px;
+            padding: 12px;
+            margin: 15px 0;
+            min-height: 60px;
+            color: var(--riddler);
+            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: clamp(5px, 2vw, 10px);
+            margin: 15px 0;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 10px;
+            border: 1px solid var(--riddler);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: clamp(0.55rem, 2vw, 0.65rem);
+            color: var(--text-dim);
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+
+        .stat-value {
+            font-size: clamp(1.2rem, 4vw, 1.5rem);
+            font-weight: bold;
+            color: var(--riddler);
+            text-shadow: 0 0 10px var(--riddler);
+            line-height: 1.2;
+        }
+
+        .stat-value.good {
+            color: var(--success);
+        }
+
+        .stat-value.warning {
+            color: var(--warning);
+        }
+
+        .stat-value.danger {
+            color: var(--danger);
+        }
+
+        .controls {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .btn {
+            flex: 1 1 auto;
+            min-width: 120px;
+            padding: clamp(10px, 2.5vw, 12px) clamp(12px, 3vw, 15px);
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid var(--riddler);
+            color: var(--riddler);
+            font-size: clamp(0.75rem, 2.5vw, 0.85rem);
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            backdrop-filter: blur(5px);
+        }
+
+        .btn:hover:not(:disabled) {
+            background: var(--riddler);
+            color: #000;
+            box-shadow: 0 0 25px var(--riddler);
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .btn-success {
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .btn-success:hover:not(:disabled) {
+            background: var(--success);
+            color: #000;
+            box-shadow: 0 0 25px var(--success);
+        }
+
+        .decoded-message {
+            background: rgba(57, 255, 20, 0.1);
+            border: 2px solid var(--success);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+            animation: revealMessage 0.5s;
+        }
+
+        @keyframes revealMessage {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .rewards {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .reward-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--success);
+            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+        }
+
+        /* Media Queries */
+        @media (max-width: 768px) {
+            .villain-preview {
+                flex-direction: column;
+                text-align: center;
+                gap: 8px;
+            }
+
+            .villain-preview-icon {
+                font-size: 3.5rem;
+            }
+
+            .villain-preview-name {
+                font-size: 1.3rem;
+            }
+
+            .villain-preview-stats {
+                font-size: 0.8rem;
+            }
+
+            .container {
+                padding: 15px;
+                margin: 50px 10px 10px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .symbol-slot {
+                width: 45px;
+                height: 45px;
+                font-size: 1.5rem;
+            }
+
+            .symbol-option {
+                font-size: 1.5rem;
+                padding: 8px;
+            }
+
+            .stats-bar {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+
+            .modal {
+                width: 95%;
+                padding: 20px;
+            }
+
+            .modal-title {
+                font-size: 1.1rem;
+            }
+
+            .modal-icon {
+                font-size: 3rem;
+            }
+
+            .modal-actions {
+                flex-direction: column;
+            }
+
+            .modal-btn {
+                width: 100%;
+            }
+
+            .points-display {
+                font-size: 0.8rem;
+                padding: 4px 10px;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .loading-icon {
+                font-size: 4rem;
+            }
+
+            .loading-text {
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .symbol-slot {
+                width: 38px;
+                height: 38px;
+                font-size: 1.3rem;
+                border-width: 2px;
+            }
+
+            .symbol-option {
+                font-size: 1.3rem;
+                padding: 6px;
+            }
+
+            .mission-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .timer {
+                font-size: 1.3rem;
+            }
+
+            .stat-value {
+                font-size: 1.1rem;
+            }
+
+            .stat-label {
+                font-size: 0.5rem;
+            }
+        }
+
+        @media (orientation: landscape) and (max-height: 600px) {
+            .container {
+                margin-top: 45px;
+                max-height: calc(100vh - 50px);
+            }
+
+            .symbol-slot {
+                width: 35px;
+                height: 35px;
+                font-size: 1.2rem;
+            }
+
+            .symbol-option {
+                padding: 4px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <a href="../dash3.html" class="hub-back-link">
+        <i class="fas fa-arrow-left"></i> HUB
+    </a>
+
+    <div class="points-display" id="pointsDisplay">💰 0</div>
+
+    <!-- LOADING OVERLAY -->
+    <div class="loading-container" id="loadingContainer">
+        <div class="loading-icon">❓</div>
+        <div class="loading-text" id="loadingText">CARREGANDO...</div>
+        <div class="loading-progress">
+            <div class="loading-progress-fill"></div>
+        </div>
+    </div>
+
+    <!-- MODAL DE INTRODUÇÃO -->
+    <div class="modal-overlay intro-overlay" id="introOverlay"></div>
+
+    <div class="modal modal-riddler active" id="modalIntro">
+        <div class="modal-header">
+            <div class="modal-title">❓ CHARADA - DECODIFICADOR DE ENIGMAS</div>
+            <button class="modal-close" onclick="closeIntro()">×</button>
+        </div>
+        <div class="modal-icon">🧩</div>
+        <div class="modal-content">
+            <div class="modal-text">
+                Edward Nygma, o Charada, está espalhando códigos enigmáticos por Gotham.
+                Intercepte suas mensagens e decifre os padrões de símbolos antes que ele execute seus planos!
+            </div>
+            <div class="modal-text-secondary">
+                <strong>🎯 INSTRUÇÕES:</strong><br>
+                • Selecione os símbolos na ordem correta para replicar o código alvo<br>
+                • O tempo é limitado e diminui a cada fase<br>
+                • Ganhe bônus por tempo restante e tentativas restantes<br>
+                • Complete 5 fases para provar que é mais inteligente que o Charada
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn primary" onclick="startGame()">INICIAR DECODIFICAÇÃO</button>
+        </div>
+    </div>
+
+    <!-- MODAL DE FASE -->
+    <div class="modal-overlay phase-overlay" id="phaseOverlay"></div>
+
+    <div class="modal modal-riddler" id="modalPhase">
+        <div class="modal-header">
+            <div class="modal-title" id="phaseModalTitle">FASE 1 - INICIANTE</div>
+            <button class="modal-close" onclick="closePhaseModal()">×</button>
+        </div>
+        <div class="modal-icon">❓</div>
+        <div class="modal-content">
+            <div class="modal-text" id="phaseDescription">
+                Intercepte as mensagens iniciais do Charada.
+            </div>
+
+            <!-- PREVIEW DO VILÃO -->
+            <div class="villain-preview" id="villainPreview"></div>
+
+            <div class="modal-stats">
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">⏰ TEMPO:</span>
+                    <span class="modal-stat-value" id="phaseTime">30s</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">🔣 SÍMBOLOS:</span>
+                    <span class="modal-stat-value" id="phaseLength">3</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">🎁 TENTATIVAS:</span>
+                    <span class="modal-stat-value" id="phaseAttempts">5</span>
+                </div>
+            </div>
+            <div class="modal-badge">💡 Quanto mais rápido decifrar, maior a pontuação!</div>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn secondary" onclick="closePhaseModal()">AGUARDAR</button>
+            <button class="modal-btn primary" onclick="startPhase()">INICIAR FASE</button>
+        </div>
+    </div>
+
+    <!-- MODAL DE RESULTADO -->
+    <div class="modal-overlay result-overlay" id="resultOverlay"></div>
+
+    <div class="modal modal-riddler" id="modalResult">
+        <div class="modal-header">
+            <div class="modal-title" id="resultTitle">RESULTADO</div>
+            <button class="modal-close" onclick="closeResultModal()">×</button>
+        </div>
+        <div class="modal-icon" id="resultIcon">🏆</div>
+        <div class="modal-content">
+            <div class="modal-text" id="resultMessage"></div>
+            <div class="modal-stats" id="resultStats">
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">Pontuação:</span>
+                    <span class="modal-stat-value success" id="resultScore">0</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">Decifrados:</span>
+                    <span class="modal-stat-value" id="resultSolved">0</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">Precisão:</span>
+                    <span class="modal-stat-value" id="resultAccuracy">0%</span>
+                </div>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn secondary" onclick="closeResultModal()">FECHAR</button>
+            <button class="modal-btn primary" onclick="nextPhase()">PRÓXIMA FASE</button>
+        </div>
+    </div>
+
+    <!-- MODAL DE GAME OVER -->
+    <div class="modal-overlay result-overlay" id="gameOverOverlay"></div>
+
+    <div class="modal modal-riddler" id="modalGameOver">
+        <div class="modal-header">
+            <div class="modal-title">💀 DERROTA</div>
+            <button class="modal-close" onclick="closeGameOver()">×</button>
+        </div>
+        <div class="modal-icon">💀</div>
+        <div class="modal-content">
+            <div class="modal-text" id="gameOverMessage">O código não foi decifrado a tempo... O Charada venceu.</div>
+            <div class="modal-stats" id="gameOverStats"></div>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn secondary" onclick="closeGameOver()">FECHAR</button>
+            <button class="modal-btn primary" onclick="retryPhase()">TENTAR NOVAMENTE</button>
+        </div>
+    </div>
+
+    <!-- MODAL DE VITÓRIA FINAL -->
+    <div class="modal-overlay result-overlay" id="finalVictoryOverlay"></div>
+
+    <div class="modal modal-riddler" id="modalFinalVictory">
+        <div class="modal-header">
+            <div class="modal-title">🎉 VITÓRIA TOTAL!</div>
+            <button class="modal-close" onclick="closeFinalVictory()">×</button>
+        </div>
+        <div class="modal-icon">🏆</div>
+        <div class="modal-content">
+            <div class="modal-text">
+                Parabéns! Você provou ser mais inteligente que o Charada em todas as 5 fases!
+            </div>
+            <div class="modal-stats" id="finalVictoryStats"></div>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn primary" onclick="restartGame()">JOGAR NOVAMENTE</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="level-indicator"><i class="fas fa-puzzle-piece"></i> FASE <span id="gamePhase">1</span>/5</div>
+
+        <header>
+            <h1><i class="fas fa-question-circle"></i> DECODIFICADOR</h1>
+            <div class="subtitle">INTERCEPTANDO MENSAGENS DO CHARADA</div>
+        </header>
+
+        <div class="mission-panel">
+            <div class="mission-header">
+                <div class="mission-title">
+                    <i class="fas fa-bolt"></i>
+                    <span id="levelTitle">NÍVEL 1 - INICIANTE</span>
+                </div>
+                <div class="timer" id="timer">30s</div>
+            </div>
+
+            <div class="context-box" id="contextBox">
+                O Charada está testando suas habilidades. Decifre este código simples...
+            </div>
+
+            <div class="sequence-container">
+                <div class="sequence-label">CÓDIGO ALVO:</div>
+                <div class="target-sequence" id="targetSequence"></div>
+            </div>
+
+            <div class="sequence-container">
+                <div class="sequence-label">SUA TENTATIVA:</div>
+                <div class="player-sequence" id="playerSequence"></div>
+            </div>
+        </div>
+
+        <div class="symbol-library" id="symbolLibrary"></div>
+
+        <div class="feedback-panel" id="feedbackText">
+            Selecione os símbolos na ordem correta.
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-label">Tentativas</div>
+                <div class="stat-value" id="attemptsDisplay">0/5</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Pontuação</div>
+                <div class="stat-value good" id="scoreDisplay">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Nível</div>
+                <div class="stat-value" id="levelDisplay">1</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Decifrados</div>
+                <div class="stat-value good" id="solvedDisplay">0</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn" onclick="checkCode()" id="checkBtn">
+                <i class="fas fa-check"></i> VERIFICAR
+            </button>
+            <button class="btn btn-success" onclick="nextCode()">
+                <i class="fas fa-forward"></i> PRÓXIMO
+            </button>
+            <button class="btn" onclick="resetSelection()">
+                <i class="fas fa-undo"></i> LIMPAR
+            </button>
+            <button class="btn" onclick="useHint()" id="hintBtn">
+                <i class="fas fa-lightbulb"></i> DICA
+            </button>
+        </div>
+
+        <div id="decodedMessageContainer"></div>
+    </div>
+
+    <script>
+        // ===========================================
+        // CONFIGURAÇÃO DAS FASES - 5 FASES PROGRESSIVAS
+        // ===========================================
+        const PHASES = [
+            {
+                phase: 1,
+                name: 'INICIANTE',
+                time: 30,
+                length: 3,
+                maxAttempts: 5,
+                allowRepeat: false,
+                symbols: ['⚡', '🔥', '💧', '🌪️'],
+                context: 'Códigos simples para testar sua lógica.',
+                reward: 100
+            },
+            {
+                phase: 2,
+                name: 'INTERMEDIÁRIO',
+                time: 25,
+                length: 4,
+                maxAttempts: 4,
+                allowRepeat: true,
+                symbols: ['⚡', '🔥', '💧', '🌪️'],
+                context: 'Mensagem sobre assalto no Museu de Gotham.',
+                reward: 200
+            },
+            {
+                phase: 3,
+                name: 'AVANÇADO',
+                time: 20,
+                length: 5,
+                maxAttempts: 3,
+                allowRepeat: true,
+                symbols: ['⚡', '🔥', '💧', '🌪️', '🦇', '❓', '🔍'],
+                context: 'Localização do esconderijo secreto revelada.',
+                reward: 300
+            },
+            {
+                phase: 4,
+                name: 'ESPECIALISTA',
+                time: 18,
+                length: 6,
+                maxAttempts: 2,
+                allowRepeat: true,
+                symbols: ['⚡', '🔥', '💧', '🌪️', '🦇', '❓', '🔍', '🗝️', '💀'],
+                context: 'Plano para detonar bombas em Arkham. URGENTE!',
+                reward: 500
+            },
+            {
+                phase: 5,
+                name: 'MESTRE',
+                time: 15,
+                length: 6,
+                maxAttempts: 2,
+                allowRepeat: true,
+                symbols: ['⚡', '🔥', '💧', '🌪️', '🦇', '❓', '🔍', '🗝️', '💀', '👁️', '🎭'],
+                context: 'SENHA MESTRA PARA DESARMAR O GÁS DO CHARADA!',
+                reward: 1000
+            }
+        ];
+
+        // Mensagens decodificadas
+        const DECODED_MESSAGES = [
+            'Código de acesso ao esconderijo revelado: ICEBERG LOUNGE.',
+            'Próximo alvo: Museu de Gotham, meia-noite.',
+            'Localização de explosivos: Pier 7, setor B.',
+            'Senha do cofre: "O CAÇADOR É A PRESA".',
+            'Coordenadas: 40.7128° N, 74.0060° W.',
+            'Refém está no depósito abandonado da Ace Chemicals.',
+            'A identidade do informante é: "Pinguim".',
+            'A rota de fuga será pelo esgoto da rua 5.'
+        ];
+
+        // ===========================================
+        // ESTADO DO JOGO
+        // ===========================================
+        let gameState = {
+            player: {
+                points: 0,
+                totalScore: 0,
+                phase: 1
+            },
+            state: {
+                currentPhase: 0,
+                targetSequence: [],
+                playerSequence: [],
+                attempts: 0,
+                phaseScore: 0,
+                totalSolved: 0,
+                timer: null,
+                timeRemaining: 30,
+                hintsUsed: 0,
+                gameActive: false,
+                phasesCompleted: [false, false, false, false, false]
+            }
+        };
+
+        // ===========================================
+        // FUNÇÕES DE LOADING
+        // ===========================================
+        async function showLoading(message = 'CARREGANDO...', duration = 2000) {
+            return new Promise((resolve) => {
+                const container = document.getElementById('loadingContainer');
+                const text = document.getElementById('loadingText');
+
+                text.textContent = message;
+                container.classList.add('active');
+
+                setTimeout(() => {
+                    container.classList.remove('active');
+                    resolve();
+                }, duration);
+            });
+        }
+
+        // ===========================================
+        // FUNÇÕES DOS MODAIS
+        // ===========================================
+        function closeIntro() {
+            document.getElementById('introOverlay').classList.remove('active');
+            document.getElementById('modalIntro').classList.remove('active');
+            showPhaseModal(0);
+        }
+
+        function showPhaseModal(phaseIndex) {
+            gameState.state.currentPhase = phaseIndex;
+            const phase = PHASES[phaseIndex];
+
+            document.getElementById('phaseModalTitle').textContent = `FASE ${phase.phase} - ${phase.name}`;
+            document.getElementById('phaseDescription').textContent = phase.context;
+            document.getElementById('phaseTime').textContent = phase.time + 's';
+            document.getElementById('phaseLength').textContent = phase.length;
+            document.getElementById('phaseAttempts').textContent = phase.maxAttempts;
+
+            // Preview do vilão
+            document.getElementById('villainPreview').innerHTML = `
+                <div class="villain-preview-icon">❓</div>
+                <div class="villain-preview-info">
+                    <div class="villain-preview-name">CHARADA <small>❓</small></div>
+                    <div class="villain-preview-stats">
+                        <div>⏰ ${phase.time}s</div>
+                        <div>🔣 ${phase.length}</div>
+                        <div>🎁 ${phase.maxAttempts}</div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('phaseOverlay').classList.add('active');
+            document.getElementById('modalPhase').classList.add('active');
+        }
+
+        function closePhaseModal() {
+            document.getElementById('phaseOverlay').classList.remove('active');
+            document.getElementById('modalPhase').classList.remove('active');
+        }
+
+        async function startPhase() {
+            closePhaseModal();
+
+            // Mostra loading antes de iniciar a fase
+            await showLoading('DECODIFICANDO MENSAGEM...', 2000);
+
+            loadLevel(gameState.state.currentPhase);
+            gameState.state.gameActive = true;
+        }
+
+        function showResultModal(victory) {
+            const phase = PHASES[gameState.state.currentPhase];
+            const title = victory ? 'VITÓRIA!' : 'DERROTA';
+            const icon = victory ? '🏆' : '💀';
+            const message = victory ?
+                `Fase ${phase.phase} concluída! Mensagem decifrada!` :
+                'O código não foi decifrado a tempo... O Charada venceu.';
+
+            document.getElementById('resultTitle').textContent = title;
+            document.getElementById('resultIcon').textContent = icon;
+            document.getElementById('resultMessage').textContent = message;
+            document.getElementById('resultScore').textContent = gameState.state.phaseScore;
+            document.getElementById('resultSolved').textContent = gameState.state.totalSolved;
+
+            const accuracy = gameState.state.attempts > 0 ? Math.round((gameState.state.totalSolved / gameState.state.attempts) * 100) : 100;
+            document.getElementById('resultAccuracy').textContent = accuracy + '%';
+
+            document.getElementById('resultOverlay').classList.add('active');
+            document.getElementById('modalResult').classList.add('active');
+        }
+
+        function closeResultModal() {
+            document.getElementById('resultOverlay').classList.remove('active');
+            document.getElementById('modalResult').classList.remove('active');
+        }
+
+        // ===== FUNÇÃO PARA ADICIONAR PONTOS AO SISTEMA GLOBAL =====
+        function addToGlobalPoints(p) {
+            if (window.ArkhamCore && typeof ArkhamCore.addPoints === 'function') {
+                ArkhamCore.addPoints(p, 'charada');
+            } else {
+                console.warn("ArkhamCore não encontrado, salvando pontos localmente.");
+                const cur = parseInt(localStorage.getItem('batmanPoints') || '0', 10);
+                localStorage.setItem('batmanPoints', (cur + p).toString());
+            }
+            if (typeof updatePointsDisplay === 'function') {
+                updatePointsDisplay();
+            } else {
+                const pointsDisplay = document.getElementById('pointsDisplay');
+                if (pointsDisplay) {
+                    let totalScore = gameState.player?.totalScore || 0;
+                    pointsDisplay.textContent = `💰 ${totalScore}`;
+                }
+            }
+        }
+
+        // Substituir a função nextPhase (aproximadamente linha 500)
+        async function nextPhase() {
+            closeResultModal();
+
+            // Adiciona a pontuação da fase ao total global
+            gameState.player.totalScore += gameState.state.phaseScore;
+
+            if (window.ArkhamCore) {
+                ArkhamCore.addPoints(gameState.state.phaseScore, 'charada');
+
+                // CORREÇÃO: Registrar progresso da fase
+                ArkhamCore.registerPhaseCompletion('charada');
+            } else {
+                const cur = parseInt(localStorage.getItem('batmanPoints') || '0', 10);
+                localStorage.setItem('batmanPoints', (cur + gameState.state.phaseScore).toString());
+            }
+
+            gameState.state.phasesCompleted[gameState.state.currentPhase] = true;
+            updatePointsDisplay();
+
+            if (gameState.state.currentPhase < PHASES.length - 1) {
+                gameState.state.currentPhase++;
+                gameState.player.phase = gameState.state.currentPhase + 1;
+                await showLoading('PREPARANDO PRÓXIMA FASE...', 1500);
+                showPhaseModal(gameState.state.currentPhase);
+            } else {
+                await showLoading('VITÓRIA! CARREGANDO RESULTADO...', 2000);
+                showFinalVictory();
+            }
+        }
+
+        function showGameOver(message) {
+            document.getElementById('gameOverMessage').textContent = message;
+
+            const accuracy = gameState.state.attempts > 0 ? Math.round((gameState.state.totalSolved / gameState.state.attempts) * 100) : 0;
+
+            document.getElementById('gameOverStats').innerHTML = `
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">🔣 Decifrados:</span>
+                    <span class="modal-stat-value">${gameState.state.totalSolved}</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">📊 Precisão:</span>
+                    <span class="modal-stat-value">${accuracy}%</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">💯 Pontuação:</span>
+                    <span class="modal-stat-value">${gameState.state.phaseScore}</span>
+                </div>
+            `;
+
+            document.getElementById('gameOverOverlay').classList.add('active');
+            document.getElementById('modalGameOver').classList.add('active');
+        }
+
+        function closeGameOver() {
+            document.getElementById('gameOverOverlay').classList.remove('active');
+            document.getElementById('modalGameOver').classList.remove('active');
+        }
+
+        async function retryPhase() {
+            closeGameOver();
+
+            // Mostra loading antes de tentar novamente
+            await showLoading('REINICIANDO FASE...', 1500);
+
+            showPhaseModal(gameState.state.currentPhase);
+        }
+
+        function showFinalVictory() {
+            document.getElementById('finalVictoryStats').innerHTML = `
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">🏆 Pontuação Total:</span>
+                    <span class="modal-stat-value success">${gameState.player.totalScore}</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">⭐ Título:</span>
+                    <span class="modal-stat-value">O DECIFRADOR DE ENIGMAS</span>
+                </div>
+            `;
+
+            document.getElementById('finalVictoryOverlay').classList.add('active');
+            document.getElementById('modalFinalVictory').classList.add('active');
+        }
+
+        function closeFinalVictory() {
+            document.getElementById('finalVictoryOverlay').classList.remove('active');
+            document.getElementById('modalFinalVictory').classList.remove('active');
+        }
+
+        async function restartGame() {
+            closeFinalVictory();
+
+            // Mostra loading antes de reiniciar
+            await showLoading('REINICIANDO JOGO...', 1500);
+
+            gameState.state.currentPhase = 0;
+            gameState.player.phase = 1;
+            gameState.player.totalScore = 0;
+            gameState.state.phasesCompleted = [false, false, false, false, false];
+            updatePointsDisplay();
+            showPhaseModal(0);
+        }
+
+        function startGame() {
+            closeIntro();
+            showPhaseModal(0);
+        }
+
+        // ===========================================
+        // FUNÇÕES DO JOGO
+        // ===========================================
+        function loadLevel(levelIndex) {
+            if (levelIndex < 0 || levelIndex >= PHASES.length) return;
+
+            const level = PHASES[levelIndex];
+
+            gameState.state.attempts = 0;
+            gameState.state.hintsUsed = 0;
+            gameState.state.phaseScore = 0;
+            gameState.state.totalSolved = 0;
+
+            document.getElementById('levelTitle').textContent = `NÍVEL ${level.phase} - ${level.name}`;
+            document.getElementById('contextBox').textContent = level.context;
+            document.getElementById('gamePhase').textContent = level.phase;
+
+            generateCode();
+            renderSymbolLibrary();
+            updateDisplay();
+            startTimer();
+
+            document.getElementById('hintBtn').disabled = false;
+            document.getElementById('checkBtn').disabled = false;
+        }
+
+        function generateCode() {
+            const level = PHASES[gameState.state.currentPhase];
+            gameState.state.targetSequence = [];
+            gameState.state.playerSequence = [];
+
+            for (let i = 0; i < level.length; i++) {
+                if (level.allowRepeat || gameState.state.targetSequence.length === 0) {
+                    const randomSymbol = level.symbols[Math.floor(Math.random() * level.symbols.length)];
+                    gameState.state.targetSequence.push(randomSymbol);
+                } else {
+                    let symbol;
+                    do {
+                        symbol = level.symbols[Math.floor(Math.random() * level.symbols.length)];
+                    } while (gameState.state.targetSequence.includes(symbol));
+                    gameState.state.targetSequence.push(symbol);
+                }
+            }
+
+            renderSequences();
+        }
+
+        function renderSequences() {
+            const level = PHASES[gameState.state.currentPhase];
+
+            document.getElementById('targetSequence').innerHTML = gameState.state.targetSequence
+                .map(symbol => `<div class="symbol-slot target">${symbol}</div>`).join('');
+
+            const playerHtml = Array(level.length).fill(0).map((_, index) => {
+                const symbol = gameState.state.playerSequence[index] || '';
+                const className = getSlotClassName(index);
+                return `<div class="symbol-slot ${className}">${symbol}</div>`;
+            }).join('');
+
+            document.getElementById('playerSequence').innerHTML = playerHtml;
+        }
+
+        function getSlotClassName(index) {
+            if (gameState.state.playerSequence.length <= index) return '';
+
+            const playerSymbol = gameState.state.playerSequence[index];
+            const targetSymbol = gameState.state.targetSequence[index];
+
+            if (playerSymbol === targetSymbol) return 'correct';
+            if (gameState.state.targetSequence.includes(playerSymbol)) return 'wrong-position';
+            return 'wrong';
+        }
+
+        function renderSymbolLibrary() {
+            const level = PHASES[gameState.state.currentPhase];
+            const library = document.getElementById('symbolLibrary');
+
+            library.innerHTML = level.symbols.map(symbol => `
+                <div class="symbol-option" onclick="selectSymbol('${symbol}')">
+                    ${symbol}
+                </div>
+            `).join('');
+        }
+
+        function selectSymbol(symbol) {
+            const level = PHASES[gameState.state.currentPhase];
+
+            if (gameState.state.playerSequence.length < level.length) {
+                gameState.state.playerSequence.push(symbol);
+                renderSequences();
+                updateFeedback('Símbolo adicionado. Continue...', 'normal');
+            }
+        }
+
+        function resetSelection() {
+            gameState.state.playerSequence = [];
+            renderSequences();
+            updateFeedback('Seleção limpa. Tente novamente.', 'normal');
+        }
+
+        function checkCode() {
+            const level = PHASES[gameState.state.currentPhase];
+
+            if (gameState.state.playerSequence.length !== level.length) {
+                updateFeedback(`Selecione exatamente ${level.length} símbolos!`, 'error');
+                return;
+            }
+
+            gameState.state.attempts++;
+
+            let correctCount = 0;
+            let correctPositions = [];
+
+            gameState.state.playerSequence.forEach((symbol, index) => {
+                if (symbol === gameState.state.targetSequence[index]) {
+                    correctCount++;
+                    correctPositions.push(index);
+                }
+            });
+
+            renderSequences();
+
+            if (correctCount === level.length) {
+                // Código correto!
+                stopTimer();
+
+                const timeBonus = gameState.state.timeRemaining * 10;
+                const attemptBonus = (level.maxAttempts - gameState.state.attempts) * 50;
+                const totalPoints = level.reward + timeBonus + attemptBonus;
+
+                gameState.state.phaseScore += totalPoints;
+                gameState.state.totalSolved++;
+
+                updateFeedback('🎯 CÓDIGO CORRETO! Mensagem decodificada!', 'success');
+                showDecodedMessage(totalPoints, timeBonus, attemptBonus);
+
+                document.getElementById('checkBtn').disabled = true;
+
+            } else if (gameState.state.attempts >= level.maxAttempts) {
+                // Fim das tentativas
+                stopTimer();
+                updateFeedback(`❌ Tentativas esgotadas. Código: ${gameState.state.targetSequence.join(' ')}`, 'error');
+                document.getElementById('checkBtn').disabled = true;
+                showGameOver('Tentativas esgotadas! O Charada venceu.');
+
+            } else {
+                // Feedback parcial
+                let feedback = `Tentativa ${gameState.state.attempts}/${level.maxAttempts}: `;
+                feedback += `${correctCount} de ${level.length} corretos.`;
+
+                updateFeedback(feedback, 'hint');
+
+                // Dica automática após 2 erros
+                if (gameState.state.attempts === 2 && gameState.state.hintsUsed === 0) {
+                    setTimeout(() => {
+                        const hintText = `💡 DICA: O primeiro símbolo é ${gameState.state.targetSequence[0]}`;
+                        updateFeedback(hintText, 'hint');
+                    }, 1500);
+                }
+            }
+
+            updateDisplay();
+        }
+
+        function useHint() {
+            if (gameState.state.hintsUsed >= 1) {
+                updateFeedback('Você já usou sua dica neste nível!', 'error');
+                return;
+            }
+
+            const randomIndex = Math.floor(Math.random() * gameState.state.targetSequence.length);
+            const hintSymbol = gameState.state.targetSequence[randomIndex];
+
+            gameState.state.hintsUsed++;
+            updateFeedback(`💡 DICA: A posição ${randomIndex + 1} é ${hintSymbol}`, 'hint');
+            document.getElementById('hintBtn').disabled = true;
+        }
+
+        function nextCode() {
+            stopTimer();
+            gameState.state.attempts = 0;
+            gameState.state.hintsUsed = 0;
+            document.getElementById('checkBtn').disabled = false;
+            document.getElementById('hintBtn').disabled = false;
+            document.getElementById('decodedMessageContainer').innerHTML = '';
+            generateCode();
+            startTimer();
+            updateFeedback('Novo código gerado. Boa sorte!', 'normal');
+        }
+
+        function showDecodedMessage(totalPoints, timeBonus, attemptBonus) {
+            const message = DECODED_MESSAGES[Math.floor(Math.random() * DECODED_MESSAGES.length)];
+            const container = document.getElementById('decodedMessageContainer');
+
+            container.innerHTML = `
+                <div class="decoded-message">
+                    <div style="color: var(--riddler); font-size: 1.2rem; margin-bottom: 10px;">
+                        📡 MENSAGEM DECODIFICADA
+                    </div>
+                    <div style="color: #fff; margin-bottom: 15px;">"${message}"</div>
+                    <div class="rewards">
+                        <div class="reward-item">
+                            <i class="fas fa-star"></i>
+                            <span>+${totalPoints} pontos</span>
+                        </div>
+                        <div class="reward-item">
+                            <i class="fas fa-clock"></i>
+                            <span>+${timeBonus} bônus</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function startTimer() {
+            stopTimer();
+            const level = PHASES[gameState.state.currentPhase];
+            gameState.state.timeRemaining = level.time;
+
+            updateTimerDisplay();
+
+            gameState.state.timer = setInterval(() => {
+                gameState.state.timeRemaining--;
+                updateTimerDisplay();
+
+                if (gameState.state.timeRemaining <= 0) {
+                    stopTimer();
+                    updateFeedback('⏰ TEMPO ESGOTADO!', 'error');
+                    document.getElementById('checkBtn').disabled = true;
+                    showGameOver('Tempo esgotado! O Charada venceu.');
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (gameState.state.timer) {
+                clearInterval(gameState.state.timer);
+                gameState.state.timer = null;
+            }
+        }
+
+        function updateTimerDisplay() {
+            const timerEl = document.getElementById('timer');
+            timerEl.textContent = `${gameState.state.timeRemaining}s`;
+            timerEl.classList.toggle('critical', gameState.state.timeRemaining <= 5);
+        }
+
+        function updateDisplay() {
+            const level = PHASES[gameState.state.currentPhase];
+
+            const attemptsEl = document.getElementById('attemptsDisplay');
+            attemptsEl.textContent = `${gameState.state.attempts}/${level.maxAttempts}`;
+            attemptsEl.className = 'stat-value';
+
+            if (gameState.state.attempts >= level.maxAttempts - 1) {
+                attemptsEl.classList.add('danger');
+            } else if (gameState.state.attempts >= level.maxAttempts / 2) {
+                attemptsEl.classList.add('warning');
+            } else {
+                attemptsEl.classList.add('good');
+            }
+
+            document.getElementById('scoreDisplay').textContent = gameState.state.phaseScore;
+            document.getElementById('levelDisplay').textContent = level.phase;
+            document.getElementById('solvedDisplay').textContent = gameState.state.totalSolved;
+        }
+
+        function updateFeedback(message, type) {
+            const feedbackEl = document.getElementById('feedbackText');
+            feedbackEl.textContent = message;
+            feedbackEl.className = 'feedback-panel';
+
+            if (type === 'success') {
+                feedbackEl.style.color = 'var(--success)';
+                feedbackEl.style.borderColor = 'var(--success)';
+            } else if (type === 'error') {
+                feedbackEl.style.color = 'var(--danger)';
+                feedbackEl.style.borderColor = 'var(--danger)';
+            } else if (type === 'hint') {
+                feedbackEl.style.color = 'var(--warning)';
+                feedbackEl.style.borderColor = 'var(--warning)';
+            } else {
+                feedbackEl.style.color = 'var(--riddler)';
+                feedbackEl.style.borderColor = 'var(--riddler)';
+            }
+        }
+
+        function updatePointsDisplay() {
+            document.getElementById('pointsDisplay').textContent = `💰 ${gameState.player.totalScore}`;
+        }
+
+        function loadPoints() {
+            const saved = localStorage.getItem('batmanPoints') || '0';
+            gameState.player.totalScore = parseInt(saved);
+            document.getElementById('pointsDisplay').textContent = `💰 ${saved}`;
+        }
+
+        // Inicializar
+        window.addEventListener('DOMContentLoaded', () => {
+            loadPoints();
+            // O modal de introdução já tem a classe 'active' no HTML
+            document.getElementById('introOverlay').classList.add('active');
+        });
+    </script>
+</body>
+
+</html>

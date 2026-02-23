@@ -1,0 +1,2939 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>🦇 BATMÓVEL - PERSEGUIÇÃO DA HARLEY</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- ===== ARKHAM CORE ADICIONADO ===== -->
+    <script src="../sistemas/arkham-core.js"></script>
+    <style>
+        /* =========================================== */
+        /* BATMAN HUD SYSTEM - VERSÃO SIMPLIFICADA */
+        /* =========================================== */
+        :root {
+            --primary: #00d9ff;
+            --primary-dark: #0066cc;
+            --success: #00ff88;
+            --warning: #ffaa00;
+            --danger: #ff0040;
+            --info: #bb86fc;
+            --purple: #9d4edd;
+            --harley: #ff69b4;
+            --harley-light: #ffb6c1;
+            --harley-dark: #c71585;
+            --bg-dark: #000;
+            --bg-panel: rgba(10, 20, 40, 0.75);
+            --bg-card: rgba(10, 20, 40, 0.65);
+            --text: #ffffff;
+            --text-dim: #e0e0e0;
+            --border: rgba(255, 105, 180, 0.3);
+            --border-strong: rgba(255, 105, 180, 0.6);
+            --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            --shadow-glow: 0 0 20px rgba(255, 105, 180, 0.3);
+            --font-mono: 'Courier New', monospace;
+            --safe-area-inset: env(safe-area-inset-top, 0px);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Remoção completa das barras de rolagem */
+        html,
+        body {
+            overflow: hidden !important;
+            height: 100%;
+            width: 100%;
+            position: fixed;
+            overscroll-behavior: none;
+        }
+
+        body {
+            background: #000000;
+            /* Fundo preto sólido */
+            color: var(--text);
+            font-family: 'Arial', 'Courier New', monospace;
+            height: 100vh;
+            width: 100vw;
+            position: relative;
+            overflow-y: auto !important;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Scrollbar invisível mas funcional */
+        body::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+
+        /* ===== BOTÃO DE VOLTA ===== */
+        .hub-back-link {
+            position: fixed;
+            top: max(15px, env(safe-area-inset-top));
+            left: 15px;
+            z-index: 10002;
+            color: var(--harley-light);
+            text-decoration: none;
+            padding: clamp(6px, 2vw, 8px) clamp(12px, 3vw, 16px);
+            border: 2px solid var(--harley);
+            border-radius: 8px;
+            background: var(--bg-card);
+            font-size: clamp(0.75rem, 2vw, 0.85rem);
+            font-weight: bold;
+            letter-spacing: 1px;
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-glow);
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .points-display {
+            position: fixed;
+            top: max(15px, env(safe-area-inset-top));
+            right: 15px;
+            background: var(--bg-card);
+            border: 2px solid var(--harley);
+            border-radius: 8px;
+            padding: clamp(6px, 2vw, 8px) clamp(12px, 3vw, 16px);
+            color: var(--harley-light);
+            font-weight: bold;
+            font-size: clamp(0.85rem, 2.5vw, 1rem);
+            z-index: 10002;
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        /* ===== LOADING ANIMATION ===== */
+        .loading-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(15px);
+            z-index: 20000;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loading-container.active {
+            display: flex;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .loading-icon {
+            font-size: clamp(3rem, 15vw, 5rem);
+            margin-bottom: 20px;
+            animation: spin 1s linear infinite;
+            filter: drop-shadow(0 0 30px var(--harley));
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-text {
+            color: #fff;
+            font-size: clamp(1rem, 4vw, 1.2rem);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: bold;
+            text-shadow: 0 0 10px var(--harley);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        .loading-progress {
+            width: min(200px, 80%);
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            margin-top: 30px;
+            overflow: hidden;
+        }
+
+        .loading-progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, transparent, var(--harley), transparent);
+            animation: progress 2s infinite;
+        }
+
+        /* ===== SISTEMA DE MODAIS GLASSMORPH ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 9999;
+            display: none;
+        }
+
+        .modal-overlay.active {
+            display: block;
+        }
+
+        .intro-overlay {
+            background: url('https://tse3.mm.bing.net/th/id/OIP.2Dp4UqWPRapy5UH30IqNXgHaFD?w=1253&h=854&rs=1&pid=ImgDetMain&o=7&rm=3') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        .phase-overlay {
+            background: url('https://tse3.mm.bing.net/th/id/OIP.1srDk8fkR31IVYKm3gFjPgHaD4?rs=1&pid=ImgDetMain&o=7&rm=3') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        .result-overlay {
+            background: url('https://tse1.mm.bing.net/th/id/OIP.nNuMmA7JIZHKTX4mc359JwHaEK?rs=1&pid=ImgDetMain&o=7&rm=3') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        .modal-overlay::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(5px);
+            z-index: -1;
+        }
+
+        .modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--bg-card);
+            border: 3px solid var(--harley);
+            border-radius: 20px;
+            padding: clamp(15px, 4vw, 30px);
+            width: min(95%, 500px);
+            max-height: 90vh;
+            overflow-y: auto;
+            z-index: 10000;
+            backdrop-filter: blur(15px);
+            box-shadow: var(--shadow), 0 0 50px var(--harley);
+            display: none;
+            animation: modalAppear 0.4s ease-out;
+        }
+
+        .modal.active {
+            display: block;
+        }
+
+        /* Esconder scrollbar do modal mas manter funcional */
+        .modal::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
+
+        @keyframes modalAppear {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -45%);
+            }
+
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--harley);
+        }
+
+        .modal-title {
+            color: var(--harley-light);
+            font-size: clamp(1.1rem, 4vw, 1.3rem);
+            font-weight: bold;
+            letter-spacing: 1px;
+            line-height: 1.2;
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            font-size: clamp(1.5rem, 5vw, 1.8rem);
+            cursor: pointer;
+            transition: color 0.3s;
+            padding: 0 8px;
+            line-height: 1;
+        }
+
+        .modal-icon {
+            font-size: clamp(2.5rem, 10vw, 3.5rem);
+            text-align: center;
+            margin: 10px 0;
+        }
+
+        .modal-content {
+            margin: 15px 0;
+        }
+
+        .modal-text {
+            color: var(--text);
+            line-height: 1.5;
+            font-size: clamp(0.9rem, 3vw, 1rem);
+        }
+
+        .modal-text-secondary {
+            color: var(--text-dim);
+            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+            margin-top: 10px;
+        }
+
+        .modal-stats {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--harley);
+            border-radius: 8px;
+            padding: clamp(10px, 3vw, 15px);
+            margin: 15px 0;
+        }
+
+        .modal-stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 105, 180, 0.2);
+            font-size: clamp(0.85rem, 2.5vw, 0.9rem);
+        }
+
+        .modal-stat-label {
+            color: var(--text-dim);
+        }
+
+        .modal-stat-value {
+            color: var(--harley-light);
+            font-weight: bold;
+        }
+
+        .modal-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(255, 105, 180, 0.2);
+            border: 1px solid var(--harley);
+            border-radius: 20px;
+            color: var(--harley-light);
+            font-size: clamp(0.7rem, 2vw, 0.8rem);
+            margin-top: 10px;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .modal-btn {
+            flex: 1 1 auto;
+            min-width: 120px;
+            padding: clamp(10px, 3vw, 12px) clamp(12px, 4vw, 15px);
+            border: 2px solid;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-btn.primary {
+            border-color: var(--harley);
+            color: var(--harley-light);
+        }
+
+        .modal-btn.primary:hover {
+            background: var(--harley);
+            color: #000;
+            box-shadow: 0 0 20px var(--harley);
+        }
+
+        .modal-btn.secondary {
+            border-color: var(--text-dim);
+            color: var(--text-dim);
+        }
+
+        .modal-btn.secondary:hover {
+            border-color: #fff;
+            color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .modal-btn.success {
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .modal-btn.success:hover {
+            background: var(--success);
+            color: #000;
+            box-shadow: 0 0 20px var(--success);
+        }
+
+        /* ===== PREVIEW DO VILÃO ===== */
+        .villain-preview {
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid var(--harley);
+            border-radius: 10px;
+            padding: clamp(15px, 4vw, 20px);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: clamp(10px, 3vw, 20px);
+            backdrop-filter: blur(5px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .villain-preview::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            width: 60px;
+            height: 60px;
+            background: var(--harley);
+            opacity: 0.2;
+            border-radius: 50%;
+            filter: blur(20px);
+            z-index: 0;
+        }
+
+        .villain-preview-icon {
+            font-size: clamp(3rem, 12vw, 4rem);
+            filter: drop-shadow(0 0 20px var(--harley));
+            position: relative;
+            z-index: 1;
+        }
+
+        .villain-preview-info {
+            flex: 1;
+            min-width: 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .villain-preview-name {
+            color: var(--harley-light);
+            font-size: clamp(1.2rem, 5vw, 1.5rem);
+            font-weight: bold;
+            margin-bottom: 8px;
+            line-height: 1.2;
+            word-wrap: break-word;
+        }
+
+        .villain-preview-name small {
+            color: var(--harley);
+            font-size: 0.8rem;
+            margin-left: 5px;
+        }
+
+        .villain-preview-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            color: var(--text-dim);
+            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+        }
+
+        .villain-preview-stats div {
+            background: rgba(255, 105, 180, 0.1);
+            padding: 5px;
+            border-radius: 5px;
+            border-left: 2px solid var(--harley);
+        }
+
+        /* ===== CONTEÚDO PRINCIPAL ===== */
+        .header {
+            text-align: center;
+            margin-bottom: 10px;
+            width: 100%;
+            max-width: 1000px;
+            padding: 0 10px;
+        }
+
+        .title {
+            color: var(--harley-light);
+            font-size: clamp(1.2rem, 4vw, 1.8rem);
+            margin-bottom: 5px;
+            text-shadow: 0 0 15px var(--harley);
+            letter-spacing: 1px;
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            color: var(--text-dim);
+            font-size: clamp(0.7rem, 2vw, 0.9rem);
+            margin-bottom: 5px;
+            line-height: 1.3;
+        }
+
+        .bat-logo {
+            color: var(--warning);
+            font-size: clamp(1.2rem, 4vw, 1.8rem);
+            margin-bottom: 5px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                text-shadow: 0 0 5px var(--warning);
+            }
+
+            50% {
+                text-shadow: 0 0 20px var(--warning), 0 0 30px var(--warning);
+            }
+
+            100% {
+                text-shadow: 0 0 5px var(--warning);
+            }
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 1000px;
+            height: 85vh;
+            max-height: 800px;
+            gap: 10px;
+            padding: 0 10px;
+            margin: 0 auto;
+        }
+
+        .simulation-viewport {
+            position: relative;
+            width: 100%;
+            height: 66.66%;
+            min-height: 250px;
+            border: 2px solid var(--harley);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow), 0 0 20px var(--harley);
+            background: #000000;
+            /* Fundo preto sólido */
+            flex-shrink: 0;
+        }
+
+        #gameCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .vehicle-control-panel {
+            background: var(--bg-panel);
+            border: 2px solid var(--harley);
+            border-radius: 8px;
+            padding: clamp(10px, 2vw, 12px);
+            backdrop-filter: blur(15px);
+            box-shadow: var(--shadow), 0 0 20px var(--harley);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            flex: 1;
+            overflow-y: auto;
+            min-height: 0;
+            height: 33.33%;
+        }
+
+        .vehicle-control-panel::-webkit-scrollbar {
+            width: 0px;
+        }
+
+        .crt-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+            background-size: 100% 4px;
+            z-index: 2;
+            pointer-events: none;
+            opacity: 0.2;
+        }
+
+        .hud-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 3;
+            pointer-events: none;
+            padding: 8px;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            grid-template-rows: auto 1fr auto;
+        }
+
+        .hud-left {
+            grid-column: 1;
+            grid-row: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .hud-center {
+            grid-column: 2;
+            grid-row: 3;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .hud-right {
+            grid-column: 3;
+            grid-row: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 5px;
+        }
+
+        .hud-item {
+            background: var(--bg-card);
+            border: 1px solid var(--harley);
+            border-radius: 4px;
+            padding: 4px 8px;
+            backdrop-filter: blur(4px);
+            min-width: 60px;
+            max-width: 100px;
+        }
+
+        .hud-label {
+            color: var(--harley);
+            font-size: clamp(0.5rem, 1.5vw, 0.6rem);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 1px;
+            white-space: nowrap;
+        }
+
+        .hud-value {
+            color: var(--text);
+            font-size: clamp(0.75rem, 2vw, 0.9rem);
+            font-weight: bold;
+            line-height: 1.2;
+        }
+
+        .hud-value#hudSpeed {
+            color: var(--success);
+            text-shadow: 0 0 10px var(--success);
+        }
+
+        .hud-value#hudFuel {
+            color: var(--warning);
+        }
+
+        .radar-container {
+            width: 50px;
+            height: 50px;
+            background: var(--bg-card);
+            border: 1px solid var(--harley);
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .radar-sweep {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(transparent 270deg, rgba(255, 105, 180, 0.3) 360deg);
+            animation: radarSweep 2s linear infinite;
+        }
+
+        @keyframes radarSweep {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .phase-select {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 5px;
+            margin-bottom: 8px;
+        }
+
+        .phase-card {
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid var(--harley);
+            border-radius: 6px;
+            padding: 6px 2px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .phase-card:hover {
+            border-color: var(--harley-light);
+            box-shadow: 0 0 15px var(--harley);
+            transform: translateY(-2px);
+        }
+
+        .phase-card.active {
+            border-color: var(--success);
+            background: rgba(0, 255, 136, 0.1);
+        }
+
+        .phase-card.completed {
+            opacity: 0.5;
+            border-color: var(--text-dim);
+            cursor: not-allowed;
+        }
+
+        .phase-number {
+            color: var(--harley-light);
+            font-size: clamp(0.65rem, 2vw, 0.75rem);
+            font-weight: bold;
+            margin-bottom: 2px;
+        }
+
+        .phase-reward {
+            color: var(--success);
+            font-size: clamp(0.55rem, 1.5vw, 0.65rem);
+        }
+
+        .panel-title {
+            color: var(--harley-light);
+            font-size: clamp(0.85rem, 2.5vw, 1rem);
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            border-bottom: 1px solid var(--harley);
+            padding-bottom: 5px;
+        }
+
+        .status-compact {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 5px;
+            margin-bottom: 6px;
+        }
+
+        .status-item-compact {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--harley);
+            border-radius: 5px;
+            padding: 5px;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .status-item-compact.critical {
+            border-color: var(--danger);
+            animation: criticalBlink 1s infinite;
+        }
+
+        @keyframes criticalBlink {
+
+            0%,
+            100% {
+                background: rgba(0, 0, 0, 0.5);
+            }
+
+            50% {
+                background: rgba(255, 0, 64, 0.2);
+            }
+        }
+
+        .status-label-compact {
+            color: var(--harley);
+            font-size: clamp(0.5rem, 1.5vw, 0.6rem);
+            margin-bottom: 2px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            line-height: 1.1;
+        }
+
+        .status-value-compact {
+            color: var(--text);
+            font-size: clamp(0.75rem, 2vw, 0.85rem);
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+            line-height: 1.2;
+        }
+
+        .vehicle-controls-compact {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 5px;
+            margin: 4px 0;
+        }
+
+        .control-btn-compact {
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid var(--harley);
+            color: var(--harley-light);
+            padding: 6px 2px;
+            border-radius: 6px;
+            font-size: clamp(0.65rem, 2vw, 0.75rem);
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            transition: all 0.2s;
+            min-height: 45px;
+            backdrop-filter: blur(5px);
+        }
+
+        .control-btn-compact:hover {
+            background: var(--harley);
+            color: #000;
+            border-color: var(--harley);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px var(--harley);
+        }
+
+        .control-btn-compact:active {
+            transform: translateY(1px);
+        }
+
+        .control-btn-compact.active {
+            background: var(--harley);
+            color: #000;
+            border-color: var(--harley);
+            box-shadow: 0 0 15px var(--harley);
+        }
+
+        .control-btn-compact i {
+            font-size: 0.8rem;
+        }
+
+        .score-display-compact {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 5px;
+            margin-bottom: 6px;
+            padding: 6px 5px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--harley);
+            border-radius: 6px;
+        }
+
+        .score-item-compact {
+            text-align: center;
+        }
+
+        .score-label-compact {
+            color: var(--harley);
+            font-size: clamp(0.5rem, 1.5vw, 0.55rem);
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            margin-bottom: 2px;
+            line-height: 1.1;
+        }
+
+        .score-value-compact {
+            color: var(--text);
+            font-size: clamp(0.7rem, 2vw, 0.8rem);
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+            line-height: 1.2;
+        }
+
+        .direction-controls-compact {
+            display: none;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin: 5px 0;
+        }
+
+        .direction-btn-compact {
+            width: 45px;
+            height: 45px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid var(--harley);
+            color: var(--harley-light);
+            border-radius: 50%;
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.1s;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+            touch-action: manipulation;
+            user-select: none;
+        }
+
+        .direction-btn-compact:hover {
+            background: var(--harley);
+            color: #000;
+            border-color: var(--harley);
+            box-shadow: 0 0 20px var(--harley);
+        }
+
+        .direction-btn-compact:active {
+            transform: scale(0.9);
+        }
+
+        .system-log-compact {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--harley);
+            border-radius: 6px;
+            padding: 6px;
+            margin-top: 5px;
+            flex: 1;
+            min-height: 70px;
+            max-height: 90px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .system-log-compact div:first-child {
+            color: var(--harley);
+            font-size: 0.65rem;
+            margin-bottom: 4px;
+        }
+
+        .log-content-compact {
+            background: rgba(0, 0, 0, 0.7);
+            border: 1px solid var(--harley);
+            border-radius: 4px;
+            padding: 4px;
+            flex: 1;
+            overflow-y: auto;
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            line-height: 1.2;
+            color: var(--success);
+        }
+
+        .log-content-compact::-webkit-scrollbar {
+            width: 0px;
+        }
+
+        .game-over {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(5px);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            color: var(--text);
+            font-size: clamp(1rem, 3vw, 1.5rem);
+            text-align: center;
+            padding: 15px;
+        }
+
+        .game-over h2 {
+            color: var(--danger);
+            margin-bottom: 8px;
+            text-shadow: 0 0 20px var(--danger);
+            font-size: clamp(1.2rem, 4vw, 1.8rem);
+        }
+
+        .game-over.success h2 {
+            color: var(--success);
+            text-shadow: 0 0 20px var(--success);
+        }
+
+        .game-over p {
+            margin: 5px 0;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+
+        .restart-btn {
+            background: transparent;
+            border: 2px solid var(--harley);
+            color: var(--harley-light);
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .restart-btn:hover {
+            background: var(--harley);
+            color: #000;
+            box-shadow: 0 0 20px var(--harley);
+        }
+
+        .mobile-controls {
+            display: flex;
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            right: 10px;
+            z-index: 20;
+            justify-content: space-between;
+            align-items: center;
+            pointer-events: none;
+        }
+
+        .mobile-joystick {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            border: 2px solid var(--harley);
+            position: relative;
+            pointer-events: auto;
+            touch-action: none;
+            box-shadow: var(--shadow-glow);
+            backdrop-filter: blur(10px);
+        }
+
+        .mobile-joystick-knob {
+            position: absolute;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--harley-light);
+            border: 2px solid #fff;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            box-shadow: 0 0 15px var(--harley);
+        }
+
+        .mobile-action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            pointer-events: auto;
+        }
+
+        .mobile-action-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            border: 2px solid var(--harley);
+            color: var(--harley-light);
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            touch-action: manipulation;
+            user-select: none;
+            box-shadow: var(--shadow-glow);
+            backdrop-filter: blur(10px);
+        }
+
+        .mobile-action-btn:active {
+            background: var(--harley);
+            color: #000;
+        }
+
+        .footer {
+            margin-top: 10px;
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 0.6rem;
+            padding: 8px;
+            width: 100%;
+            max-width: 1000px;
+            border-top: 1px solid var(--harley);
+            line-height: 1.4;
+        }
+
+        .fuel-warning {
+            color: var(--danger) !important;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.6;
+            }
+        }
+
+        .turbo-active {
+            color: var(--warning) !important;
+            text-shadow: 0 0 10px var(--warning) !important;
+        }
+
+        /* Media Queries */
+        @media (min-width: 768px) {
+            .container {
+                height: 80vh;
+            }
+
+            .simulation-viewport {
+                min-height: 300px;
+            }
+
+            .direction-controls-compact {
+                display: flex;
+            }
+
+            .mobile-controls {
+                display: none;
+            }
+
+            .radar-container {
+                width: 60px;
+                height: 60px;
+            }
+
+            .hud-item {
+                min-width: 70px;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .container {
+                height: 82vh;
+                gap: 8px;
+            }
+
+            .simulation-viewport {
+                min-height: 200px;
+            }
+
+            .vehicle-control-panel {
+                padding: 8px;
+                gap: 8px;
+            }
+
+            .phase-select {
+                grid-template-columns: repeat(5, 1fr);
+                gap: 3px;
+            }
+
+            .phase-card {
+                padding: 4px 1px;
+            }
+
+            .phase-number {
+                font-size: 0.6rem;
+            }
+
+            .phase-reward {
+                font-size: 0.5rem;
+            }
+
+            .status-compact {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 3px;
+            }
+
+            .status-item-compact {
+                padding: 3px;
+            }
+
+            .status-label-compact {
+                font-size: 0.45rem;
+            }
+
+            .status-value-compact {
+                font-size: 0.65rem;
+            }
+
+            .vehicle-controls-compact {
+                gap: 3px;
+            }
+
+            .control-btn-compact {
+                min-height: 40px;
+                font-size: 0.6rem;
+                padding: 4px 1px;
+            }
+
+            .control-btn-compact i {
+                font-size: 0.7rem;
+            }
+
+            .score-display-compact {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 3px;
+                padding: 4px 3px;
+            }
+
+            .score-label-compact {
+                font-size: 0.45rem;
+            }
+
+            .score-value-compact {
+                font-size: 0.6rem;
+            }
+
+            .hud-item {
+                min-width: 50px;
+                padding: 3px 5px;
+            }
+
+            .hud-label {
+                font-size: 0.45rem;
+            }
+
+            .hud-value {
+                font-size: 0.65rem;
+            }
+
+            .radar-container {
+                width: 40px;
+                height: 40px;
+            }
+
+            .log-content-compact {
+                font-size: 0.55rem;
+                padding: 3px;
+            }
+
+            .system-log-compact div:first-child {
+                font-size: 0.6rem;
+            }
+
+            .mobile-controls {
+                display: flex;
+            }
+
+            .direction-controls-compact {
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                height: 85vh;
+            }
+
+            .simulation-viewport {
+                min-height: 180px;
+            }
+
+            .title {
+                font-size: 1.1rem;
+            }
+
+            .subtitle {
+                font-size: 0.65rem;
+            }
+
+            .bat-logo {
+                font-size: 1.2rem;
+            }
+
+            .phase-select {
+                grid-template-columns: repeat(5, 1fr);
+            }
+
+            .phase-number {
+                font-size: 0.55rem;
+            }
+
+            .phase-reward {
+                font-size: 0.45rem;
+            }
+
+            .status-compact {
+                grid-template-columns: repeat(4, 1fr);
+            }
+
+            .status-label-compact {
+                font-size: 0.4rem;
+            }
+
+            .status-value-compact {
+                font-size: 0.55rem;
+            }
+
+            .control-btn-compact {
+                min-height: 35px;
+                font-size: 0.55rem;
+            }
+
+            .control-btn-compact i {
+                font-size: 0.6rem;
+            }
+
+            .score-label-compact {
+                font-size: 0.4rem;
+            }
+
+            .score-value-compact {
+                font-size: 0.55rem;
+            }
+
+            .mobile-joystick {
+                width: 60px;
+                height: 60px;
+            }
+
+            .mobile-joystick-knob {
+                width: 24px;
+                height: 24px;
+            }
+
+            .mobile-action-btn {
+                width: 35px;
+                height: 35px;
+                font-size: 0.7rem;
+            }
+        }
+
+        @media (orientation: landscape) and (max-height: 600px) {
+            .container {
+                margin-top: 40px;
+            }
+
+            .simulation-viewport {
+                min-height: 150px;
+            }
+
+            .status-label-compact {
+                font-size: 0.4rem;
+            }
+
+            .status-value-compact {
+                font-size: 0.55rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <a href="../dash3.html" class="hub-back-link">
+        <i class="fas fa-arrow-left"></i> HUB
+    </a>
+
+    <div class="points-display" id="pointsDisplay">💰 0</div>
+
+    <!-- LOADING OVERLAY -->
+    <div class="loading-container" id="loadingContainer">
+        <div class="loading-icon">🦇</div>
+        <div class="loading-text" id="loadingText">CARREGANDO...</div>
+        <div class="loading-progress">
+            <div class="loading-progress-fill"></div>
+        </div>
+    </div>
+
+    <!-- MODAL DE INTRODUÇÃO -->
+    <div class="modal-overlay intro-overlay" id="introOverlay"></div>
+
+    <div class="modal modal-batmovel active" id="modalIntro">
+        <div class="modal-header">
+            <div class="modal-title">🦇 BATMÓVEL - PERSEGUIÇÃO DA HARLEY</div>
+            <button class="modal-close" onclick="closeIntro()">×</button>
+        </div>
+        <div class="modal-icon">🏎️💋</div>
+        <div class="modal-content">
+            <div class="modal-text">
+                Harley Quinn roubou o Batmóvel e está causando o caos em Gotham!
+                Use o Batmóvel reserva para persegui-la pelas ruas da cidade.
+            </div>
+            <div class="modal-text-secondary">
+                <strong>🎯 INSTRUÇÕES:</strong><br>
+                • Setas ou botões para mudar de faixa<br>
+                • Espaço ou TURBO para aceleração<br>
+                • C para camuflagem (diminui detecção)<br>
+                • Desvie dos obstáculos e não deixe ela escapar!<br>
+                • CUIDADO: Combustível é limitado!<br>
+                • Complete 5 fases para recuperar o Batmóvel
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn primary" onclick="startGame()">INICIAR PERSEGUIÇÃO</button>
+        </div>
+    </div>
+
+    <!-- MODAL DE FASE -->
+    <div class="modal-overlay phase-overlay" id="phaseOverlay"></div>
+
+    <div class="modal modal-batmovel" id="modalPhase">
+        <div class="modal-header">
+            <div class="modal-title" id="phaseModalTitle">FASE 1 - INICIANTE</div>
+            <button class="modal-close" onclick="closePhaseModal()">×</button>
+        </div>
+        <div class="modal-icon" id="phaseIcon">🏎️</div>
+        <div class="modal-content">
+            <div class="modal-text" id="phaseDescription">
+                Persiga Harley Quinn pelas ruas de Gotham.
+            </div>
+
+            <!-- PREVIEW DA VILÃ -->
+            <div class="villain-preview" id="villainPreview"></div>
+
+            <div class="modal-stats">
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">⏰ TEMPO:</span>
+                    <span class="modal-stat-value" id="phaseTime">60s</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">⛽ COMBUSTÍVEL:</span>
+                    <span class="modal-stat-value" id="phaseFuel">100%</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">🎯 DISTÂNCIA:</span>
+                    <span class="modal-stat-value" id="phaseDistance">800m</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">🏆 RECOMPENSA:</span>
+                    <span class="modal-stat-value success" id="phaseReward">100</span>
+                </div>
+            </div>
+            <div class="modal-badge">
+                💋 Harley está à frente! Use o turbo para alcançá-la!
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn secondary" onclick="closePhaseModal()">AGUARDAR</button>
+            <button class="modal-btn primary" onclick="startPhase()">INICIAR FASE</button>
+        </div>
+    </div>
+
+    <!-- MODAL DE RESULTADO -->
+    <div class="modal-overlay result-overlay" id="resultOverlay"></div>
+
+    <div class="modal modal-batmovel" id="modalResult">
+        <div class="modal-header">
+            <div class="modal-title" id="resultTitle">RESULTADO</div>
+            <button class="modal-close" onclick="closeResultModal()">×</button>
+        </div>
+        <div class="modal-icon" id="resultIcon">🏆</div>
+        <div class="modal-content">
+            <div class="modal-text" id="resultMessage"></div>
+            <div class="modal-stats" id="resultStats">
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">Pontuação:</span>
+                    <span class="modal-stat-value success" id="resultScore">0</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">Distância:</span>
+                    <span class="modal-stat-value" id="resultDistance">0m</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">Obstáculos:</span>
+                    <span class="modal-stat-value" id="resultObstacles">0</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">Vel. Máx:</span>
+                    <span class="modal-stat-value" id="resultMaxSpeed">0 km/h</span>
+                </div>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn secondary" onclick="closeResultModal()">FECHAR</button>
+            <button class="modal-btn primary" onclick="nextPhase()">PRÓXIMA FASE</button>
+        </div>
+    </div>
+
+    <!-- MODAL DE GAME OVER -->
+    <div class="modal-overlay result-overlay" id="gameOverOverlay"></div>
+
+    <div class="modal modal-batmovel" id="modalGameOver">
+        <div class="modal-header">
+            <div class="modal-title">💀 DERROTA</div>
+            <button class="modal-close" onclick="closeGameOver()">×</button>
+        </div>
+        <div class="modal-icon">💀</div>
+        <div class="modal-content">
+            <div class="modal-text" id="gameOverMessage">Harley escapou com o Batmóvel...</div>
+            <div class="modal-stats" id="gameOverStats"></div>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn secondary" onclick="closeGameOver()">FECHAR</button>
+            <button class="modal-btn primary" onclick="retryPhase()">TENTAR NOVAMENTE</button>
+        </div>
+    </div>
+
+    <!-- MODAL DE VITÓRIA FINAL -->
+    <div class="modal-overlay result-overlay" id="finalVictoryOverlay"></div>
+
+    <div class="modal modal-batmovel" id="modalFinalVictory">
+        <div class="modal-header">
+            <div class="modal-title">🎉 VITÓRIA TOTAL!</div>
+            <button class="modal-close" onclick="closeFinalVictory()">×</button>
+        </div>
+        <div class="modal-icon">🏆</div>
+        <div class="modal-content">
+            <div class="modal-text">
+                Parabéns! Você recuperou o Batmóvel em todas as 5 fases!
+            </div>
+            <div class="modal-stats" id="finalVictoryStats"></div>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-btn primary" onclick="restartGame()">JOGAR NOVAMENTE</button>
+        </div>
+    </div>
+
+    <div class="header">
+        <div class="bat-logo">
+            <i class="fas fa-mask"></i>
+        </div>
+        <h1 class="title">BATMÓVEL - PERSEGUIÇÃO DA HARLEY</h1>
+        <p class="subtitle">Sistema WayneTech - Gotham City</p>
+    </div>
+
+    <div class="container">
+        <!-- Viewport de Simulação -->
+        <div class="simulation-viewport">
+            <canvas id="gameCanvas"></canvas>
+            <div class="crt-overlay"></div>
+
+            <!-- HUD Overlay -->
+            <div class="hud-overlay">
+                <div class="hud-left">
+                    <div class="hud-item">
+                        <div class="hud-label">VELOCIDADE</div>
+                        <div class="hud-value" id="hudSpeed">0 km/h</div>
+                    </div>
+                    <div class="hud-item">
+                        <div class="hud-label">COMBUSTÍVEL</div>
+                        <div class="hud-value" id="hudFuel">100%</div>
+                    </div>
+                </div>
+
+                <div class="hud-center">
+                    <div class="hud-item">
+                        <div class="hud-label">SISTEMA</div>
+                        <div class="hud-value" id="hudSystem">PRONTO</div>
+                    </div>
+                    <div class="radar-container">
+                        <div class="radar-sweep"></div>
+                    </div>
+                </div>
+
+                <div class="hud-right">
+                    <div class="hud-item">
+                        <div class="hud-label">PONTOS</div>
+                        <div class="hud-value" id="hudScore">0</div>
+                    </div>
+                    <div class="hud-item">
+                        <div class="hud-label">DISTÂNCIA</div>
+                        <div class="hud-value" id="hudDistance">0 m</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tela de Game Over -->
+            <div class="game-over" id="gameOverScreen">
+                <h2>PERSEGUIÇÃO FALHOU</h2>
+                <p id="gameOverReason"></p>
+                <p>Pontuação: <span id="finalScore">0</span></p>
+                <p>Distância: <span id="finalDistance">0</span>m</p>
+                <button class="restart-btn" onclick="restartGame()">
+                    <i class="fas fa-redo"></i> REINICIAR
+                </button>
+            </div>
+        </div>
+
+        <!-- Painel de Controle -->
+        <div class="vehicle-control-panel">
+            <!-- Score Display -->
+            <div class="score-display-compact">
+                <div class="score-item-compact">
+                    <div class="score-label-compact">PONTUAÇÃO</div>
+                    <div class="score-value-compact" id="scoreValue">0</div>
+                </div>
+                <div class="score-item-compact">
+                    <div class="score-label-compact">DISTÂNCIA</div>
+                    <div class="score-value-compact" id="distanceValue">0 m</div>
+                </div>
+                <div class="score-item-compact">
+                    <div class="score-label-compact">OBSTÁCULOS</div>
+                    <div class="score-value-compact" id="obstaclesValue">0</div>
+                </div>
+                <div class="score-item-compact">
+                    <div class="score-label-compact">VEL. MÁX</div>
+                    <div class="score-value-compact" id="maxSpeedValue">0 km/h</div>
+                </div>
+            </div>
+
+            <!-- SELEÇÃO DE FASES -->
+            <div class="panel-title">
+                <i class="fas fa-crosshairs"></i>
+                FASES DA PERSEGUIÇÃO
+            </div>
+
+            <div class="phase-select" id="phaseSelect">
+                <!-- Fases serão inseridas via JavaScript -->
+            </div>
+
+            <!-- Status do Batmóvel -->
+            <div class="panel-title">
+                <i class="fas fa-tachometer-alt"></i>
+                STATUS DO BATMÓVEL
+            </div>
+
+            <div class="status-compact">
+                <div class="status-item-compact">
+                    <div class="status-label-compact">VELOCIDADE</div>
+                    <div class="status-value-compact" id="batmobileSpeed">0 km/h</div>
+                </div>
+                <div class="status-item-compact" id="fuelStatus">
+                    <div class="status-label-compact">COMBUSTÍVEL</div>
+                    <div class="status-value-compact" id="batmobileFuel">100%</div>
+                </div>
+                <div class="status-item-compact" id="damageStatus">
+                    <div class="status-label-compact">INTEGRIDADE</div>
+                    <div class="status-value-compact" id="batmobileDamage">100%</div>
+                </div>
+                <div class="status-item-compact">
+                    <div class="status-label-compact">SISTEMAS</div>
+                    <div class="status-value-compact" id="batmobileSystems">PRONTO</div>
+                </div>
+            </div>
+
+            <!-- Controles de Ação -->
+            <div class="vehicle-controls-compact">
+                <button class="control-btn-compact" id="startBtn" onclick="gameEngine.start()">
+                    <i class="fas fa-play"></i>
+                    <span>LIGAR</span>
+                </button>
+                <button class="control-btn-compact" id="stopBtn" onclick="gameEngine.stop()">
+                    <i class="fas fa-stop"></i>
+                    <span>PARAR</span>
+                </button>
+                <button class="control-btn-compact" id="turboBtn" onclick="gameEngine.toggleTurbo()">
+                    <i class="fas fa-bolt"></i>
+                    <span>TURBO</span>
+                </button>
+                <button class="control-btn-compact" id="camouflageBtn" onclick="gameEngine.toggleCamouflage()">
+                    <i class="fas fa-eye-slash"></i>
+                    <span>CAMUFLAR</span>
+                </button>
+            </div>
+
+            <!-- Controles de Direção (Desktop) -->
+            <div class="direction-controls-compact">
+                <button class="direction-btn-compact left" id="leftBtn">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="direction-btn-compact right" id="rightBtn">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+
+            <!-- Log do Sistema -->
+            <div class="system-log-compact">
+                <div>LOG DO SISTEMA</div>
+                <div class="log-content-compact" id="batmobileLog">
+                    > Sistema inicializado<br>
+                    > Aguardando ignição...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Controles Mobile -->
+    <div class="mobile-controls">
+        <div class="mobile-joystick" id="mobileJoystick">
+            <div class="mobile-joystick-knob" id="mobileJoystickKnob"></div>
+        </div>
+        <div class="mobile-action-buttons">
+            <button class="mobile-action-btn" id="mobileTurboBtn">
+                <i class="fas fa-bolt"></i>
+            </button>
+            <button class="mobile-action-btn" id="mobileBrakeBtn">
+                <i class="fas fa-hand-paper"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Batmóvel | Sistema WayneTech v2.1 | Perseguindo Harley Quinn 💋</p>
+        <p>Controles: Setas = Mudar faixa | Espaço = Turbo | C = Camuflagem</p>
+        <p>© Wayne Enterprises - Gotham City</p>
+    </div>
+
+    <script>
+        // ===========================================
+        // CONFIGURAÇÃO DAS FASES - 5 FASES PROGRESSIVAS
+        // ===========================================
+        const PHASES = [
+            {
+                phase: 1,
+                name: 'INICIANTE',
+                time: 60,
+                fuel: 100,
+                distance: 800,
+                obstacleRate: 120,
+                trafficDensity: 1,
+                reward: 100,
+                desc: 'Harley está testando o Batmóvel nos arredores de Gotham.'
+            },
+            {
+                phase: 2,
+                name: 'INTERMEDIÁRIO',
+                time: 55,
+                fuel: 90,
+                distance: 900,
+                obstacleRate: 110,
+                trafficDensity: 1.2,
+                reward: 150,
+                desc: 'Ela está ganhando confiança e aumentando a velocidade!'
+            },
+            {
+                phase: 3,
+                name: 'AVANÇADO',
+                time: 50,
+                fuel: 80,
+                distance: 1000,
+                obstacleRate: 100,
+                trafficDensity: 1.5,
+                reward: 200,
+                desc: 'Perseguição pelas vias expressas - trânsito intenso!'
+            },
+            {
+                phase: 4,
+                name: 'ESPECIALISTA',
+                time: 45,
+                fuel: 70,
+                distance: 1100,
+                obstacleRate: 90,
+                trafficDensity: 1.8,
+                reward: 250,
+                desc: 'Ela está indo para o centro - pedestres e veículos!'
+            },
+            {
+                phase: 5,
+                name: 'MESTRE',
+                time: 40,
+                fuel: 60,
+                distance: 1200,
+                obstacleRate: 80,
+                trafficDensity: 2,
+                reward: 300,
+                desc: 'Última chance! Não deixe Harley escapar de Gotham!'
+            }
+        ];
+
+        // ===========================================
+        // ESTADO DO JOGO
+        // ===========================================
+        let gameState = {
+            player: {
+                points: 0,
+                totalScore: 0,
+                phase: 1
+            },
+            state: {
+                currentPhase: 0,
+                phaseScore: 0,
+                gameActive: false,
+                phaseCompleted: false,
+                phasesCompleted: [false, false, false, false, false]
+            }
+        };
+
+        // ===========================================
+        // FUNÇÕES DE LOADING
+        // ===========================================
+        async function showLoading(message = 'CARREGANDO...', duration = 2000) {
+            return new Promise((resolve) => {
+                const container = document.getElementById('loadingContainer');
+                const text = document.getElementById('loadingText');
+
+                text.textContent = message;
+                container.classList.add('active');
+
+                setTimeout(() => {
+                    container.classList.remove('active');
+                    resolve();
+                }, duration);
+            });
+        }
+
+        // ===========================================
+        // FUNÇÕES DOS MODAIS
+        // ===========================================
+        function closeIntro() {
+            document.getElementById('introOverlay').classList.remove('active');
+            document.getElementById('modalIntro').classList.remove('active');
+            showPhaseModal(0);
+        }
+
+        function showPhaseModal(phaseIndex) {
+            gameState.state.currentPhase = phaseIndex;
+            const phase = PHASES[phaseIndex];
+
+            document.getElementById('phaseModalTitle').textContent = `FASE ${phase.phase} - ${phase.name}`;
+            document.getElementById('phaseDescription').textContent = phase.desc;
+            document.getElementById('phaseTime').textContent = phase.time + 's';
+            document.getElementById('phaseFuel').textContent = phase.fuel + '%';
+            document.getElementById('phaseDistance').textContent = phase.distance + 'm';
+            document.getElementById('phaseReward').textContent = phase.reward;
+
+            // Preview da vilã com detalhes rosa
+            document.getElementById('villainPreview').innerHTML = `
+                <div class="villain-preview-icon">🏎️</div>
+                <div class="villain-preview-info">
+                    <div class="villain-preview-name">HARLEY QUINN <small>💋</small></div>
+                    <div class="villain-preview-stats">
+                        <div>⏰ ${phase.time}s</div>
+                        <div>⛽ ${phase.fuel}%</div>
+                        <div>🎯 ${phase.distance}m</div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('phaseOverlay').classList.add('active');
+            document.getElementById('modalPhase').classList.add('active');
+        }
+
+        function closePhaseModal() {
+            document.getElementById('phaseOverlay').classList.remove('active');
+            document.getElementById('modalPhase').classList.remove('active');
+        }
+
+        async function startPhase() {
+            closePhaseModal();
+
+            // Mostra loading antes de iniciar a fase
+            await showLoading('INICIANDO PERSEGUIÇÃO...', 2000);
+
+            startPhaseGame();
+        }
+
+        function startPhaseGame() {
+            const phase = PHASES[gameState.state.currentPhase];
+
+            // Atualizar seleção de fases
+            renderPhases();
+
+            // Iniciar o jogo com os parâmetros da fase
+            gameEngine.startPhase(phase);
+        }
+
+        function showResultModal(victory) {
+            const phase = PHASES[gameState.state.currentPhase];
+            const title = victory ? 'VITÓRIA!' : 'DERROTA';
+            const icon = victory ? '🏆' : '💀';
+            const message = victory ?
+                `Fase ${phase.phase} concluída! Harley está encurralada!` :
+                'Harley escapou com o Batmóvel...';
+
+            document.getElementById('resultTitle').textContent = title;
+            document.getElementById('resultIcon').textContent = icon;
+            document.getElementById('resultMessage').textContent = message;
+            document.getElementById('resultScore').textContent = gameState.state.phaseScore;
+            document.getElementById('resultDistance').textContent = Math.round(gameEngine.distance) + 'm';
+            document.getElementById('resultObstacles').textContent = gameEngine.obstaclesAvoided;
+            document.getElementById('resultMaxSpeed').textContent = Math.round(gameEngine.maxSpeed) + ' km/h';
+
+            document.getElementById('resultOverlay').classList.add('active');
+            document.getElementById('modalResult').classList.add('active');
+        }
+
+        function closeResultModal() {
+            document.getElementById('resultOverlay').classList.remove('active');
+            document.getElementById('modalResult').classList.remove('active');
+        }
+
+        // ===== FUNÇÃO PARA ADICIONAR PONTOS AO SISTEMA GLOBAL =====
+        function addToGlobalPoints(p) {
+            if (window.ArkhamCore && typeof ArkhamCore.addPoints === 'function') {
+                ArkhamCore.addPoints(p, 'harley');
+            } else {
+                console.warn("ArkhamCore não encontrado, salvando pontos localmente.");
+                const cur = parseInt(localStorage.getItem('batmanPoints') || '0', 10);
+                localStorage.setItem('batmanPoints', (cur + p).toString());
+            }
+            if (typeof updatePointsDisplay === 'function') {
+                updatePointsDisplay();
+            } else {
+                const pointsDisplay = document.getElementById('pointsDisplay');
+                if (pointsDisplay) {
+                    let totalScore = gameState.player?.totalScore || 0;
+                    pointsDisplay.textContent = `💰 ${totalScore}`;
+                }
+            }
+        }
+
+        // Substituir a função nextPhase (aproximadamente linha 400)
+        async function nextPhase() {
+            closeResultModal();
+
+            // Salvar pontuação
+            if (window.ArkhamCore) {
+                ArkhamCore.addPoints(gameState.state.phaseScore, 'harley');
+
+                // CORREÇÃO: Registrar progresso da fase
+                ArkhamCore.registerPhaseCompletion('harley');
+            } else {
+                const cur = parseInt(localStorage.getItem('batmanPoints') || '0', 10);
+                localStorage.setItem('batmanPoints', (cur + gameState.state.phaseScore).toString());
+            }
+
+            if (gameState.state.currentPhase < PHASES.length - 1) {
+                gameState.state.currentPhase++;
+                gameState.player.phase = gameState.state.currentPhase + 1;
+                await showLoading('PREPARANDO PRÓXIMA FASE...', 1500);
+                showPhaseModal(gameState.state.currentPhase);
+            } else {
+                await showLoading('VITÓRIA! CARREGANDO RESULTADO...', 2000);
+                showFinalVictory();
+            }
+        }
+
+        function showGameOver(message) {
+            document.getElementById('gameOverMessage').textContent = message;
+
+            document.getElementById('gameOverStats').innerHTML = `
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">🏁 Distância:</span>
+                    <span class="modal-stat-value">${Math.round(gameEngine.distance)}m</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">🚧 Obstáculos:</span>
+                    <span class="modal-stat-value">${gameEngine.obstaclesAvoided}</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">💯 Pontuação:</span>
+                    <span class="modal-stat-value">${gameState.state.phaseScore}</span>
+                </div>
+            `;
+
+            document.getElementById('gameOverOverlay').classList.add('active');
+            document.getElementById('modalGameOver').classList.add('active');
+        }
+
+        function closeGameOver() {
+            document.getElementById('gameOverOverlay').classList.remove('active');
+            document.getElementById('modalGameOver').classList.remove('active');
+        }
+
+        async function retryPhase() {
+            closeGameOver();
+
+            // Mostra loading antes de tentar novamente
+            await showLoading('REINICIANDO FASE...', 1500);
+
+            showPhaseModal(gameState.state.currentPhase);
+        }
+
+        function showFinalVictory() {
+            document.getElementById('finalVictoryStats').innerHTML = `
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">🏆 Pontuação Total:</span>
+                    <span class="modal-stat-value success">${gameState.player.totalScore}</span>
+                </div>
+                <div class="modal-stat-row">
+                    <span class="modal-stat-label">⭐ Título:</span>
+                    <span class="modal-stat-value">O VELOZ DE GOTHAM</span>
+                </div>
+            `;
+
+            document.getElementById('finalVictoryOverlay').classList.add('active');
+            document.getElementById('modalFinalVictory').classList.add('active');
+        }
+
+        function closeFinalVictory() {
+            document.getElementById('finalVictoryOverlay').classList.remove('active');
+            document.getElementById('modalFinalVictory').classList.remove('active');
+        }
+
+        async function restartGame() {
+            closeFinalVictory();
+
+            // Mostra loading antes de reiniciar
+            await showLoading('REINICIANDO PERSEGUIÇÃO...', 1500);
+
+            gameState.state.currentPhase = 0;
+            gameState.player.phase = 1;
+            gameState.player.totalScore = 0;
+            gameState.state.phasesCompleted = [false, false, false, false, false];
+            updatePointsDisplay();
+            gameEngine.restart();
+            renderPhases();
+            showPhaseModal(0);
+        }
+
+        function startGame() {
+            closeIntro();
+            showPhaseModal(0);
+        }
+
+        function updatePointsDisplay() {
+            document.getElementById('pointsDisplay').textContent = `💰 ${gameState.player.totalScore}`;
+        }
+
+        function renderPhases() {
+            const container = document.getElementById('phaseSelect');
+            container.innerHTML = '';
+
+            PHASES.forEach((phase, index) => {
+                const card = document.createElement('div');
+                card.className = `phase-card ${gameState.state.phasesCompleted[index] ? 'completed' : ''} ${gameState.state.currentPhase === index ? 'active' : ''}`;
+                card.onclick = async () => {
+                    if (!gameState.state.phasesCompleted[index]) {
+                        gameState.state.currentPhase = index;
+
+                        // Mostra loading antes de mostrar a fase selecionada
+                        await showLoading('CARREGANDO FASE...', 1000);
+
+                        showPhaseModal(index);
+                    }
+                };
+
+                card.innerHTML = `
+                    <div class="phase-number">FASE ${phase.phase}</div>
+                    <div class="phase-reward">+${phase.reward} pts</div>
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
+        // ===========================================
+        // SISTEMA DO BATMÓVEL - MOTOR DE JOGO ORIGINAL
+        // ===========================================
+        class GameEngine {
+            constructor() {
+                this.canvas = document.getElementById('gameCanvas');
+                this.ctx = this.canvas.getContext('2d');
+
+                this.width = this.canvas.width = this.canvas.offsetWidth;
+                this.height = this.canvas.height = this.canvas.offsetHeight;
+
+                // Estado do jogo
+                this.gameState = 'READY';
+                this.lastTime = 0;
+                this.score = 0;
+                this.distance = 0;
+                this.maxSpeed = 0;
+                this.obstaclesAvoided = 0;
+                this.gameOver = false;
+
+                // Jogador - Batmóvel
+                this.player = {
+                    x: this.width / 2,
+                    y: this.height * 0.8,
+                    width: Math.min(120, this.width * 0.18),
+                    height: Math.min(60, this.width * 0.09),
+                    velocity: 0,
+                    maxVelocity: 320,
+                    acceleration: 0.25,
+                    turbo: false,
+                    camouflage: false,
+                    fuel: 100,
+                    damage: 0,
+                    invincible: false,
+                    invincibleTimer: 0,
+                    lane: 1,
+                    headlights: true,
+                    brakeLights: false
+                };
+
+                // Controles
+                this.keys = {};
+                this.input = {
+                    left: false,
+                    right: false
+                };
+
+                // Estrada
+                this.road = {
+                    width: this.width * 0.8,
+                    x: this.width * 0.1,
+                    lines: [],
+                    lineWidth: 3,
+                    lineLength: 25,
+                    lineGap: 30,
+                    color: '#1a1a2e'
+                };
+
+                // Obstáculos
+                this.obstacles = [];
+                this.obstacleTypes = [
+                    { name: 'Carro', width: 80, height: 45, color: '#4a6fa5', score: 15 },
+                    { name: 'Caminhão', width: 110, height: 55, color: '#8b4513', score: 25 },
+                    { name: 'Moto', width: 40, height: 25, color: '#dc143c', score: 30 }
+                ];
+                this.obstacleSpawnTimer = 0;
+                this.obstacleSpawnRate = 120;
+
+                // Partículas
+                this.particles = [];
+                this.smokeParticles = [];
+
+                // Inicializar
+                this.init();
+            }
+
+            init() {
+                this.resizeCanvas();
+                window.addEventListener('resize', () => this.resizeCanvas());
+                this.setupInput();
+                this.setupButtonControls();
+                this.setupMobileControls();
+                this.initRoadLines();
+                this.log('Sistema WayneTech inicializado');
+                renderPhases();
+                requestAnimationFrame((t) => this.gameLoop(t));
+            }
+
+            startPhase(phase) {
+                this.gameState = 'RUNNING';
+                this.gameOver = false;
+                this.score = 0;
+                this.distance = 0;
+                this.maxSpeed = 0;
+                this.obstaclesAvoided = 0;
+
+                this.player.velocity = 50;
+                this.player.fuel = phase.fuel;
+                this.player.damage = 0;
+                this.player.turbo = false;
+                this.player.camouflage = false;
+                this.player.lane = 1;
+
+                this.obstacles = [];
+                this.particles = [];
+                this.smokeParticles = [];
+                this.obstacleSpawnRate = phase.obstacleRate;
+                this.targetDistance = phase.distance;
+
+                this.updateUI();
+                this.log(`Perseguição iniciada - Fase ${phase.phase}`);
+            }
+
+            resizeCanvas() {
+                this.width = this.canvas.width = this.canvas.offsetWidth;
+                this.height = this.canvas.height = this.canvas.offsetHeight;
+
+                this.player.x = this.width / 2;
+                this.player.y = this.height * 0.8;
+                this.player.width = Math.min(120, this.width * 0.18);
+                this.player.height = Math.min(60, this.width * 0.09);
+
+                this.road.width = this.width * 0.8;
+                this.road.x = this.width * 0.1;
+
+                this.initRoadLines();
+            }
+
+            initRoadLines() {
+                this.road.lines = [];
+                for (let i = 0; i < 20; i++) {
+                    this.road.lines.push({
+                        x: this.road.x + (this.road.width / 2),
+                        y: i * (this.road.lineLength + this.road.lineGap)
+                    });
+                }
+            }
+
+            gameLoop(timestamp) {
+                const deltaTime = timestamp - this.lastTime;
+                this.lastTime = timestamp;
+
+                this.ctx.clearRect(0, 0, this.width, this.height);
+
+                if (this.gameState === 'RUNNING' && !this.gameOver) {
+                    this.update(deltaTime);
+                }
+
+                this.render();
+
+                if (!this.gameOver) {
+                    requestAnimationFrame((t) => this.gameLoop(t));
+                }
+            }
+
+            update(deltaTime) {
+                const delta = Math.min(deltaTime / 16.67, 2.0);
+
+                // Movimento horizontal por faixas
+                if (this.input.left && this.player.lane > 0) {
+                    this.player.lane--;
+                    this.input.left = false;
+                    this.log('Mudança de faixa: ESQUERDA');
+                }
+                if (this.input.right && this.player.lane < 2) {
+                    this.player.lane++;
+                    this.input.right = false;
+                    this.log('Mudança de faixa: DIREITA');
+                }
+
+                // Posicionar baseado na faixa
+                const laneWidth = this.road.width / 3;
+                const targetX = this.road.x + laneWidth * 0.5 + (this.player.lane * laneWidth);
+                this.player.x += (targetX - this.player.x) * 0.15;
+
+                // Aceleração
+                if (this.gameState === 'RUNNING') {
+                    const acceleration = this.player.turbo ? 0.5 : 0.25;
+                    this.player.velocity = Math.min(this.player.maxVelocity, this.player.velocity + acceleration * delta);
+
+                    // Atualizar distância
+                    this.distance += this.player.velocity / 200 * delta;
+
+                    // Verificar se alcançou a distância alvo
+                    if (this.targetDistance && this.distance >= this.targetDistance) {
+                        this.completePhase();
+                    }
+                }
+
+                // Desaceleração natural
+                if (this.gameState !== 'RUNNING' && this.player.velocity > 0) {
+                    this.player.velocity = Math.max(0, this.player.velocity - 0.2 * delta);
+                }
+
+                // Atualizar velocidade máxima
+                if (this.player.velocity > this.maxSpeed) {
+                    this.maxSpeed = this.player.velocity;
+                }
+
+                // Consumir combustível
+                if (this.player.velocity > 0) {
+                    const consumption = this.player.turbo ? 0.5 : 0.1;
+                    this.player.fuel = Math.max(0, this.player.fuel - consumption * (this.player.velocity / 800) * delta);
+
+                    if (this.player.fuel <= 0) {
+                        this.gameOver = true;
+                        this.showGameOver('Combustível esgotado!');
+                    }
+                }
+
+                // Atualizar obstáculos
+                this.updateObstacles(delta);
+
+                // Atualizar partículas
+                this.updateParticles(delta);
+
+                // Atualizar fumaça
+                this.updateSmoke(delta);
+
+                // Atualizar invencibilidade
+                if (this.player.invincible) {
+                    this.player.invincibleTimer -= delta;
+                    if (this.player.invincibleTimer <= 0) {
+                        this.player.invincible = false;
+                    }
+                }
+
+                this.updateUI();
+            }
+
+            updateObstacles(delta) {
+                this.obstacleSpawnTimer += delta;
+                if (this.obstacleSpawnTimer >= this.obstacleSpawnRate) {
+                    this.spawnObstacle();
+                    this.obstacleSpawnTimer = 0;
+                }
+
+                for (let i = this.obstacles.length - 1; i >= 0; i--) {
+                    const obstacle = this.obstacles[i];
+                    obstacle.y += (this.player.velocity / 40) * delta;
+
+                    if (!obstacle.hit && !this.player.invincible && !this.player.camouflage) {
+                        const playerRect = {
+                            x: this.player.x - this.player.width / 2,
+                            y: this.player.y - this.player.height / 2,
+                            width: this.player.width,
+                            height: this.player.height
+                        };
+
+                        const obstacleRect = {
+                            x: obstacle.x - obstacle.width / 2,
+                            y: obstacle.y - obstacle.height / 2,
+                            width: obstacle.width,
+                            height: obstacle.height
+                        };
+
+                        if (this.checkCollision(playerRect, obstacleRect)) {
+                            this.onCollision(obstacle);
+                            obstacle.hit = true;
+                        }
+                    }
+
+                    if (obstacle.y > this.height + 100) {
+                        if (!obstacle.hit) {
+                            this.obstaclesAvoided++;
+                            this.score += 10;
+                        }
+                        this.obstacles.splice(i, 1);
+                    }
+                }
+            }
+
+            spawnObstacle() {
+                const type = this.obstacleTypes[Math.floor(Math.random() * this.obstacleTypes.length)];
+                const lane = Math.floor(Math.random() * 3);
+                const laneWidth = this.road.width / 3;
+                const x = this.road.x + laneWidth * 0.5 + (lane * laneWidth);
+
+                this.obstacles.push({
+                    x: x,
+                    y: -100,
+                    width: type.width,
+                    height: type.height,
+                    color: type.color,
+                    score: type.score,
+                    name: type.name,
+                    lane: lane,
+                    hit: false
+                });
+            }
+
+            checkCollision(rect1, rect2) {
+                return rect1.x < rect2.x + rect2.width &&
+                    rect1.x + rect1.width > rect2.x &&
+                    rect1.y < rect2.y + rect2.height &&
+                    rect1.y + rect1.height > rect2.y;
+            }
+
+            onCollision(obstacle) {
+                this.player.damage += 25;
+                this.score += Math.max(1, obstacle.score - 10);
+
+                this.createExplosion(obstacle.x, obstacle.y, obstacle.color);
+
+                this.player.invincible = true;
+                this.player.invincibleTimer = 40;
+
+                this.player.velocity *= 0.5;
+
+                if (this.player.damage >= 100) {
+                    this.gameOver = true;
+                    this.showGameOver(`Colisão fatal com ${obstacle.name}!`);
+                } else {
+                    this.log(`Colisão com ${obstacle.name}! Dano: ${this.player.damage}%`);
+                }
+            }
+
+            createExplosion(x, y, color) {
+                for (let i = 0; i < 15; i++) {
+                    this.particles.push({
+                        x: x,
+                        y: y,
+                        vx: (Math.random() - 0.5) * 8,
+                        vy: (Math.random() - 0.5) * 8 - 2,
+                        size: Math.random() * 4 + 2,
+                        life: 50 + Math.random() * 50,
+                        color: color
+                    });
+                }
+            }
+
+            updateParticles(delta) {
+                for (let i = this.particles.length - 1; i >= 0; i--) {
+                    const p = this.particles[i];
+                    p.x += p.vx * delta;
+                    p.y += p.vy * delta;
+                    p.life -= delta;
+
+                    if (p.life <= 0) {
+                        this.particles.splice(i, 1);
+                    }
+                }
+            }
+
+            updateSmoke(delta) {
+                if (this.player.velocity > 20 && this.gameState === 'RUNNING') {
+                    if (Math.random() < 0.2) {
+                        this.smokeParticles.push({
+                            x: this.player.x - 10 + Math.random() * 20,
+                            y: this.player.y + this.player.height * 0.3,
+                            vx: (Math.random() - 0.5) * 0.5,
+                            vy: -Math.random() * 1.5,
+                            size: 3 + Math.random() * 4,
+                            life: 80 + Math.random() * 80,
+                            color: this.player.turbo ? 'rgba(255, 100, 100, 0.7)' : 'rgba(100, 100, 100, 0.5)'
+                        });
+                    }
+                }
+
+                for (let i = this.smokeParticles.length - 1; i >= 0; i--) {
+                    const p = this.smokeParticles[i];
+                    p.x += p.vx * delta;
+                    p.y += p.vy * delta;
+                    p.life -= delta * 0.5;
+                    p.size += 0.03 * delta;
+
+                    if (p.life <= 0) {
+                        this.smokeParticles.splice(i, 1);
+                    }
+                }
+            }
+
+            render() {
+                this.renderRoad();
+                this.renderObstacles();
+                this.renderParticles();
+                this.renderSmoke();
+                this.renderPlayer();
+            }
+
+            renderRoad() {
+                // Asfalto
+                this.ctx.fillStyle = '#0a0a0a'; // Preto escuro para a estrada
+                this.ctx.fillRect(this.road.x, 0, this.road.width, this.height);
+
+                // Faixas
+                this.ctx.strokeStyle = 'var(--harley)';
+                this.ctx.lineWidth = this.road.lineWidth;
+                this.ctx.setLineDash([this.road.lineLength, this.road.lineGap]);
+
+                for (let line of this.road.lines) {
+                    line.y += this.player.velocity / 60;
+                    if (line.y > this.height) {
+                        line.y = -this.road.lineLength;
+                    }
+
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(line.x, line.y);
+                    this.ctx.lineTo(line.x, line.y + this.road.lineLength);
+                    this.ctx.stroke();
+                }
+
+                this.ctx.setLineDash([]);
+
+                // Divisórias
+                this.ctx.strokeStyle = 'rgba(255, 105, 180, 0.2)';
+                this.ctx.lineWidth = 1;
+                for (let i = 1; i <= 2; i++) {
+                    const x = this.road.x + (this.road.width / 3) * i;
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(x, 0);
+                    this.ctx.lineTo(x, this.height);
+                    this.ctx.stroke();
+                }
+            }
+
+            renderObstacles() {
+                for (const obstacle of this.obstacles) {
+                    if (obstacle.hit) continue;
+
+                    this.ctx.fillStyle = obstacle.color;
+                    this.ctx.fillRect(
+                        obstacle.x - obstacle.width / 2,
+                        obstacle.y - obstacle.height / 2,
+                        obstacle.width,
+                        obstacle.height
+                    );
+                }
+            }
+
+            renderPlayer() {
+                this.ctx.save();
+
+                if (this.player.invincible && Math.floor(this.player.invincibleTimer / 3) % 2 === 0) {
+                    this.ctx.globalAlpha = 0.6;
+                }
+
+                if (this.player.camouflage) {
+                    this.ctx.globalAlpha = 0.3;
+                }
+
+                // Corpo do Batmóvel
+                this.ctx.fillStyle = '#111';
+                this.ctx.fillRect(
+                    this.player.x - this.player.width / 2,
+                    this.player.y - this.player.height / 2,
+                    this.player.width,
+                    this.player.height
+                );
+
+                // Detalhes
+                this.ctx.fillStyle = 'var(--harley)';
+                this.ctx.fillRect(
+                    this.player.x - 5,
+                    this.player.y - this.player.height / 2 + 5,
+                    10, 10
+                );
+
+                // Faróis
+                this.ctx.fillStyle = this.player.headlights ? '#fff' : '#666';
+                this.ctx.fillRect(
+                    this.player.x - this.player.width / 2 + 15,
+                    this.player.y - this.player.height / 2 + 5,
+                    10, 5
+                );
+                this.ctx.fillRect(
+                    this.player.x + this.player.width / 2 - 25,
+                    this.player.y - this.player.height / 2 + 5,
+                    10, 5
+                );
+
+                // Efeito turbo
+                if (this.player.turbo) {
+                    for (let i = 0; i < 3; i++) {
+                        this.ctx.fillStyle = 'rgba(255, 100, 0, 0.5)';
+                        this.ctx.fillRect(
+                            this.player.x - 10 + i * 10,
+                            this.player.y + this.player.height / 2,
+                            5, 10
+                        );
+                    }
+                }
+
+                this.ctx.restore();
+            }
+
+            renderParticles() {
+                for (const p of this.particles) {
+                    this.ctx.globalAlpha = p.life / 100;
+                    this.ctx.fillStyle = p.color;
+                    this.ctx.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size);
+                }
+                this.ctx.globalAlpha = 1;
+            }
+
+            renderSmoke() {
+                for (const p of this.smokeParticles) {
+                    this.ctx.globalAlpha = p.life / 100 * 0.5;
+                    this.ctx.fillStyle = p.color;
+                    this.ctx.beginPath();
+                    this.ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    this.ctx.fill();
+                }
+                this.ctx.globalAlpha = 1;
+            }
+
+            completePhase() {
+                const phase = PHASES[gameState.state.currentPhase];
+                const timeBonus = Math.floor(phase.time * 10);
+                const fuelBonus = Math.floor(this.player.fuel * 2);
+                const obstacleBonus = this.obstaclesAvoided * 5;
+
+                this.score += phase.reward + timeBonus + fuelBonus + obstacleBonus;
+                gameState.state.phaseScore = this.score;
+                gameState.player.totalScore += this.score;
+                gameState.state.phasesCompleted[gameState.state.currentPhase] = true;
+
+                this.addPointsToCore(this.score);
+                this.updatePointsDisplay();
+
+                this.gameState = 'COMPLETE';
+                this.gameOver = true;
+
+                document.getElementById('gameOverScreen').className = 'game-over success';
+                document.getElementById('gameOverReason').textContent = 'Harley capturada!';
+                document.getElementById('finalScore').textContent = this.score;
+                document.getElementById('finalDistance').textContent = Math.round(this.distance);
+                document.getElementById('gameOverScreen').style.display = 'flex';
+
+                renderPhases();
+                showResultModal(true);
+            }
+
+            showGameOver(reason) {
+                gameState.state.phaseScore = this.score;
+                gameState.player.totalScore += this.score;
+
+                this.addPointsToCore(this.score);
+                this.updatePointsDisplay();
+
+                this.gameOver = true;
+                document.getElementById('gameOverReason').textContent = reason;
+                document.getElementById('finalScore').textContent = this.score;
+                document.getElementById('finalDistance').textContent = Math.round(this.distance);
+                document.getElementById('gameOverScreen').style.display = 'flex';
+
+                showGameOver(reason);
+            }
+
+            addPointsToCore(points) {
+                if (window.ArkhamCore) {
+                    ArkhamCore.addPoints(points, 'harley');
+                } else {
+                    const cur = parseInt(localStorage.getItem('batmanPoints') || '0', 10);
+                    localStorage.setItem('batmanPoints', (cur + points).toString());
+                }
+                gameState.player.totalScore += points;
+                updatePointsDisplay();
+            }
+
+            updatePointsDisplay() {
+                document.getElementById('pointsDisplay').textContent = `💰 ${gameState.player.totalScore}`;
+            }
+
+            updateUI() {
+                document.getElementById('hudSpeed').textContent = `${Math.round(this.player.velocity)} km/h`;
+                document.getElementById('hudFuel').textContent = `${Math.round(this.player.fuel)}%`;
+                document.getElementById('hudSystem').textContent = this.gameState;
+                document.getElementById('hudScore').textContent = this.score;
+                document.getElementById('hudDistance').textContent = `${Math.round(this.distance)} m`;
+
+                document.getElementById('batmobileSpeed').textContent = `${Math.round(this.player.velocity)} km/h`;
+                document.getElementById('batmobileFuel').textContent = `${Math.round(this.player.fuel)}%`;
+                document.getElementById('batmobileDamage').textContent = `${Math.round(this.player.damage)}%`;
+                document.getElementById('batmobileSystems').textContent = this.gameState;
+
+                document.getElementById('scoreValue').textContent = this.score;
+                document.getElementById('distanceValue').textContent = `${Math.round(this.distance)} m`;
+                document.getElementById('obstaclesValue').textContent = this.obstaclesAvoided;
+                document.getElementById('maxSpeedValue').textContent = `${Math.round(this.maxSpeed)} km/h`;
+
+                const fuelElement = document.getElementById('batmobileFuel');
+                fuelElement.classList.toggle('fuel-warning', this.player.fuel < 20);
+
+                const speedElement = document.getElementById('batmobileSpeed');
+                speedElement.classList.toggle('turbo-active', this.player.turbo);
+
+                const fuelStatus = document.getElementById('fuelStatus');
+                fuelStatus.classList.toggle('critical', this.player.fuel < 20);
+
+                const damageStatus = document.getElementById('damageStatus');
+                damageStatus.classList.toggle('critical', this.player.damage > 70);
+
+                const camouflageBtn = document.getElementById('camouflageBtn');
+                camouflageBtn.classList.toggle('active', this.player.camouflage);
+
+                const turboBtn = document.getElementById('turboBtn');
+                turboBtn.classList.toggle('active', this.player.turbo);
+
+                const startBtn = document.getElementById('startBtn');
+                startBtn.classList.toggle('active', this.gameState === 'RUNNING');
+            }
+
+            log(message) {
+                const log = document.getElementById('batmobileLog');
+                log.innerHTML = `> ${message}<br>` + log.innerHTML;
+
+                const logs = log.innerHTML.split('<br>');
+                if (logs.length > 6) {
+                    log.innerHTML = logs.slice(0, 6).join('<br>');
+                }
+            }
+
+            start() {
+                if (this.gameState === 'RUNNING') return;
+                if (this.player.fuel <= 0) {
+                    this.log('Combustível insuficiente!');
+                    return;
+                }
+                this.gameState = 'RUNNING';
+                this.player.velocity = 50;
+                this.log('Motor iniciado');
+            }
+
+            stop() {
+                if (this.gameState !== 'RUNNING') return;
+                this.gameState = 'PAUSED';
+                this.player.turbo = false;
+                this.log('Sistemas em pausa');
+            }
+
+            toggleTurbo() {
+                if (this.gameState !== 'RUNNING') {
+                    this.log('Ligue o motor primeiro');
+                    return;
+                }
+                this.player.turbo = !this.player.turbo;
+                this.log(`Turbo ${this.player.turbo ? 'ativado' : 'desativado'}`);
+            }
+
+            toggleCamouflage() {
+                this.player.camouflage = !this.player.camouflage;
+                this.log(`Camuflagem ${this.player.camouflage ? 'ativada' : 'desativada'}`);
+            }
+
+            restart() {
+                this.gameOver = false;
+                this.gameState = 'READY';
+                this.score = 0;
+                this.distance = 0;
+                this.maxSpeed = 0;
+                this.obstaclesAvoided = 0;
+
+                this.player.velocity = 0;
+                this.player.turbo = false;
+                this.player.camouflage = false;
+                this.player.fuel = 100;
+                this.player.damage = 0;
+                this.player.invincible = false;
+                this.player.invincibleTimer = 0;
+                this.player.lane = 1;
+                this.player.headlights = true;
+
+                this.obstacles = [];
+                this.particles = [];
+                this.smokeParticles = [];
+                this.obstacleSpawnTimer = 0;
+
+                this.input.left = this.input.right = false;
+                this.keys = {};
+
+                document.getElementById('gameOverScreen').style.display = 'none';
+                this.log('Sistema reinicializado');
+                this.log('Batmóvel pronto');
+            }
+
+            setupInput() {
+                window.addEventListener('keydown', (e) => {
+                    const key = e.key.toLowerCase();
+
+                    if (key === 'arrowleft' || key === 'a') {
+                        e.preventDefault();
+                        this.input.left = true;
+                    }
+                    if (key === 'arrowright' || key === 'd') {
+                        e.preventDefault();
+                        this.input.right = true;
+                    }
+                    if (key === ' ') {
+                        e.preventDefault();
+                        this.toggleTurbo();
+                    }
+                    if (key === 'c') {
+                        this.toggleCamouflage();
+                    }
+                });
+
+                window.addEventListener('keyup', (e) => {
+                    const key = e.key.toLowerCase();
+                    if (key === 'arrowleft' || key === 'a') {
+                        this.input.left = false;
+                    }
+                    if (key === 'arrowright' || key === 'd') {
+                        this.input.right = false;
+                    }
+                });
+            }
+
+            setupButtonControls() {
+                const leftBtn = document.getElementById('leftBtn');
+                const rightBtn = document.getElementById('rightBtn');
+
+                if (leftBtn) {
+                    leftBtn.addEventListener('mousedown', (e) => {
+                        e.preventDefault();
+                        this.input.left = true;
+                    });
+
+                    leftBtn.addEventListener('mouseup', () => {
+                        this.input.left = false;
+                    });
+
+                    leftBtn.addEventListener('mouseleave', () => {
+                        this.input.left = false;
+                    });
+
+                    leftBtn.addEventListener('touchstart', (e) => {
+                        e.preventDefault();
+                        this.input.left = true;
+                    });
+
+                    leftBtn.addEventListener('touchend', (e) => {
+                        e.preventDefault();
+                        this.input.left = false;
+                    });
+                }
+
+                if (rightBtn) {
+                    rightBtn.addEventListener('mousedown', (e) => {
+                        e.preventDefault();
+                        this.input.right = true;
+                    });
+
+                    rightBtn.addEventListener('mouseup', () => {
+                        this.input.right = false;
+                    });
+
+                    rightBtn.addEventListener('mouseleave', () => {
+                        this.input.right = false;
+                    });
+
+                    rightBtn.addEventListener('touchstart', (e) => {
+                        e.preventDefault();
+                        this.input.right = true;
+                    });
+
+                    rightBtn.addEventListener('touchend', (e) => {
+                        e.preventDefault();
+                        this.input.right = false;
+                    });
+                }
+            }
+
+            setupMobileControls() {
+                const joystick = document.getElementById('mobileJoystick');
+                const knob = document.getElementById('mobileJoystickKnob');
+                const turboBtn = document.getElementById('mobileTurboBtn');
+                const brakeBtn = document.getElementById('mobileBrakeBtn');
+
+                if (!joystick) return;
+
+                let isDragging = false;
+                let startX, startY;
+                let knobX = 0;
+                const maxDistance = 25;
+
+                const startDrag = (x, y) => {
+                    isDragging = true;
+                    const rect = joystick.getBoundingClientRect();
+                    startX = rect.left + rect.width / 2;
+                    startY = rect.top + rect.height / 2;
+                };
+
+                const updateDrag = (x, y) => {
+                    if (!isDragging) return;
+
+                    const dx = x - startX;
+                    const dy = y - startY;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance > maxDistance) {
+                        const angle = Math.atan2(dy, dx);
+                        knobX = Math.cos(angle) * maxDistance;
+                    } else {
+                        knobX = dx;
+                    }
+
+                    knob.style.transform = `translate(${knobX}px, 0)`;
+
+                    this.input.left = knobX < -10;
+                    this.input.right = knobX > 10;
+                };
+
+                const endDrag = () => {
+                    isDragging = false;
+                    knobX = 0;
+                    knob.style.transform = 'translate(0, 0)';
+                    this.input.left = this.input.right = false;
+                };
+
+                joystick.addEventListener('mousedown', (e) => {
+                    startDrag(e.clientX, e.clientY);
+                });
+
+                document.addEventListener('mousemove', (e) => {
+                    updateDrag(e.clientX, e.clientY);
+                });
+
+                document.addEventListener('mouseup', endDrag);
+
+                joystick.addEventListener('touchstart', (e) => {
+                    const touch = e.touches[0];
+                    startDrag(touch.clientX, touch.clientY);
+                });
+
+                document.addEventListener('touchmove', (e) => {
+                    if (!isDragging) return;
+                    const touch = e.touches[0];
+                    updateDrag(touch.clientX, touch.clientY);
+                });
+
+                document.addEventListener('touchend', endDrag);
+                document.addEventListener('touchcancel', endDrag);
+
+                if (turboBtn) {
+                    turboBtn.addEventListener('click', () => this.toggleTurbo());
+                    turboBtn.addEventListener('touchstart', (e) => {
+                        e.preventDefault();
+                        this.toggleTurbo();
+                    });
+                }
+
+                if (brakeBtn) {
+                    brakeBtn.addEventListener('click', () => {
+                        this.player.velocity = Math.max(0, this.player.velocity - 50);
+                        this.log('Freio acionado');
+                    });
+                    brakeBtn.addEventListener('touchstart', (e) => {
+                        e.preventDefault();
+                        this.player.velocity = Math.max(0, this.player.velocity - 50);
+                        this.log('Freio acionado');
+                    });
+                }
+            }
+        }
+
+        let gameEngine;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Carregar pontos salvos
+            const saved = localStorage.getItem('batmanPoints');
+            if (saved) {
+                gameState.player.totalScore = parseInt(saved);
+                document.getElementById('pointsDisplay').textContent = `💰 ${saved}`;
+            }
+
+            gameEngine = new GameEngine();
+
+            // Garantir que o modal de introdução comece ativo
+            document.getElementById('introOverlay').classList.add('active');
+        });
+    </script>
+</body>
+
+</html>
