@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -148,8 +149,15 @@
         }
 
         @keyframes emergencyPulse {
-            0% { background: rgba(255, 0, 0, 0.95); box-shadow: 0 0 100px rgba(255, 0, 0, 0.8) inset; }
-            100% { background: rgba(255, 50, 50, 0.95); box-shadow: 0 0 150px rgba(255, 0, 0, 1) inset; }
+            0% {
+                background: rgba(255, 0, 0, 0.95);
+                box-shadow: 0 0 100px rgba(255, 0, 0, 0.8) inset;
+            }
+
+            100% {
+                background: rgba(255, 50, 50, 0.95);
+                box-shadow: 0 0 150px rgba(255, 0, 0, 1) inset;
+            }
         }
 
         .alert-timer {
@@ -200,8 +208,15 @@
         }
 
         @keyframes alertFadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         /* ===== TELA DE LOGIN ===== */
@@ -286,13 +301,27 @@
         }
 
         @keyframes batPulse {
-            0%, 100% { opacity: 0.3; }
-            50% { opacity: 1; }
+
+            0%,
+            100% {
+                opacity: 0.3;
+            }
+
+            50% {
+                opacity: 1;
+            }
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .auth-form {
@@ -332,8 +361,8 @@
             transition: all 0.3s ease;
         }
 
-        .form-input:focus + .form-label,
-        .form-input:valid + .form-label {
+        .form-input:focus+.form-label,
+        .form-input:valid+.form-label {
             top: -10px;
             font-size: 12px;
             color: var(--primary);
@@ -406,9 +435,26 @@
         }
 
         @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
-            20%, 40%, 60%, 80% { transform: translateX(5px); }
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            10%,
+            30%,
+            50%,
+            70%,
+            90% {
+                transform: translateX(-5px);
+            }
+
+            20%,
+            40%,
+            60%,
+            80% {
+                transform: translateX(5px);
+            }
         }
 
         /* ===== INDICADORES FIXOS ===== */
@@ -437,7 +483,8 @@
         /* ===== BOTÃO DE CONFIGURAÇÕES - REPOSICIONADO ===== */
         .settings-btn {
             position: fixed;
-            top: 20px; /* Aumentado de 10px para 70px para ficar abaixo da peça HUD */
+            top: 20px;
+            /* Aumentado de 10px para 70px para ficar abaixo da peça HUD */
             left: 10px;
             background: var(--bg-light);
             border: 2px solid var(--border);
@@ -449,7 +496,7 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-             z-index: calc(var(--z-modals) - 1);
+            z-index: calc(var(--z-modals) - 1);
             backdrop-filter: blur(5px);
             font-size: 20px;
             transition: all 0.3s ease;
@@ -502,8 +549,13 @@
             z-index: calc(var(--z-floating-widgets) + 2);
         }
 
-        .f1 { transform: translate(-50px, -20px); }
-        .f2 { transform: translate(-45px, 25px); }
+        .f1 {
+            transform: translate(-50px, -20px);
+        }
+
+        .f2 {
+            transform: translate(-45px, 25px);
+        }
 
         .wing {
             animation: flapV 0.3s ease-in-out infinite alternate;
@@ -511,13 +563,26 @@
         }
 
         @keyframes flapV {
-            0% { transform: scaleY(1) rotateX(0deg); }
-            100% { transform: scaleY(0.35) rotateX(75deg); }
+            0% {
+                transform: scaleY(1) rotateX(0deg);
+            }
+
+            100% {
+                transform: scaleY(0.35) rotateX(75deg);
+            }
         }
 
-        .bat-swarm.flip { transform: scaleX(-1); }
-        .bat-swarm.flip .f1 { transform: translate(50px, -20px) scaleX(-1); }
-        .bat-swarm.flip .f2 { transform: translate(45px, 25px) scaleX(-1); }
+        .bat-swarm.flip {
+            transform: scaleX(-1);
+        }
+
+        .bat-swarm.flip .f1 {
+            transform: translate(50px, -20px) scaleX(-1);
+        }
+
+        .bat-swarm.flip .f2 {
+            transform: translate(45px, 25px) scaleX(-1);
+        }
 
         /* ===== PEÇAS DO HUD ===== */
         .piece-container {
@@ -584,19 +649,38 @@
             font-size: min(1.8vw, 16px);
         }
 
-        .mid-left .piece-hover-text { transform: rotate(180deg); }
+        .mid-left .piece-hover-text {
+            transform: rotate(180deg);
+        }
 
         .piece-container:hover .piece-hover-text {
             animation: flashText 0.3s ease-in-out forwards;
         }
 
         @keyframes flashText {
-            0% { opacity: 0; }
-            20% { opacity: 0.8; }
-            40% { opacity: 0.8; }
-            60% { opacity: 0.5; }
-            80% { opacity: 0.2; }
-            100% { opacity: 0; }
+            0% {
+                opacity: 0;
+            }
+
+            20% {
+                opacity: 0.8;
+            }
+
+            40% {
+                opacity: 0.8;
+            }
+
+            60% {
+                opacity: 0.5;
+            }
+
+            80% {
+                opacity: 0.2;
+            }
+
+            100% {
+                opacity: 0;
+            }
         }
 
         .piece-content {
@@ -765,40 +849,70 @@
             min-height: var(--card-mini);
             padding: 1px;
         }
-        .card-mini i { font-size: var(--icon-size-mini); }
-        .card-mini .icon-label { font-size: var(--label-size-mini); }
+
+        .card-mini i {
+            font-size: var(--icon-size-mini);
+        }
+
+        .card-mini .icon-label {
+            font-size: var(--label-size-mini);
+        }
 
         .card-small {
             min-width: var(--card-small);
             min-height: var(--card-small);
             padding: 2px;
         }
-        .card-small i { font-size: var(--icon-size-small); }
-        .card-small .icon-label { font-size: var(--label-size-small); }
+
+        .card-small i {
+            font-size: var(--icon-size-small);
+        }
+
+        .card-small .icon-label {
+            font-size: var(--label-size-small);
+        }
 
         .card-medium {
             min-width: var(--card-medium);
             min-height: var(--card-medium);
             padding: 3px;
         }
-        .card-medium i { font-size: var(--icon-size); }
-        .card-medium .icon-label { font-size: var(--label-size); }
+
+        .card-medium i {
+            font-size: var(--icon-size);
+        }
+
+        .card-medium .icon-label {
+            font-size: var(--label-size);
+        }
 
         .card-v-mini {
             width: 100%;
             min-height: calc(var(--card-mini) * 1.2);
             padding: 1px;
         }
-        .card-v-mini i { font-size: var(--icon-size-mini); }
-        .card-v-mini .icon-label { font-size: var(--label-size-mini); }
+
+        .card-v-mini i {
+            font-size: var(--icon-size-mini);
+        }
+
+        .card-v-mini .icon-label {
+            font-size: var(--label-size-mini);
+        }
 
         .card-v-small {
             width: 100%;
             min-height: calc(var(--card-small) * 1.2);
             padding: 2px;
         }
-        .card-v-small i { font-size: var(--icon-size-small); }
-        .card-v-small .icon-label { font-size: var(--label-size-small); }
+
+        .card-v-small i {
+            font-size: var(--icon-size-small);
+        }
+
+        .card-v-small .icon-label {
+            font-size: var(--label-size-small);
+        }
 
         /* ===== ÍCONES E WIDGETS ===== */
         .icon-card,
@@ -915,7 +1029,8 @@
         .mid-left .icon-card-vertical .icon-description,
         .mid-right .icon-card-vertical .icon-description {
             font-size: 8px !important;
-            max-width: 90px; /* Reduzido para caber na peça */
+            max-width: 90px;
+            /* Reduzido para caber na peça */
             white-space: normal;
             word-wrap: break-word;
             text-align: center;
@@ -927,7 +1042,7 @@
             box-shadow: 0 0 15px var(--primary);
             letter-spacing: 0.3px;
             font-weight: 500;
-            
+
             /* POSICIONAMENTO CENTRALIZADO NO ÍCONE */
             position: absolute;
             top: 50%;
@@ -952,18 +1067,19 @@
         }
 
         @media (max-width: 768px) {
+
             .mid-left .icon-card-vertical .icon-description,
             .mid-right .icon-card-vertical .icon-description {
                 font-size: 7px !important;
                 max-width: 80px;
                 padding: 3px 5px !important;
             }
-            
+
             .mid-left .icon-card-vertical i,
             .mid-right .icon-card-vertical i {
                 font-size: 10px !important;
             }
-            
+
             .mid-left .icon-card-vertical .icon-label,
             .mid-right .icon-card-vertical .icon-label {
                 font-size: 5px !important;
@@ -971,9 +1087,17 @@
         }
 
         @keyframes glowPulse {
-            0% { box-shadow: 0 0 5px var(--primary); }
-            50% { box-shadow: 0 0 15px var(--primary), 0 0 20px var(--info); }
-            100% { box-shadow: 0 0 5px var(--primary); }
+            0% {
+                box-shadow: 0 0 5px var(--primary);
+            }
+
+            50% {
+                box-shadow: 0 0 15px var(--primary), 0 0 20px var(--info);
+            }
+
+            100% {
+                box-shadow: 0 0 5px var(--primary);
+            }
         }
 
         .arkham-widget {
@@ -1120,7 +1244,9 @@
             margin-bottom: 5px;
         }
 
-        .vidas-heart.dim { opacity: 0.3; }
+        .vidas-heart.dim {
+            opacity: 0.3;
+        }
 
         .mission-tag-mini {
             display: flex;
@@ -1333,10 +1459,30 @@
         }
 
         @media (max-width: 600px) {
-            .top-left, .top-right, .bottom-left, .bottom-right { width: 28%; }
-            .top-center { left: 28%; width: 44%; height: 65px; }
-            .bottom-center { left: 28%; width: 44%; height: 42px; }
-            .mid-left, .mid-right { width: 45px; }
+
+            .top-left,
+            .top-right,
+            .bottom-left,
+            .bottom-right {
+                width: 28%;
+            }
+
+            .top-center {
+                left: 28%;
+                width: 44%;
+                height: 65px;
+            }
+
+            .bottom-center {
+                left: 28%;
+                width: 44%;
+                height: 42px;
+            }
+
+            .mid-left,
+            .mid-right {
+                width: 45px;
+            }
         }
 
         /* ===== LOGO CENTRAL ===== */
@@ -1457,7 +1603,7 @@
             flex-direction: column;
             gap: 8px;
             overflow: hidden;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
             border: 2px solid;
             flex-shrink: 0;
             z-index: var(--z-hud-base);
@@ -1482,23 +1628,60 @@
 
         .widget-vilao:hover {
             transform: translateY(-5px);
-            box-shadow: 0 12px 30px rgba(0,0,0,0.8);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.8);
             z-index: calc(var(--z-floating-widgets) + 1);
         }
 
         @media (max-width: 768px) {
-            .widget-vilao { width: 190px; padding: 10px; }
-            .widget-vilao.minimizado { width: 190px; }
+            .widget-vilao {
+                width: 190px;
+                padding: 10px;
+            }
+
+            .widget-vilao.minimizado {
+                width: 190px;
+            }
         }
 
-        .widget-vilao[data-vilao="coringa"] { border-color: #b14eff; background: #1a0f1f; }
-        .widget-vilao[data-vilao="pinguim"] { border-color: #3a9eff; background: #0f1a24; }
-        .widget-vilao[data-vilao="duascaras"] { border-color: #ffaa33; background: #1a1a0f; }
-        .widget-vilao[data-vilao="harley"] { border-color: #ff1493; background: #2a0f1f; }
-        .widget-vilao[data-vilao="espantalho"] { border-color: #6a0dad; background: #0f0f0f; }
-        .widget-vilao[data-vilao="charada"] { border-color: #2ecc71; background: #0f2a0f; }
-        .widget-vilao[data-vilao="bane"] { border-color: #ff4444; background: #2a0f0f; }
-        .widget-vilao[data-vilao="mulhergato"] { border-color: #c0c0c0; background: #0f0f1a; }
+        .widget-vilao[data-vilao="coringa"] {
+            border-color: #b14eff;
+            background: #1a0f1f;
+        }
+
+        .widget-vilao[data-vilao="pinguim"] {
+            border-color: #3a9eff;
+            background: #0f1a24;
+        }
+
+        .widget-vilao[data-vilao="duascaras"] {
+            border-color: #ffaa33;
+            background: #1a1a0f;
+        }
+
+        .widget-vilao[data-vilao="harley"] {
+            border-color: #ff1493;
+            background: #2a0f1f;
+        }
+
+        .widget-vilao[data-vilao="espantalho"] {
+            border-color: #6a0dad;
+            background: #0f0f0f;
+        }
+
+        .widget-vilao[data-vilao="charada"] {
+            border-color: #2ecc71;
+            background: #0f2a0f;
+        }
+
+        .widget-vilao[data-vilao="bane"] {
+            border-color: #ff4444;
+            background: #2a0f0f;
+        }
+
+        .widget-vilao[data-vilao="mulhergato"] {
+            border-color: #c0c0c0;
+            background: #0f0f1a;
+        }
 
         .coringa-estatica {
             position: absolute;
@@ -1514,8 +1697,13 @@
         }
 
         @keyframes estatica {
-            0% { transform: translateY(0); }
-            100% { transform: translateY(4px); }
+            0% {
+                transform: translateY(0);
+            }
+
+            100% {
+                transform: translateY(4px);
+            }
         }
 
         .coringa-glitch {
@@ -1531,11 +1719,33 @@
         }
 
         @keyframes glitch {
-            0%, 100% { transform: skew(0deg); opacity: 0.2; }
-            95% { transform: skew(0deg); }
-            96% { transform: skew(10deg) translateX(5px); opacity: 0.8; filter: hue-rotate(90deg); }
-            97% { transform: skew(-10deg) translateX(-5px); opacity: 0.8; filter: hue-rotate(180deg); }
-            98% { transform: skew(5deg); opacity: 0.4; }
+
+            0%,
+            100% {
+                transform: skew(0deg);
+                opacity: 0.2;
+            }
+
+            95% {
+                transform: skew(0deg);
+            }
+
+            96% {
+                transform: skew(10deg) translateX(5px);
+                opacity: 0.8;
+                filter: hue-rotate(90deg);
+            }
+
+            97% {
+                transform: skew(-10deg) translateX(-5px);
+                opacity: 0.8;
+                filter: hue-rotate(180deg);
+            }
+
+            98% {
+                transform: skew(5deg);
+                opacity: 0.4;
+            }
         }
 
         .pinguim-radar {
@@ -1564,13 +1774,23 @@
         }
 
         @keyframes radarGirar {
-            from { transform: translate(-50%, -50%) rotate(0deg); }
-            to { transform: translate(-50%, -50%) rotate(360deg); }
+            from {
+                transform: translate(-50%, -50%) rotate(0deg);
+            }
+
+            to {
+                transform: translate(-50%, -50%) rotate(360deg);
+            }
         }
 
         @keyframes radarVarredura {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         .pinguim-ping {
@@ -1584,13 +1804,34 @@
             z-index: 2;
         }
 
-        .ping1 { top: 30%; left: 60%; animation-delay: 0s; }
-        .ping2 { top: 70%; left: 40%; animation-delay: 1s; }
-        .ping3 { top: 40%; left: 20%; animation-delay: 2.5s; }
+        .ping1 {
+            top: 30%;
+            left: 60%;
+            animation-delay: 0s;
+        }
+
+        .ping2 {
+            top: 70%;
+            left: 40%;
+            animation-delay: 1s;
+        }
+
+        .ping3 {
+            top: 40%;
+            left: 20%;
+            animation-delay: 2.5s;
+        }
 
         @keyframes ping {
-            0% { transform: scale(1); opacity: 1; }
-            100% { transform: scale(2.5); opacity: 0; }
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(2.5);
+                opacity: 0;
+            }
         }
 
         .duascaras-moeda-container {
@@ -1627,12 +1868,22 @@
             box-shadow: 0 0 20px #ffaa33;
         }
 
-        .moeda-frente { transform: rotateY(0deg); }
-        .moeda-verso { transform: rotateY(180deg); }
+        .moeda-frente {
+            transform: rotateY(0deg);
+        }
+
+        .moeda-verso {
+            transform: rotateY(180deg);
+        }
 
         @keyframes moedaGirar {
-            from { transform: rotateY(0deg); }
-            to { transform: rotateY(360deg); }
+            from {
+                transform: rotateY(0deg);
+            }
+
+            to {
+                transform: rotateY(360deg);
+            }
         }
 
         .harley-coracoes {
@@ -1651,14 +1902,42 @@
             animation: coracaoFlutuar 3s ease-in-out infinite;
         }
 
-        .coracao1 { top: 10%; left: 10%; animation-delay: 0s; }
-        .coracao2 { top: 60%; right: 15%; animation-delay: 1s; }
-        .coracao3 { bottom: 15%; left: 20%; animation-delay: 2s; }
-        .coracao4 { top: 30%; right: 30%; animation-delay: 1.5s; }
+        .coracao1 {
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .coracao2 {
+            top: 60%;
+            right: 15%;
+            animation-delay: 1s;
+        }
+
+        .coracao3 {
+            bottom: 15%;
+            left: 20%;
+            animation-delay: 2s;
+        }
+
+        .coracao4 {
+            top: 30%;
+            right: 30%;
+            animation-delay: 1.5s;
+        }
 
         @keyframes coracaoFlutuar {
-            0%, 100% { transform: translateY(0) scale(1); opacity: 0.4; }
-            50% { transform: translateY(-10px) scale(1.2); opacity: 0.8; }
+
+            0%,
+            100% {
+                transform: translateY(0) scale(1);
+                opacity: 0.4;
+            }
+
+            50% {
+                transform: translateY(-10px) scale(1.2);
+                opacity: 0.8;
+            }
         }
 
         .harley-martelo {
@@ -1673,8 +1952,15 @@
         }
 
         @keyframes marteloBater {
-            0%, 100% { transform: rotate(-15deg) scale(1); }
-            50% { transform: rotate(5deg) scale(1.2); }
+
+            0%,
+            100% {
+                transform: rotate(-15deg) scale(1);
+            }
+
+            50% {
+                transform: rotate(5deg) scale(1.2);
+            }
         }
 
         .widget-vilao[data-vilao="harley"] .vilao-nome {
@@ -1696,8 +1982,17 @@
         }
 
         @keyframes nevoaOndular {
-            0%, 100% { transform: scale(1); opacity: 0.5; }
-            50% { transform: scale(1.2); opacity: 0.8; }
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 0.5;
+            }
+
+            50% {
+                transform: scale(1.2);
+                opacity: 0.8;
+            }
         }
 
         .espantalho-olhos {
@@ -1719,12 +2014,26 @@
             animation: olhosPiscar 2s step-end infinite;
         }
 
-        .olho.esquerdo { animation-delay: 0s; }
-        .olho.direito { animation-delay: 0.2s; }
+        .olho.esquerdo {
+            animation-delay: 0s;
+        }
+
+        .olho.direito {
+            animation-delay: 0.2s;
+        }
 
         @keyframes olhosPiscar {
-            0%, 100% { opacity: 1; transform: scaleY(1); }
-            50% { opacity: 0.3; transform: scaleY(0.1); }
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scaleY(1);
+            }
+
+            50% {
+                opacity: 0.3;
+                transform: scaleY(0.1);
+            }
         }
 
         .charada-interrogacoes {
@@ -1745,15 +2054,48 @@
             animation: interrogacaoFlutuar 4s ease-in-out infinite;
         }
 
-        .int1 { top: 10%; left: 10%; animation-delay: 0s; }
-        .int2 { top: 70%; right: 15%; animation-delay: 1s; }
-        .int3 { bottom: 20%; left: 30%; animation-delay: 2s; }
-        .int4 { top: 40%; right: 40%; animation-delay: 1.5s; }
-        .int5 { top: 80%; left: 70%; animation-delay: 2.5s; }
+        .int1 {
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .int2 {
+            top: 70%;
+            right: 15%;
+            animation-delay: 1s;
+        }
+
+        .int3 {
+            bottom: 20%;
+            left: 30%;
+            animation-delay: 2s;
+        }
+
+        .int4 {
+            top: 40%;
+            right: 40%;
+            animation-delay: 1.5s;
+        }
+
+        .int5 {
+            top: 80%;
+            left: 70%;
+            animation-delay: 2.5s;
+        }
 
         @keyframes interrogacaoFlutuar {
-            0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.2; }
-            50% { transform: translateY(-15px) rotate(8deg); opacity: 0.4; }
+
+            0%,
+            100% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0.2;
+            }
+
+            50% {
+                transform: translateY(-15px) rotate(8deg);
+                opacity: 0.4;
+            }
         }
 
         .bane-veneno-container {
@@ -1777,8 +2119,15 @@
         }
 
         @keyframes venenoSubir {
-            0%, 100% { height: 20%; }
-            50% { height: 80%; }
+
+            0%,
+            100% {
+                height: 20%;
+            }
+
+            50% {
+                height: 80%;
+            }
         }
 
         .bane-tubos {
@@ -1793,8 +2142,15 @@
         }
 
         @keyframes tubosPulsar {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
         }
 
         .gato-chicote-container {
@@ -1819,8 +2175,17 @@
         }
 
         @keyframes chicoteEstalar {
-            0%, 100% { transform: rotate(25deg) scale(1); opacity: 0.1; }
-            50% { transform: rotate(35deg) scale(1.2); opacity: 0.3; }
+
+            0%,
+            100% {
+                transform: rotate(25deg) scale(1);
+                opacity: 0.1;
+            }
+
+            50% {
+                transform: rotate(35deg) scale(1.2);
+                opacity: 0.3;
+            }
         }
 
         .gato-lua {
@@ -1837,8 +2202,17 @@
         }
 
         @keyframes luaBrilhar {
-            0%, 100% { opacity: 0.3; transform: scale(1); }
-            50% { opacity: 0.8; transform: scale(1.2); }
+
+            0%,
+            100% {
+                opacity: 0.3;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.8;
+                transform: scale(1.2);
+            }
         }
 
         .gato-olhos {
@@ -1860,8 +2234,17 @@
         }
 
         @keyframes olhosFelinos {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.5); opacity: 0.5; }
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.5);
+                opacity: 0.5;
+            }
         }
 
         .widget-vilao .widget-header {
@@ -1873,7 +2256,7 @@
         }
 
         .widget-vilao .jogar-btn {
-            background: rgba(0,0,0,0.7);
+            background: rgba(0, 0, 0, 0.7);
             border: 2px solid currentColor;
             border-radius: 25px;
             padding: 3px 8px;
@@ -1902,7 +2285,7 @@
         }
 
         .widget-vilao .controle-btn {
-            background: rgba(0,0,0,0.7);
+            background: rgba(0, 0, 0, 0.7);
             border: none;
             color: white;
             cursor: pointer;
@@ -1915,11 +2298,11 @@
             justify-content: center;
             transition: all 0.3s;
             backdrop-filter: blur(5px);
-            border: 1px solid rgba(255,255,255,0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        .widget-vilao .controle-btn:hover { 
-            background: rgba(255,255,255,0.3);
+        .widget-vilao .controle-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
             transform: scale(1.1);
             border-color: white;
         }
@@ -1935,7 +2318,7 @@
         .widget-vilao .circulo-imagem {
             width: 70px;
             height: 70px;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0, 0, 0, 0.7);
             border: 3px solid currentColor;
             border-radius: 50%;
             display: flex;
@@ -1974,13 +2357,15 @@
         }
 
         @media (max-width: 768px) {
-            .widget-vilao .vilao-nome { font-size: 14px; }
+            .widget-vilao .vilao-nome {
+                font-size: 14px;
+            }
         }
 
         .widget-vilao .alerta-container {
             z-index: calc(var(--z-hud-base) + 5);
             position: relative;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.5);
             padding: 4px 6px;
             border-radius: 6px;
             backdrop-filter: blur(5px);
@@ -1999,10 +2384,10 @@
         .widget-vilao .alerta-barra-bg {
             width: 100%;
             height: 4px;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.5);
             border-radius: 2px;
             overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .widget-vilao .alerta-barra-fill {
@@ -2018,10 +2403,10 @@
             align-items: center;
             margin-top: 4px;
             padding-top: 4px;
-            border-top: 1px solid rgba(255,255,255,0.2);
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
             z-index: calc(var(--z-hud-base) + 5);
             position: relative;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.5);
             padding: 4px 6px;
             border-radius: 6px;
             backdrop-filter: blur(5px);
@@ -2038,7 +2423,7 @@
         }
 
         .widget-vilao .nivel-alerta {
-            background: rgba(0,0,0,0.7);
+            background: rgba(0, 0, 0, 0.7);
             border: 2px solid;
             padding: 2px 6px;
             border-radius: 20px;
@@ -2062,12 +2447,22 @@
         }
 
         @keyframes placeholderBreathing {
-            0%, 100% { opacity: 0.5; }
-            50% { opacity: 0.8; }
+
+            0%,
+            100% {
+                opacity: 0.5;
+            }
+
+            50% {
+                opacity: 0.8;
+            }
         }
 
         @media (max-width: 768px) {
-            .widget-card-placeholder { width: 190px; height: 250px; }
+            .widget-card-placeholder {
+                width: 190px;
+                height: 250px;
+            }
         }
 
         .mk-right-panel {
@@ -2143,8 +2538,15 @@
         }
 
         @keyframes mkCardAppear {
-            from { opacity: 0; transform: translateX(20px); }
-            to { opacity: 1; transform: translateX(0); }
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
 
         .mk-card:hover {
@@ -2176,9 +2578,17 @@
         }
 
         @keyframes currentPulse {
-            0% { box-shadow: 0 0 15px rgba(241, 196, 15, 0.3); }
-            50% { box-shadow: 0 0 30px rgba(241, 196, 15, 0.6); }
-            100% { box-shadow: 0 0 15px rgba(241, 196, 15, 0.3); }
+            0% {
+                box-shadow: 0 0 15px rgba(241, 196, 15, 0.3);
+            }
+
+            50% {
+                box-shadow: 0 0 30px rgba(241, 196, 15, 0.6);
+            }
+
+            100% {
+                box-shadow: 0 0 15px rgba(241, 196, 15, 0.3);
+            }
         }
 
         .mk-card.locked {
@@ -2207,7 +2617,9 @@
             transition: transform 0.3s;
         }
 
-        .mk-card:hover .mk-card-icon { transform: scale(1.1); }
+        .mk-card:hover .mk-card-icon {
+            transform: scale(1.1);
+        }
 
         .mk-card-info {
             flex: 1;
@@ -2227,7 +2639,9 @@
             transition: color 0.3s;
         }
 
-        .mk-card:hover .mk-card-name { color: var(--primary); }
+        .mk-card:hover .mk-card-name {
+            color: var(--primary);
+        }
 
         .mk-card-desc {
             font-size: 9px;
@@ -2244,7 +2658,9 @@
             transition: transform 0.3s;
         }
 
-        .mk-card:hover .mk-card-points { transform: scale(1.1); }
+        .mk-card:hover .mk-card-points {
+            transform: scale(1.1);
+        }
 
         .mk-card-order {
             position: absolute;
@@ -2265,20 +2681,40 @@
             box-shadow: 0 0 10px currentColor;
         }
 
-        .fa-circle-dollar, .fa-ring, .fa-life-ring {
+        .fa-circle-dollar,
+        .fa-ring,
+        .fa-life-ring {
             font-family: "Font Awesome 6 Free";
             font-weight: 900;
         }
 
-        .fa-circle-dollar::before { content: "\f2e0"; }
-        .fa-ring::before { content: "\f70b"; }
-        .fa-life-ring::before { content: "\f1cd"; }
-        .fa-circle-question::before { content: "\f059"; }
+        .fa-circle-dollar::before {
+            content: "\f2e0";
+        }
+
+        .fa-ring::before {
+            content: "\f70b";
+        }
+
+        .fa-life-ring::before {
+            content: "\f1cd";
+        }
+
+        .fa-circle-question::before {
+            content: "\f059";
+        }
 
         /* ===== MODAIS PROFISSIONAIS ===== */
         @keyframes modalFloatIn {
-            0% { opacity: 0; transform: translate(-50%, -30%) scale(0.9); }
-            100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -30%) scale(0.9);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
         }
 
         .modal-backdrop {
@@ -2290,7 +2726,9 @@
             z-index: calc(var(--z-modals) - 1);
         }
 
-        .modal-backdrop.active { display: block; }
+        .modal-backdrop.active {
+            display: block;
+        }
 
         .pro-modal {
             display: none;
@@ -2337,7 +2775,9 @@
             flex-shrink: 0;
         }
 
-        .pro-modal-header-content { flex: 1; }
+        .pro-modal-header-content {
+            flex: 1;
+        }
 
         .pro-modal-title {
             font-size: clamp(18px, 5vw, 24px);
@@ -2395,8 +2835,14 @@
             scrollbar-color: var(--primary) rgba(255, 255, 255, 0.1);
         }
 
-        .pro-modal-body::-webkit-scrollbar { width: 5px; }
-        .pro-modal-body::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); }
+        .pro-modal-body::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .pro-modal-body::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
         .pro-modal-body::-webkit-scrollbar-thumb {
             background: linear-gradient(180deg, var(--primary), var(--info));
             border-radius: 10px;
@@ -2429,7 +2875,10 @@
             white-space: nowrap;
         }
 
-        .pro-tab i { margin-right: 5px; font-size: 12px; }
+        .pro-tab i {
+            margin-right: 5px;
+            font-size: 12px;
+        }
 
         .pro-tab.active {
             background: linear-gradient(135deg, var(--primary), var(--info));
@@ -2437,8 +2886,14 @@
             box-shadow: 0 5px 15px rgba(0, 217, 255, 0.4);
         }
 
-        .pro-tab-content { display: none; animation: fadeIn 0.3s ease; }
-        .pro-tab-content.active { display: block; }
+        .pro-tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .pro-tab-content.active {
+            display: block;
+        }
 
         .pro-stats-grid {
             display: grid;
@@ -2516,8 +2971,13 @@
         }
 
         @keyframes shimmer {
-            0% { transform: translateX(-100%); }
-            100% { transform: translateX(100%); }
+            0% {
+                transform: translateX(-100%);
+            }
+
+            100% {
+                transform: translateX(100%);
+            }
         }
 
         .pro-xp-labels {
@@ -2556,24 +3016,46 @@
             pointer-events: none;
         }
 
-        .pro-shop-item:hover::before { opacity: 1; }
+        .pro-shop-item:hover::before {
+            opacity: 1;
+        }
 
         .pro-shop-item:hover {
             transform: translateX(5px) scale(1.02);
             box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6);
         }
 
-        .rarity-common { border-color: #7f8c8d; }
-        .rarity-common .pro-shop-icon { background: linear-gradient(135deg, #7f8c8d, #95a5a6); }
+        .rarity-common {
+            border-color: #7f8c8d;
+        }
 
-        .rarity-rare { border-color: #3498db; }
-        .rarity-rare .pro-shop-icon { background: linear-gradient(135deg, #3498db, #5dade2); }
+        .rarity-common .pro-shop-icon {
+            background: linear-gradient(135deg, #7f8c8d, #95a5a6);
+        }
 
-        .rarity-epic { border-color: #9b59b6; }
-        .rarity-epic .pro-shop-icon { background: linear-gradient(135deg, #9b59b6, #c39bd3); }
+        .rarity-rare {
+            border-color: #3498db;
+        }
 
-        .rarity-legendary { border-color: #f39c12; }
-        .rarity-legendary .pro-shop-icon { background: linear-gradient(135deg, #f39c12, #f7dc6f); }
+        .rarity-rare .pro-shop-icon {
+            background: linear-gradient(135deg, #3498db, #5dade2);
+        }
+
+        .rarity-epic {
+            border-color: #9b59b6;
+        }
+
+        .rarity-epic .pro-shop-icon {
+            background: linear-gradient(135deg, #9b59b6, #c39bd3);
+        }
+
+        .rarity-legendary {
+            border-color: #f39c12;
+        }
+
+        .rarity-legendary .pro-shop-icon {
+            background: linear-gradient(135deg, #f39c12, #f7dc6f);
+        }
 
         .pro-shop-icon {
             width: 70px;
@@ -2588,7 +3070,9 @@
             flex-shrink: 0;
         }
 
-        .pro-shop-info { flex: 1; }
+        .pro-shop-info {
+            flex: 1;
+        }
 
         .pro-shop-name {
             font-size: 16px;
@@ -2626,7 +3110,9 @@
             text-shadow: 0 0 5px gold;
         }
 
-        .pro-shop-price i { font-size: 14px; }
+        .pro-shop-price i {
+            font-size: 14px;
+        }
 
         .pro-shop-btn {
             background: transparent;
@@ -2747,7 +3233,9 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        .pro-mission-content { flex: 1; }
+        .pro-mission-content {
+            flex: 1;
+        }
 
         .pro-mission-title {
             font-size: 14px;
@@ -2763,7 +3251,9 @@
             color: gold;
         }
 
-        .pro-mission-status { font-size: 20px; }
+        .pro-mission-status {
+            font-size: 20px;
+        }
 
         .pro-ranking-item {
             display: flex;
@@ -2788,9 +3278,17 @@
             color: rgba(255, 255, 255, 0.7);
         }
 
-        .pro-ranking-pos.gold { color: gold; }
-        .pro-ranking-pos.silver { color: silver; }
-        .pro-ranking-pos.bronze { color: #cd7f32; }
+        .pro-ranking-pos.gold {
+            color: gold;
+        }
+
+        .pro-ranking-pos.silver {
+            color: silver;
+        }
+
+        .pro-ranking-pos.bronze {
+            color: #cd7f32;
+        }
 
         .pro-ranking-icon {
             width: 40px;
@@ -2803,7 +3301,10 @@
             font-size: 24px;
         }
 
-        .pro-ranking-name { flex: 1; font-weight: bold; }
+        .pro-ranking-name {
+            flex: 1;
+            font-weight: bold;
+        }
 
         .pro-ranking-points {
             color: gold;
@@ -2892,7 +3393,9 @@
             transition: all 0.2s;
         }
 
-        .pro-faq-item:hover { background: rgba(0, 217, 255, 0.1); }
+        .pro-faq-item:hover {
+            background: rgba(0, 217, 255, 0.1);
+        }
 
         .pro-faq-question {
             font-size: 13px;
@@ -2911,7 +3414,9 @@
             display: none;
         }
 
-        .pro-faq-item.active .pro-faq-answer { display: block; }
+        .pro-faq-item.active .pro-faq-answer {
+            display: block;
+        }
 
         .pro-support-card {
             background: linear-gradient(135deg, rgba(0, 217, 255, 0.1), rgba(155, 89, 182, 0.1));
@@ -2957,15 +3462,45 @@
         }
 
         @media (max-width: 768px) {
-            .pro-stats-grid { grid-template-columns: 1fr; }
-            .pro-shop-item { flex-wrap: wrap; }
-            .pro-shop-btn { width: 100%; text-align: center; }
-            .pro-tabs { flex-wrap: wrap; }
-            .pro-tab { font-size: 11px; padding: 8px 4px; }
-            .pro-tab i { display: none; }
-            .pro-modal-header-icon { width: 50px; height: 50px; font-size: 26px; }
-            .pro-modal-title { font-size: 18px; }
-            .pro-achievement-grid { grid-template-columns: 1fr; }
+            .pro-stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .pro-shop-item {
+                flex-wrap: wrap;
+            }
+
+            .pro-shop-btn {
+                width: 100%;
+                text-align: center;
+            }
+
+            .pro-tabs {
+                flex-wrap: wrap;
+            }
+
+            .pro-tab {
+                font-size: 11px;
+                padding: 8px 4px;
+            }
+
+            .pro-tab i {
+                display: none;
+            }
+
+            .pro-modal-header-icon {
+                width: 50px;
+                height: 50px;
+                font-size: 26px;
+            }
+
+            .pro-modal-title {
+                font-size: 18px;
+            }
+
+            .pro-achievement-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         .notification {
@@ -2986,14 +3521,30 @@
             max-width: 300px;
         }
 
-        .notification.show { transform: translateX(0); }
-        .notification.success { border-color: var(--success); }
-        .notification.warning { border-color: var(--warning); }
-        .notification.error { border-color: var(--danger); }
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            border-color: var(--success);
+        }
+
+        .notification.warning {
+            border-color: var(--warning);
+        }
+
+        .notification.error {
+            border-color: var(--danger);
+        }
 
         @keyframes sweepRotate {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         .combat-card {
@@ -3009,9 +3560,19 @@
             color: var(--warning);
         }
 
-        .combat-label { font-size: 6px; }
-        .emergency-icon { font-size: 20px; color: var(--danger); }
-        .emergency-status { font-size: 8px; color: var(--danger); }
+        .combat-label {
+            font-size: 6px;
+        }
+
+        .emergency-icon {
+            font-size: 20px;
+            color: var(--danger);
+        }
+
+        .emergency-status {
+            font-size: 8px;
+            color: var(--danger);
+        }
 
         /* GARANTIR QUE PEÇAS HUD FIQUEM ACIMA DOS BOTÕES */
         .piece-container {
@@ -3083,7 +3644,8 @@
                 <button type="submit" class="auth-button">ACESSAR SISTEMA</button>
             </form>
 
-            <form class="auth-form" id="registerForm" style="display: none;" onsubmit="event.preventDefault(); UI.handleRegister()">
+            <form class="auth-form" id="registerForm" style="display: none;"
+                onsubmit="event.preventDefault(); UI.handleRegister()">
                 <div class="form-group">
                     <input type="text" class="form-input" id="regUser" required maxlength="20">
                     <label class="form-label">NOVO USUÁRIO</label>
@@ -3141,15 +3703,19 @@
             </svg>
             <div class="piece-hover-text">SISTEMA</div>
             <div class="piece-content" id="piece-topLeft">
-                <div class="bat-container-horizontal" id="drag-topLeft" style="left:50%;top:50%;transform:translate(-50%,-50%);">
+                <div class="bat-container-horizontal" id="drag-topLeft"
+                    style="left:50%;top:50%;transform:translate(-50%,-50%);">
                     <div class="icon-card card-small" onclick="UI.triggerEmergency()">
-                        <i class="fas fa-exclamation-triangle"></i><span class="icon-label">ALT</span><span class="icon-description">ALERTA</span>
+                        <i class="fas fa-exclamation-triangle"></i><span class="icon-label">ALT</span><span
+                            class="icon-description">ALERTA</span>
                     </div>
                     <div class="icon-card card-mini" onclick="UI.toggleSound()">
-                        <i class="fas fa-volume-off"></i><span class="icon-label">MUD</span><span class="icon-description">MUDO</span>
+                        <i class="fas fa-volume-off"></i><span class="icon-label">MUD</span><span
+                            class="icon-description">MUDO</span>
                     </div>
                     <div class="icon-card card-mini" onclick="UI.confirmReset()">
-                        <i class="fas fa-door-open"></i><span class="icon-label">SAI</span><span class="icon-description">SAIR</span>
+                        <i class="fas fa-door-open"></i><span class="icon-label">SAI</span><span
+                            class="icon-description">SAIR</span>
                     </div>
                 </div>
             </div>
@@ -3161,7 +3727,8 @@
             </svg>
             <div class="piece-hover-text">PERFIL</div>
             <div class="piece-content" id="piece-topCenter">
-                <div class="bat-profile" onclick="UI.showProUserInfo()" style="left:50%;top:50%;transform:translate(-50%,-50%);">
+                <div class="bat-profile" onclick="UI.showProUserInfo()"
+                    style="left:50%;top:50%;transform:translate(-50%,-50%);">
                     <div class="profile-avatar"><i class="fas fa-user-secret"></i></div>
                     <div class="profile-info">
                         <span class="profile-name" id="profileName">BRUCE</span>
@@ -3177,18 +3744,23 @@
             </svg>
             <div class="piece-hover-text">SOCIAL</div>
             <div class="piece-content" id="piece-topRight">
-                <div class="bat-container-horizontal" id="drag-topRight" style="left:50%;top:50%;transform:translate(-50%,-50%);">
+                <div class="bat-container-horizontal" id="drag-topRight"
+                    style="left:50%;top:50%;transform:translate(-50%,-50%);">
                     <div class="icon-card card-mini" onclick="window.open('https://instagram.com','_blank')">
-                        <i class="fab fa-instagram"></i><span class="icon-label">INS</span><span class="icon-description">INSTA</span>
+                        <i class="fab fa-instagram"></i><span class="icon-label">INS</span><span
+                            class="icon-description">INSTA</span>
                     </div>
                     <div class="icon-card card-mini" onclick="window.open('https://wa.me','_blank')">
-                        <i class="fab fa-whatsapp"></i><span class="icon-label">ZAP</span><span class="icon-description">WHATS</span>
+                        <i class="fab fa-whatsapp"></i><span class="icon-label">ZAP</span><span
+                            class="icon-description">WHATS</span>
                     </div>
                     <div class="icon-card card-mini" onclick="window.open('https://github.com','_blank')">
-                        <i class="fab fa-github"></i><span class="icon-label">GIT</span><span class="icon-description">GITHUB</span>
+                        <i class="fab fa-github"></i><span class="icon-label">GIT</span><span
+                            class="icon-description">GITHUB</span>
                     </div>
                     <div class="icon-card card-mini" onclick="window.open('https://linkedin.com','_blank')">
-                        <i class="fab fa-linkedin"></i><span class="icon-label">IN</span><span class="icon-description">LINKEDIN</span>
+                        <i class="fab fa-linkedin"></i><span class="icon-label">IN</span><span
+                            class="icon-description">LINKEDIN</span>
                     </div>
                 </div>
             </div>
@@ -3200,18 +3772,23 @@
             </svg>
             <div class="piece-hover-text">RANK</div>
             <div class="piece-content" id="piece-midLeft">
-                <div class="bat-container-vertical" id="drag-midLeft" style="left:50%;top:50%;transform:translate(-50%,-50%);">
+                <div class="bat-container-vertical" id="drag-midLeft"
+                    style="left:50%;top:50%;transform:translate(-50%,-50%);">
                     <div class="icon-card-vertical card-v-small" onclick="UI.showProRanking()">
-                        <i class="fas fa-crown"></i><span class="icon-label">TOP</span><span class="icon-description">LÍDER</span>
+                        <i class="fas fa-crown"></i><span class="icon-label">TOP</span><span
+                            class="icon-description">LÍDER</span>
                     </div>
                     <div class="icon-card-vertical card-v-mini" onclick="UI.showProAchievements()">
-                        <i class="fas fa-star"></i><span class="icon-label">MED</span><span class="icon-description">MEDALHA</span>
+                        <i class="fas fa-star"></i><span class="icon-label">MED</span><span
+                            class="icon-description">MEDALHA</span>
                     </div>
                     <div class="icon-card-vertical card-v-small" onclick="UI.showProStats()">
-                        <i class="fas fa-chart-pie"></i><span class="icon-label">STAT</span><span class="icon-description">DADOS</span>
+                        <i class="fas fa-chart-pie"></i><span class="icon-label">STAT</span><span
+                            class="icon-description">DADOS</span>
                     </div>
                     <div class="icon-card-vertical card-v-mini" onclick="UI.showProLevel()">
-                        <i class="fas fa-arrow-up"></i><span class="icon-label">LVL</span><span class="icon-description">NÍVEL</span>
+                        <i class="fas fa-arrow-up"></i><span class="icon-label">LVL</span><span
+                            class="icon-description">NÍVEL</span>
                     </div>
                 </div>
             </div>
@@ -3223,15 +3800,19 @@
             </svg>
             <div class="piece-hover-text">AÇÃO</div>
             <div class="piece-content" id="piece-midRight">
-                <div class="bat-container-vertical" id="drag-midRight" style="left:50%;top:50%;transform:translate(-50%,-50%);">
+                <div class="bat-container-vertical" id="drag-midRight"
+                    style="left:50%;top:50%;transform:translate(-50%,-50%);">
                     <div class="icon-card-vertical card-v-small" onclick="UI.playNextMission()">
-                        <i class="fas fa-dragon"></i><span class="icon-label">BOSS</span><span class="icon-description">CHEFÃO</span>
+                        <i class="fas fa-dragon"></i><span class="icon-label">BOSS</span><span
+                            class="icon-description">CHEFÃO</span>
                     </div>
                     <div class="icon-card-vertical card-v-mini" onclick="UI.showProNews()">
-                        <i class="fas fa-scroll"></i><span class="icon-label">NEWS</span><span class="icon-description">NOTÍCIAS</span>
+                        <i class="fas fa-scroll"></i><span class="icon-label">NEWS</span><span
+                            class="icon-description">NOTÍCIAS</span>
                     </div>
                     <div class="icon-card-vertical card-v-small" onclick="UI.showProMission()">
-                        <i class="fas fa-bullseye"></i><span class="icon-label">MIS</span><span class="icon-description">MISSÃO</span>
+                        <i class="fas fa-bullseye"></i><span class="icon-label">MIS</span><span
+                            class="icon-description">MISSÃO</span>
                     </div>
                 </div>
             </div>
@@ -3243,23 +3824,29 @@
             </svg>
             <div class="piece-hover-text">ITENS</div>
             <div class="piece-content" id="piece-bottomLeft">
-                <div class="bat-container-horizontal" id="drag-bottomLeft" style="left:50%;top:50%;transform:translate(-50%,-50%);">
+                <div class="bat-container-horizontal" id="drag-bottomLeft"
+                    style="left:50%;top:50%;transform:translate(-50%,-50%);">
                     <div class="icon-card card-medium" onclick="UI.showProCredits()">
-                        <i class="fas fa-circle-dollar"></i><span class="icon-label" id="creditValue">2.4K</span><span class="icon-description">CRÉDITOS</span><i class="fas fa-gem"></i>
+                        <i class="fas fa-circle-dollar"></i><span class="icon-label" id="creditValue">2.4K</span><span
+                            class="icon-description">CRÉDITOS</span><i class="fas fa-gem"></i>
                     </div>
                     <div class="icon-card card-small" onclick="UI.showProGems()">
-                        <i class="fas fa-crown"></i><span class="icon-label">JOI</span><span class="icon-description">JOIA</span>
+                        <i class="fas fa-crown"></i><span class="icon-label">JOI</span><span
+                            class="icon-description">JOIA</span>
                     </div>
                     <div class="icon-card card-small" onclick="UI.showProArmor()">
-                        <i class="fas fa-helmet-safety"></i><span class="icon-label">ARM</span><span class="icon-description">ARMADURA</span>
+                        <i class="fas fa-helmet-safety"></i><span class="icon-label">ARM</span><span
+                            class="icon-description">ARMADURA</span>
                     </div>
                     <div class="icon-card card-mini" onclick="UI.addCredits(50)">
-                        <i class="fas fa-coins"></i><span class="icon-label">MOE</span><span class="icon-description">MOEDA</span>
+                        <i class="fas fa-coins"></i><span class="icon-label">MOE</span><span
+                            class="icon-description">MOEDA</span>
                     </div>
                     <div class="icon-card card-mini" onclick="UI.showProInventory()">
                         <div class="progress-bar-mini">
                             <div class="progress-fill-mini" id="stockProgress" style="width:75%"></div>
-                        </div><span class="icon-label" id="stockPercent">75%</span><span class="icon-description">ESTOQUE</span>
+                        </div><span class="icon-label" id="stockPercent">75%</span><span
+                            class="icon-description">ESTOQUE</span>
                     </div>
                 </div>
             </div>
@@ -3273,13 +3860,16 @@
             <div class="piece-content" id="piece-bottomCenter">
                 <div class="bat-shop" id="drag-bottomCenter" style="left:50%;top:50%;transform:translate(-50%,-50%);">
                     <div class="icon-card card-small" onclick="UI.openProShop()">
-                        <i class="fas fa-store"></i><span class="icon-label">SHOP</span><span class="icon-description">COMPRAR</span>
+                        <i class="fas fa-store"></i><span class="icon-label">SHOP</span><span
+                            class="icon-description">COMPRAR</span>
                     </div>
                     <div class="icon-card card-mini" onclick="UI.showProGems()">
-                        <i class="fas fa-ring"></i><span class="icon-label">GEM</span><span class="icon-description">JOIAS</span>
+                        <i class="fas fa-ring"></i><span class="icon-label">GEM</span><span
+                            class="icon-description">JOIAS</span>
                     </div>
                     <div class="icon-card card-small" onclick="UI.showProWeapons()">
-                        <i class="fas fa-shield"></i><span class="icon-label">ARM</span><span class="icon-description">ARMAS</span>
+                        <i class="fas fa-shield"></i><span class="icon-label">ARM</span><span
+                            class="icon-description">ARMAS</span>
                     </div>
                 </div>
             </div>
@@ -3291,26 +3881,32 @@
             </svg>
             <div class="piece-hover-text">SUPORTE</div>
             <div class="piece-content" id="piece-bottomRight">
-                <div class="bat-container-horizontal" id="drag-bottomRight" style="left:50%;top:50%;transform:translate(-50%,-50%);">
+                <div class="bat-container-horizontal" id="drag-bottomRight"
+                    style="left:50%;top:50%;transform:translate(-50%,-50%);">
                     <div class="vidas-indicator" id="livesContainer"></div>
                     <div class="icon-card card-mini" onclick="UI.showProBot()">
-                        <i class="fas fa-headset"></i><span class="icon-label">BOT</span><span class="icon-description">BOT</span>
+                        <i class="fas fa-headset"></i><span class="icon-label">BOT</span><span
+                            class="icon-description">BOT</span>
                     </div>
                     <div class="icon-card card-mini" onclick="UI.showProFAQ()">
-                        <i class="fas fa-circle-question"></i><span class="icon-label">FAQ</span><span class="icon-description">DÚVIDAS</span>
+                        <i class="fas fa-circle-question"></i><span class="icon-label">FAQ</span><span
+                            class="icon-description">DÚVIDAS</span>
                     </div>
                     <div class="icon-card card-mini" onclick="UI.showProSupport()">
-                        <i class="fas fa-life-ring"></i><span class="icon-label">HELP</span><span class="icon-description">AJUDA</span>
+                        <i class="fas fa-life-ring"></i><span class="icon-label">HELP</span><span
+                            class="icon-description">AJUDA</span>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="hint" style="pointer-events: none; z-index: 1;">
-            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none;">
+            <div
+                style="display: flex; flex-direction: column; align-items: center; justify-content: center; pointer-events: none;">
                 <img src="baixados.png" alt="Bat-Logo" class="bat-logo-img"
                     style="width: 120px; height: auto; margin-bottom: 10px; transition: all 0.3s ease; filter: drop-shadow(0 0 10px var(--primary));">
-                <div style="font-size: 24px; color: var(--primary); font-weight: bold; text-shadow: 0 0 10px var(--primary);">
+                <div
+                    style="font-size: 24px; color: var(--primary); font-weight: bold; text-shadow: 0 0 10px var(--primary);">
                     BAT SISTEMA ONLINE
                 </div>
                 <div style="font-size: 12px; color: #aabbcc; text-shadow: 0 0 5px rgba(0,0,0,0.5);">
@@ -3329,10 +3925,11 @@
         </div>
     </div>
 
-   <!-- BOTÃO DE LIBERAR WIDGETS - REPOSICIONADO DENTRO DA PEÇA LATERAL -->
-<div class="settings-btn" style="top: 130px; left: 5px; z-index: calc(var(--z-modals) - 1);" onclick="UI.liberarTodasMissoes()">
-    <i class="fas fa-key"></i>
-</div>
+    <!-- BOTÃO DE LIBERAR WIDGETS - REPOSICIONADO DENTRO DA PEÇA LATERAL -->
+    <div class="settings-btn" style="top: 130px; left: 5px; z-index: calc(var(--z-modals) - 1);"
+        onclick="UI.liberarTodasMissoes()">
+        <i class="fas fa-key"></i>
+    </div>
 
     <script>
         // ===========================================
@@ -3476,7 +4073,7 @@
                         <div style="font-size: 80px; filter: blur(2px); animation: tremer 0.1s infinite;">👻</div>
                         <div style="background: rgba(255,102,0,0.2); border: 2px solid #ff6600; border-radius: 10px; padding: 15px; width: 100%;">
                             <div style="display: grid; grid-template-columns: repeat(3,1fr); gap: 5px;">
-                                ${[1,2,3,4,5,6].map(i => `
+                                ${[1, 2, 3, 4, 5, 6].map(i => `
                                     <div style="aspect-ratio: 16/9; background: #000; border: 1px solid #ff6600; border-radius: 4px; position: relative; overflow: hidden;">
                                         <div style="position: absolute; inset:0; background: repeating-linear-gradient(0deg, rgba(255,102,0,0.1) 0px, rgba(255,102,0,0.2) 2px, transparent 2px, transparent 4px); animation: estatica 0.1s infinite;"></div>
                                     </div>
@@ -3506,12 +4103,12 @@
                         <div style="font-size: 80px;">❓</div>
                         <div style="background: rgba(46,204,113,0.2); border: 2px solid #2ecc71; border-radius: 10px; padding: 15px; width: 100%;">
                             <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 15px;">
-                                ${['⚡','🔥','💧','🌪️'].map(s => `
+                                ${['⚡', '🔥', '💧', '🌪️'].map(s => `
                                     <div style="width: 50px; height: 50px; background: #000; border: 2px solid #2ecc71; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 24px;">${s}</div>
                                 `).join('')}
                             </div>
                             <div style="display: flex; justify-content: center; gap: 10px;">
-                                ${[1,2,3,4].map(() => `
+                                ${[1, 2, 3, 4].map(() => `
                                     <div style="width: 40px; height: 40px; background: #0a1a2a; border: 2px solid #2ecc71; border-radius: 6px;"></div>
                                 `).join('')}
                             </div>
@@ -3528,7 +4125,7 @@
                         <div style="font-size: 80px; animation: pulsar 2s infinite;">💪</div>
                         <div style="background: rgba(139,69,19,0.2); border: 2px solid #8B4513; border-radius: 10px; padding: 15px; width: 100%;">
                             <div style="display: flex; justify-content: center; gap: 5px; margin-bottom: 15px;">
-                                ${['V1','V2','X1','V3','X2'].map(v => `
+                                ${['V1', 'V2', 'X1', 'V3', 'X2'].map(v => `
                                     <div style="width: 40px; height: 40px; background: ${v.includes('X') ? 'rgba(255,0,64,0.2)' : '#0a1a2a'}; border: 2px solid ${v.includes('X') ? '#ff4444' : '#8B4513'}; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: bold;">${v}</div>
                                 `).join('')}
                             </div>
@@ -3691,9 +4288,9 @@
             showProWidgetPreview(missionId) {
                 const preview = WIDGET_PREVIEWS[missionId];
                 if (!preview) return;
-                
+
                 const mission = ARKHAM_MISSIONS.find(m => m.id === missionId);
-                
+
                 this.showProInfo(
                     preview.titulo,
                     'PRÉVIA INTERATIVA · CLIQUE NO BOTÃO PARA JOGAR',
@@ -3777,7 +4374,7 @@
                 const modal = document.createElement('div');
                 modal.className = 'pro-modal';
                 modal.id = 'proInfoModal';
-                
+
                 let tabsHTML = '';
                 let tabsContentHTML = '';
 
@@ -3844,10 +4441,10 @@
             // ===== FUNÇÕES DOS MODAIS =====
             showProUserInfo() {
                 if (!this.core || !this.core.Player) return;
-                
+
                 const level = this.core.Player.getCurrentLevelInfo();
                 const progress = this.core.Player.getLevelProgress();
-                
+
                 let missionsHTML = '';
                 ARKHAM_MISSIONS.slice(0, 3).forEach(mission => {
                     const prog = this.core.Player.missionProgress[mission.id];
@@ -3940,14 +4537,14 @@
                                 </div>
                                 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
                                     ${this.core.Player.earnedWidgets.map(widgetId => {
-                                        const mission = ARKHAM_MISSIONS.find(m => m.id === widgetId);
-                                        return mission ? `
+                                const mission = ARKHAM_MISSIONS.find(m => m.id === widgetId);
+                                return mission ? `
                                             <div style="background: rgba(0,217,255,0.1); border-radius: 15px; padding: 10px; text-align: center;">
                                                 <div style="font-size: 30px;">${mission.icon}</div>
                                                 <div style="font-size: 11px;">${mission.name}</div>
                                             </div>
                                         ` : '';
-                                    }).join('')}
+                            }).join('')}
                                 </div>
                             `
                         }
@@ -4126,7 +4723,7 @@
 
             showProLevel() {
                 if (!this.core || !this.core.Player) return;
-                
+
                 const level = this.core.Player.getCurrentLevelInfo();
                 const progress = this.core.Player.getLevelProgress();
 
@@ -4196,7 +4793,7 @@
 
             showProMission() {
                 if (!this.core || !this.core.Player) return;
-                
+
                 const nextMission = this.core.Player.getNextMission();
                 if (!nextMission) {
                     this.showProInfo('PARABÉNS!', 'Todas as missões concluídas!', '🏆');
@@ -4246,7 +4843,7 @@
                                     <div style="margin-top: 10px;">
                                         <div style="font-size: 12px; margin-bottom: 8px;">🔄 PROGRESSO DAS FASES</div>
                                         <div style="display: flex; gap: 5px;">
-                                            ${[1,2,3,4,5].map(f => `
+                                            ${[1, 2, 3, 4, 5].map(f => `
                                                 <div style="flex:1; height: 30px; background: ${f <= phasesCompleted ? 'rgba(0,255,136,0.3)' : 'rgba(255,255,255,0.1)'}; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 10px; border: 1px solid ${f <= phasesCompleted ? '#00ff88' : 'rgba(255,255,255,0.2)'};">${f <= phasesCompleted ? '✅' : f}</div>
                                             `).join('')}
                                         </div>
@@ -4260,7 +4857,7 @@
 
             showProCredits() {
                 if (!this.core || !this.core.Player) return;
-                
+
                 this.showProInfo(
                     'CRÉDITOS',
                     'MOEDA PRINCIPAL',
@@ -4292,7 +4889,7 @@
 
             showProGems() {
                 if (!this.core || !this.core.Player) return;
-                
+
                 this.showProInfo(
                     'GEMAS E JOIAS',
                     'MOEDA PREMIUM',
@@ -4336,7 +4933,7 @@
 
             showProArmor() {
                 if (!this.core || !this.core.Player) return;
-                
+
                 this.showProInfo(
                     'ARMADURA',
                     'PROTEÇÃO',
@@ -4454,14 +5051,14 @@
 
             openProShop() {
                 if (!this.core || !this.core.Player) return;
-                
+
                 const items = this.core.Shop?.items || [
                     { id: 'batmovel', name: 'BATMOVEL', icon: 'fa-car', desc: 'Veículo blindado', price: 500, category: 'vehicle', rarity: 'epic' },
                     { id: 'capa', name: 'CAPA ELETRÔNICA', icon: 'fa-vest', desc: 'Resistência +20', price: 150, category: 'armor', rarity: 'rare' },
                     { id: 'batarangue', name: 'BATARANGUE', icon: 'fa-boomerang', desc: 'Dano +15', price: 80, category: 'weapon', rarity: 'common' },
                     { id: 'batcaverna', name: 'ACESSO BATCAVERNA', icon: 'fa-cave', desc: 'Treinamento especial', price: 1000, category: 'consumable', rarity: 'legendary' }
                 ];
-                
+
                 const categories = {
                     armor: items.filter(i => i.category === 'armor'),
                     weapon: items.filter(i => i.category === 'weapon'),
@@ -4534,7 +5131,7 @@
 
             buyProItem(itemId) {
                 if (!this.core || !this.core.Player) return;
-                
+
                 const items = this.core.Shop?.items || [
                     { id: 'batmovel', name: 'BATMOVEL', price: 500 },
                     { id: 'capa', name: 'CAPA ELETRÔNICA', price: 150 },
@@ -4857,10 +5454,10 @@
 
             playMission(missionId) {
                 if (!this.core || !this.core.Missions) return;
-                
+
                 const mission = ARKHAM_MISSIONS.find(m => m.id === missionId);
                 console.log('Jogando missão:', missionId, mission);
-                
+
                 if (mission) {
                     const gameMap = {
                         'coringa': 'jogos/1.1ClashRoyale.html',
@@ -4872,7 +5469,7 @@
                         'bane': 'jogos/1.7Dna.html',
                         'mulhergato': 'jogos/1.8Gerenciamento.html'
                     };
-                    
+
                     if (gameMap[missionId]) {
                         window.location.href = gameMap[missionId];
                     } else {
@@ -4886,7 +5483,7 @@
 
             openSettings() {
                 if (!this.core || !this.core.Player || !this.core.Settings) return;
-                
+
                 this.showProInfo(
                     'CONFIGURAÇÕES',
                     'PREFERÊNCIAS DO SISTEMA',
@@ -4921,7 +5518,7 @@
 
             prestige() {
                 if (!this.core || !this.core.Player) return;
-                
+
                 this.core.Player.level = 1;
                 this.core.Player.xp = 0;
                 this.core.Player.credits += 1000;
@@ -4943,15 +5540,15 @@
                 };
 
                 const config = vilaoConfig[mission.id] || { color: '#00d9ff', label: 'WIDGET', pontos: '+100' };
-                
+
                 const widgetCard = document.createElement('div');
                 widgetCard.className = 'widget-vilao';
                 widgetCard.dataset.vilao = mission.id;
                 widgetCard.dataset.id = mission.id;
-                
+
                 let efeitoHTML = '';
-                
-                switch(mission.id) {
+
+                switch (mission.id) {
                     case 'coringa':
                         efeitoHTML = `
                             <div class="coringa-estatica"></div>
@@ -5073,17 +5670,25 @@
                     </div>
                 `;
 
-                let isDragging = false;
+                                let isDragging = false;
                 let startX, startY;
                 const dragThreshold = 5;
 
-                widgetCard.addEventListener('mousedown', (e) => {
+                // Criar o listener de drag
+                const dragListener = (e) => {
                     if (e.target.classList.contains('jogar-btn') || e.target.closest('.widget-controles')) return;
                     isDragging = false;
                     startX = e.clientX;
                     startY = e.clientY;
                     this.pendingDrag = { element: widgetCard, event: e };
-                });
+                };
+
+                // Adicionar o listener
+                widgetCard.addEventListener('mousedown', dragListener);
+
+                // Armazenar o listener para remoção futura
+                if (!this.dragListeners) this.dragListeners = {};
+                this.dragListeners[mission.id] = dragListener;
 
                 widgetCard.addEventListener('mousemove', (e) => {
                     if (!this.pendingDrag || this.pendingDrag.element !== widgetCard) return;
@@ -5112,7 +5717,7 @@
 
             minimizarWidget(botao) {
                 const widget = botao.closest('.widget-vilao');
-                
+
                 if (widget.classList.contains('minimizado')) {
                     widget.classList.remove('minimizado');
                     botao.innerHTML = '<i class="fas fa-minus"></i>';
@@ -5133,7 +5738,7 @@
 
             renderMKLayout() {
                 if (!this.core || !this.core.Player || !ARKHAM_MISSIONS) return;
-                
+
                 const widgetsContainer = document.getElementById('widgetsHorizontal');
                 const verticalStack = document.getElementById('mkVerticalStack');
 
@@ -5283,7 +5888,7 @@
                 let minY = 5;
                 let maxY = window.innerHeight - widgetHeight - 5;
 
-                if (hudTop && top < hudTop.bottom && 
+                if (hudTop && top < hudTop.bottom &&
                     left + widgetWidth > hudTop.left && left < hudTop.right) {
                     minY = Math.max(minY, hudTop.bottom);
                 }
@@ -5311,6 +5916,8 @@
                 element.style.left = Math.max(minX, Math.min(left, maxX)) + 'px';
                 element.style.top = Math.max(minY, Math.min(top, maxY)) + 'px';
             },
+
+            // Substitua o método stopDrag atual por este:
 
             stopDrag() {
                 if (!this.dragging || !this.dragData) return;
@@ -5395,6 +6002,17 @@
                     widget.removeAttribute('data-dragging');
                     widget.setAttribute('data-was-dragged', 'true');
 
+                    // CORREÇÃO CRÍTICA: Remover o listener antigo e adicionar um novo
+                    widget.removeEventListener('mousedown', this.dragListeners[widgetId]);
+
+                    // Criar novo listener para este widget flutuante
+                    const newDragListener = (e) => this.startDrag(e, widget);
+                    widget.addEventListener('mousedown', newDragListener);
+
+                    // Armazenar o listener para poder removê-lo depois se necessário
+                    if (!this.dragListeners) this.dragListeners = {};
+                    this.dragListeners[widgetId] = newDragListener;
+
                     if (this.core && this.core.Player && this.core.Player.saveWidgetPosition) {
                         this.core.Player.saveWidgetPosition(widgetId, rect.left, rect.top);
                     }
@@ -5475,7 +6093,7 @@
 
             updateAllWidgets() {
                 if (!this.core || !this.core.Player) return;
-                
+
                 const points = this.core.Player.xp;
                 const completedCount = this.core.Player.completedMissions.length;
                 const totalMissions = ARKHAM_MISSIONS.length;
@@ -5488,7 +6106,7 @@
                     profileLevel: `NVL ${this.core.Player.level}`,
                     profileName: this.core.Player.username.toUpperCase() || 'BRUCE',
                     profileTitle: currentLevel.title,
-                    creditValue: this.core.Player.credits > 999 ? (this.core.Player.credits/1000).toFixed(1) + 'K' : this.core.Player.credits,
+                    creditValue: this.core.Player.credits > 999 ? (this.core.Player.credits / 1000).toFixed(1) + 'K' : this.core.Player.credits,
                     stockPercent: Math.round(clampedProgress) + '%',
                     stockProgress: clampedProgress
                 };
@@ -5532,7 +6150,7 @@
 
             addLife() {
                 if (!this.core || !this.core.Player) return;
-                
+
                 if (this.core.Player.addLife()) {
                     this.core.Utils.showToast('❤️ Vida adicionada!', 'success');
                     if (this.core.playSound) this.core.playSound('success');
@@ -5543,7 +6161,7 @@
 
             removeLife() {
                 if (!this.core || !this.core.Player) return;
-                
+
                 if (this.core.Player.removeLife()) {
                     this.core.Utils.showToast('💔 Vida removida!', 'warning');
                     if (this.core.playSound) this.core.playSound('click');
@@ -5557,7 +6175,7 @@
                     if (!pc) return;
 
                     const cr = pc.getBoundingClientRect();
-                    
+
                     el.style.position = 'absolute';
 
                     el.addEventListener('mousedown', (e) => {
@@ -5681,7 +6299,7 @@
 
             getMissionProgressInfo() {
                 if (!this.core || !this.core.Player || !ARKHAM_MISSIONS) return 'Info não disponível';
-                
+
                 let completed = 0;
                 let totalPhases = 0;
                 let completedPhases = 0;
@@ -5714,7 +6332,7 @@
 
             updateSoundToggleUI() {
                 if (!this.core || !this.core.Settings) return;
-                
+
                 const toggle = document.getElementById('soundToggle');
                 if (toggle) {
                     if (this.core.Settings.current.soundEnabled) {
@@ -5762,7 +6380,7 @@
 
             liberarTodasMissoes() {
                 if (!this.core || !this.core.Player) return;
-                
+
                 const missoes = ['coringa', 'pinguim', 'duascaras', 'harley', 'espantalho', 'charada', 'bane', 'mulhergato'];
                 missoes.forEach(id => {
                     if (this.core.Player.missionProgress[id]) {
