@@ -480,11 +480,10 @@
             box-shadow: 0 0 20px rgba(0, 217, 255, 0.3);
         }
 
-        /* ===== BOTÃO DE CONFIGURAÇÕES - REPOSICIONADO ===== */
+        /* ===== BOTÃO DE CONFIGURAÇÕES ===== */
         .settings-btn {
             position: fixed;
             top: 20px;
-            /* Aumentado de 10px para 70px para ficar abaixo da peça HUD */
             left: 10px;
             background: var(--bg-light);
             border: 2px solid var(--border);
@@ -1026,7 +1025,6 @@
         .mid-right .icon-card-vertical .icon-description {
             font-size: 8px !important;
             max-width: 90px;
-            /* Reduzido para caber na peça */
             white-space: normal;
             word-wrap: break-word;
             text-align: center;
@@ -1039,7 +1037,6 @@
             letter-spacing: 0.3px;
             font-weight: 500;
 
-            /* POSICIONAMENTO CENTRALIZADO NO ÍCONE */
             position: absolute;
             top: 50%;
             left: 50%;
@@ -1050,7 +1047,6 @@
             transition: all 0.2s ease;
         }
 
-        /* HOVER: APARECE CENTRALIZADO */
         .mid-left .icon-card-vertical:hover .icon-description,
         .mid-right .icon-card-vertical:hover .icon-description {
             opacity: 1;
@@ -2461,156 +2457,398 @@
             }
         }
 
-        .mk-right-panel {
-            width: 280px;
-            background: rgba(20, 10, 30, 0.4);
-            backdrop-filter: blur(5px);
-            border: 2px solid rgba(0, 217, 255, 0.3);
-            border-radius: 50px 50px 15px 15px;
-            padding: 70px 15px 20px 15px;
+        /* ===== GAVETA DE MISSÕES - ESTILO DROPDOWN ===== */
+        .missions-drawer-container {
+            position: fixed;
+            top: 130px;
+            right: 20px;
+            z-index: calc(var(--z-modals) - 5);
+            width: 300px;
+            max-width: 90vw;
+        }
+
+        .missions-drawer-header {
+            background: linear-gradient(135deg, rgba(0, 20, 35, 0.98), rgba(10, 5, 20, 0.98));
+            backdrop-filter: blur(10px);
+            border: 2px solid var(--primary);
+            border-radius: 12px 12px 8px 8px;
+            padding: 15px 20px;
             display: flex;
-            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 20px rgba(0, 217, 255, 0.2);
             position: relative;
-            height: fit-content;
-            min-height: 600px;
-            box-shadow: 0 0 30px rgba(155, 89, 182, 0.2);
-            transition: border-color 0.3s, box-shadow 0.3s;
-            pointer-events: auto;
+            overflow: hidden;
         }
 
-        .mk-right-panel:hover {
-            border-color: rgba(0, 217, 255, 0.6);
-            box-shadow: 0 0 40px rgba(0, 217, 255, 0.3);
-        }
-
-        .mk-right-panel::before {
-            content: 'MISSÕES';
+        .missions-drawer-header::before {
+            content: '';
             position: absolute;
-            top: 15px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 217, 255, 0.3);
-            color: #fff;
-            padding: 5px 25px;
-            border-radius: 20px;
-            font-size: 14px;
-            letter-spacing: 3px;
-            border: 1px solid rgba(0, 217, 255, 0.5);
-            z-index: calc(var(--z-hud-base) + 2);
-            backdrop-filter: blur(4px);
-            transition: all 0.3s;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 30% 30%, rgba(0, 217, 255, 0.2), transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s;
         }
 
-        .mk-right-panel:hover::before {
-            background: rgba(155, 89, 182, 0.5);
-            border-color: var(--purple);
-            color: #fff;
-            box-shadow: 0 0 20px rgba(155, 89, 182, 0.3);
+        .missions-drawer-header:hover {
+            border-color: #fff;
+            box-shadow: 0 0 30px rgba(0, 217, 255, 0.4);
         }
 
-        .mk-vertical-stack {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            width: 100%;
+        .missions-drawer-header:hover::before {
+            opacity: 1;
         }
 
-        .mk-card {
-            width: 100%;
-            min-height: 90px;
-            background: rgba(0, 0, 0, 0.6);
-            border: 2px solid;
-            border-radius: 12px;
-            padding: 10px;
+        .drawer-title {
             display: flex;
             align-items: center;
             gap: 12px;
-            position: relative;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            cursor: pointer;
-            backdrop-filter: blur(4px);
-            animation: mkCardAppear 0.5s ease-out;
-            transform-origin: left;
         }
 
-        @keyframes mkCardAppear {
+        .drawer-title i {
+            font-size: 20px;
+            color: var(--primary);
+            filter: drop-shadow(0 0 8px var(--primary));
+        }
+
+        .drawer-title span {
+            font-size: 16px;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: white;
+            letter-spacing: 1px;
+        }
+
+        .drawer-badge {
+            background: rgba(255, 0, 64, 0.9);
+            border-radius: 20px;
+            padding: 3px 10px;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 10px rgba(255, 0, 64, 0.5);
+            margin-left: 10px;
+        }
+
+        .drawer-arrow {
+            width: 30px;
+            height: 30px;
+            background: rgba(0, 217, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            font-size: 16px;
+        }
+
+        .drawer-arrow i {
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .missions-drawer-header.open .drawer-arrow i {
+            transform: rotate(180deg);
+        }
+
+        .missions-drawer-header.open .drawer-arrow {
+            background: rgba(0, 217, 255, 0.3);
+            border-color: #fff;
+            box-shadow: 0 0 15px var(--primary);
+        }
+
+        .missions-drawer-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            background: rgba(5, 10, 20, 0.95);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(0, 217, 255, 0.3);
+            border-top: none;
+            border-radius: 0 0 12px 12px;
+            margin-top: -2px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .missions-drawer-content.open {
+            max-height: 800px;
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        .missions-drawer-content.open::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .missions-drawer-content.open::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+        }
+
+        .missions-drawer-content.open::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, var(--primary), var(--info));
+            border-radius: 10px;
+        }
+
+        .drawer-stats {
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0 15px 0;
+            border-bottom: 1px solid rgba(0, 217, 255, 0.2);
+            margin-bottom: 15px;
+        }
+
+        .drawer-stat-item {
+            text-align: center;
+        }
+
+        .drawer-stat-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--primary);
+            text-shadow: 0 0 10px var(--primary);
+            line-height: 1.2;
+        }
+
+        .drawer-stat-label {
+            font-size: 8px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.6);
+            letter-spacing: 0.5px;
+        }
+
+        /* ===== CARDS DE MISSÕES SOFISTICADOS - IGUAL AOS WIDGETS ===== */
+        .mk-vertical-stack-drawer .mk-card {
+            width: 100%;
+            min-height: 100px;
+            background: rgba(15, 20, 30, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 12px;
+            transition: all 0.4s ease;
+            cursor: pointer;
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+            border: 2px solid;
+            flex-shrink: 0;
+            margin-bottom: 10px;
+            animation: slideInMission 0.5s ease-out;
+        }
+
+        @keyframes slideInMission {
             from {
                 opacity: 0;
-                transform: translateX(20px);
+                transform: translateX(-20px);
             }
-
             to {
                 opacity: 1;
                 transform: translateX(0);
             }
         }
 
-        .mk-card:hover {
-            transform: translateX(5px);
-            border-color: white !important;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        .mk-vertical-stack-drawer .mk-card:hover {
+            transform: translateX(5px) scale(1.02);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.8);
+            z-index: calc(var(--z-floating-widgets) + 1);
         }
 
-        .mk-card.completed {
-            border-color: var(--primary);
-            background: rgba(0, 217, 255, 0.15);
-            box-shadow: 0 0 20px rgba(0, 217, 255, 0.3);
+        .mk-vertical-stack-drawer .mk-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.4s;
+            pointer-events: none;
+            z-index: 0;
         }
 
-        .mk-card.completed:hover {
+        .mk-vertical-stack-drawer .mk-card:hover::before {
+            opacity: 0.3;
+        }
+
+        /* Cores específicas para cada missão */
+        .mk-vertical-stack-drawer .mk-card[data-id="coringa"] {
+            border-color: #b14eff;
+            background: linear-gradient(145deg, #1a0f1f, #2a1a2f);
+        }
+
+        .mk-vertical-stack-drawer .mk-card[data-id="coringa"] .mk-card-icon {
+            color: #b14eff;
+            text-shadow: 0 0 15px #b14eff;
+        }
+
+        .mk-vertical-stack-drawer .mk-card[data-id="coringa"] .mk-card-order {
+            background: rgba(177, 78, 255, 0.2);
+            border-color: #b14eff;
+            color: #b14eff;
+        }
+
+        .mk-vertical-stack-drawer .mk-card[data-id="pinguim"] {
+            border-color: #3a9eff;
+            background: linear-gradient(145deg, #0f1a24, #1a2a34);
+        }
+
+        .mk-vertical-stack-drawer .mk-card[data-id="pinguim"] .mk-card-icon {
+            color: #3a9eff;
+            text-shadow: 0 0 15px #3a9eff;
+        }
+
+        .mk-vertical-stack-drawer .mk-card[data-id="pinguim"] .mk-card-order {
+            background: rgba(58, 158, 255, 0.2);
+            border-color: #3a9eff;
+            color: #3a9eff;
+        }
+
+        .mk-vertical-stack-drawer .mk-card[data-id="duascaras"] {
+            border-color: #ffaa33;
+            background: linear-gradient(145deg, #1a1a0f, #2a2a1a);
+        }
+
+        .mk-vertical-stack-drawer .mk-card[data-id="duascaras"] .mk-card-icon {
+            color: #ffaa33;
+            text-shadow: 0 0 15px #ffaa33;
+        }
+
+        .mk-vertical-stack-drawer .mk-card[data-id="duascaras"] .mk-card-order {
+            background: rgba(255, 170, 51, 0.2);
+            border-color: #ffaa33;
+            color: #ffaa33;
+        }
+
+        .mk-vertical-stack-drawer .mk-card[data-id="harley"] {
+            border-color: #ff1493;
+            background: linear-gradient(145deg, #2a0f1f, #3a1a2a);
+        }
+
+        .mk-vertical-stack-drawer .mk-card[data-id="harley"] .mk-card-icon {
+            color: #ff1493;
+            text-shadow: 0 0 15px #ff1493;
+        }
+
+        .mk-vertical-stack-drawer .mk-card[data-id="harley"] .mk-card-order {
+            background: rgba(255, 20, 147, 0.2);
+            border-color: #ff1493;
+            color: #ff1493;
+        }
+
+        .mk-vertical-stack-drawer .mk-card[data-id="espantalho"] {
+            border-color: #b87333;
+            background: linear-gradient(145deg, #0f0f0f, #1f1f1f);
+        }
+
+        .mk-vertical-stack-drawer .mk-card[data-id="espantalho"] .mk-card-icon {
+            color: #b87333;
+            text-shadow: 0 0 15px #b87333;
+        }
+
+        .mk-vertical-stack-drawer .mk-card[data-id="espantalho"] .mk-card-order {
+            background: rgba(184, 115, 51, 0.2);
+            border-color: #b87333;
+            color: #b87333;
+        }
+
+        .mk-vertical-stack-drawer .mk-card[data-id="charada"] {
+            border-color: #2ecc71;
+            background: linear-gradient(145deg, #0f2a0f, #1a3a1a);
+        }
+
+        .mk-vertical-stack-drawer .mk-card[data-id="charada"] .mk-card-icon {
+            color: #2ecc71;
+            text-shadow: 0 0 15px #2ecc71;
+        }
+
+        .mk-vertical-stack-drawer .mk-card[data-id="charada"] .mk-card-order {
+            background: rgba(46, 204, 113, 0.2);
+            border-color: #2ecc71;
+            color: #2ecc71;
+        }
+
+        .mk-vertical-stack-drawer .mk-card[data-id="bane"] {
+            border-color: #ff4444;
+            background: linear-gradient(145deg, #2a0f0f, #3a1a1a);
+        }
+
+        .mk-vertical-stack-drawer .mk-card[data-id="bane"] .mk-card-icon {
+            color: #ff4444;
+            text-shadow: 0 0 15px #ff4444;
+        }
+
+        .mk-vertical-stack-drawer .mk-card[data-id="bane"] .mk-card-order {
+            background: rgba(255, 68, 68, 0.2);
+            border-color: #ff4444;
+            color: #ff4444;
+        }
+
+        .mk-vertical-stack-drawer .mk-card[data-id="mulhergato"] {
+            border-color: #c0c0c0;
+            background: linear-gradient(145deg, #0f0f1a, #1a1a2a);
+        }
+
+        .mk-vertical-stack-drawer .mk-card[data-id="mulhergato"] .mk-card-icon {
+            color: #c0c0c0;
+            text-shadow: 0 0 15px #c0c0c0;
+        }
+
+        .mk-vertical-stack-drawer .mk-card[data-id="mulhergato"] .mk-card-order {
+            background: rgba(192, 192, 192, 0.2);
+            border-color: #c0c0c0;
+            color: #c0c0c0;
+        }
+
+        .mk-vertical-stack-drawer .mk-card.completed {
             background: rgba(155, 89, 182, 0.25);
-            box-shadow: 0 0 30px rgba(155, 89, 182, 0.5);
+            border-color: #9b59b6;
+            box-shadow: 0 0 20px rgba(155, 89, 182, 0.3);
         }
 
-        .mk-card.current {
-            border-color: var(--card-current);
-            background: rgba(241, 196, 15, 0.1);
+        .mk-vertical-stack-drawer .mk-card.current {
+            border-color: #f1c40f;
+            background: rgba(241, 196, 15, 0.15);
             box-shadow: 0 0 25px rgba(241, 196, 15, 0.3);
             animation: currentPulse 2s infinite;
         }
 
-        .mk-card.current:hover {
-            background: rgba(241, 196, 15, 0.15);
-        }
-
-        @keyframes currentPulse {
-            0% {
-                box-shadow: 0 0 15px rgba(241, 196, 15, 0.3);
-            }
-
-            50% {
-                box-shadow: 0 0 30px rgba(241, 196, 15, 0.6);
-            }
-
-            100% {
-                box-shadow: 0 0 15px rgba(241, 196, 15, 0.3);
-            }
-        }
-
-        .mk-card.locked {
-            border-color: var(--card-locked);
+        .mk-vertical-stack-drawer .mk-card.locked {
+            border-color: #444444;
             background: rgba(68, 68, 68, 0.2);
             filter: grayscale(0.8);
             opacity: 0.6;
             cursor: not-allowed;
         }
 
-        .mk-card.locked:hover {
+        .mk-vertical-stack-drawer .mk-card.locked:hover {
             transform: none;
-            border-color: var(--card-locked);
+            border-color: #444444;
         }
 
         .mk-card-icon {
             width: 50px;
             height: 50px;
             background: rgba(0, 0, 0, 0.3);
-            border-radius: 10px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 30px;
+            font-size: 28px;
             flex-shrink: 0;
             transition: transform 0.3s;
+            position: relative;
+            z-index: 2;
         }
 
         .mk-card:hover .mk-card-icon {
@@ -2623,6 +2861,8 @@
             flex-direction: column;
             gap: 4px;
             min-width: 0;
+            position: relative;
+            z-index: 2;
         }
 
         .mk-card-name {
@@ -2633,25 +2873,36 @@
             overflow: hidden;
             text-overflow: ellipsis;
             transition: color 0.3s;
+            color: white;
+            text-shadow: 0 0 5px currentColor;
         }
 
         .mk-card:hover .mk-card-name {
-            color: var(--primary);
+            color: white;
+            text-shadow: 0 0 10px currentColor;
         }
 
         .mk-card-desc {
             font-size: 9px;
-            color: var(--text-secondary);
+            color: rgba(255, 255, 255, 0.7);
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
         .mk-card-points {
-            font-size: 10px;
-            color: var(--primary);
+            font-size: 11px;
+            color: gold;
             font-weight: bold;
             transition: transform 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .mk-card-points::before {
+            content: '⭐';
+            font-size: 9px;
         }
 
         .mk-card:hover .mk-card-points {
@@ -2662,42 +2913,120 @@
             position: absolute;
             top: -8px;
             right: 10px;
-            background: rgba(0, 0, 0, 0.9);
-            border: 1px solid;
-            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid;
+            border-radius: 20px;
             padding: 2px 10px;
             font-size: 10px;
             font-weight: bold;
             backdrop-filter: blur(4px);
             transition: all 0.3s;
+            z-index: 3;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
         }
 
         .mk-card:hover .mk-card-order {
             transform: scale(1.1);
-            box-shadow: 0 0 10px currentColor;
+            box-shadow: 0 0 15px currentColor;
         }
 
-        .fa-circle-dollar,
-        .fa-ring,
-        .fa-life-ring {
-            font-family: "Font Awesome 6 Free";
-            font-weight: 900;
+        @keyframes currentPulse {
+            0% {
+                box-shadow: 0 0 15px rgba(241, 196, 15, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 30px rgba(241, 196, 15, 0.6);
+            }
+            100% {
+                box-shadow: 0 0 15px rgba(241, 196, 15, 0.3);
+            }
         }
 
-        .fa-circle-dollar::before {
-            content: "\f2e0";
+        @keyframes celebratePulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.7); }
+            50% { transform: scale(1.02); box-shadow: 0 0 30px 10px rgba(255, 215, 0, 0.9); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 215, 0, 0); }
         }
 
-        .fa-ring::before {
-            content: "\f70b";
+        .mk-card.celebrate {
+            animation: celebratePulse 0.5s ease;
         }
 
-        .fa-life-ring::before {
-            content: "\f1cd";
+        .mk-card.new-unlock {
+            position: relative;
+            overflow: hidden;
         }
 
-        .fa-circle-question::before {
-            content: "\f059";
+        .mk-card.new-unlock::after {
+            content: 'NOVO!';
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: gold;
+            color: black;
+            font-size: 8px;
+            font-weight: bold;
+            padding: 2px 8px;
+            transform: rotate(15deg);
+            border-radius: 4px;
+            box-shadow: 0 0 10px gold;
+            z-index: 10;
+        }
+
+        .drawer-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(2px);
+            z-index: calc(var(--z-modals) - 6);
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .drawer-overlay.active {
+            display: block;
+        }
+
+        @keyframes drawerPulse {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(0, 217, 255, 0.2);
+                border-color: var(--primary);
+            }
+            50% {
+                box-shadow: 0 0 40px rgba(241, 196, 15, 0.6);
+                border-color: var(--card-current);
+            }
+        }
+
+        .drawer-highlight {
+            animation: drawerPulse 2s infinite;
+        }
+
+        @media (max-width: 768px) {
+            .missions-drawer-container {
+                top: 100px;
+                right: 10px;
+                width: 280px;
+            }
+            
+            .drawer-title span {
+                font-size: 14px;
+            }
+            
+            .drawer-badge {
+                font-size: 10px;
+                padding: 2px 6px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .missions-drawer-container {
+                top: 80px;
+                left: 10px;
+                right: 10px;
+                width: auto;
+            }
         }
 
         /* ===== MODAIS PROFISSIONAIS ===== */
@@ -3669,7 +3998,7 @@
         <span id="userName">Operador</span>
     </div>
 
-    <!-- BOTÃO DE CONFIGURAÇÕES - REPOSICIONADO -->
+    <!-- BOTÃO DE CONFIGURAÇÕES -->
     <div class="settings-btn" id="settingsBtn" onclick="UI.openSettings()">
         <i class="fas fa-cog"></i>
     </div>
@@ -3915,13 +4244,49 @@
             <div class="mk-left-panel">
                 <div class="widgets-horizontal" id="widgetsHorizontal"></div>
             </div>
-            <div class="mk-right-panel">
-                <div class="mk-vertical-stack" id="mkVerticalStack"></div>
-            </div>
+            <!-- REMOVIDO: mk-right-panel original -->
         </div>
     </div>
 
-    <!-- BOTÃO DE LIBERAR WIDGETS - REPOSICIONADO DENTRO DA PEÇA LATERAL -->
+    <!-- GAVETA DE MISSÕES - ESTILO DROPDOWN -->
+    <div class="missions-drawer-container" id="missionsDrawer">
+        <div class="missions-drawer-header" id="drawerHeader" onclick="UI.toggleMissionsDrawer()">
+            <div class="drawer-title">
+                <i class="fas fa-bullseye"></i>
+                <span>MISSÕES ATIVAS</span>
+                <span class="drawer-badge" id="missionCounter">0/8</span>
+            </div>
+            <div class="drawer-arrow">
+                <i class="fas fa-chevron-down"></i>
+            </div>
+        </div>
+        
+        <div class="missions-drawer-content" id="drawerContent">
+            <!-- Estatísticas rápidas -->
+            <div class="drawer-stats">
+                <div class="drawer-stat-item">
+                    <div class="drawer-stat-value" id="completedCount">0</div>
+                    <div class="drawer-stat-label">CONCLUÍDAS</div>
+                </div>
+                <div class="drawer-stat-item">
+                    <div class="drawer-stat-value" id="totalXP">0</div>
+                    <div class="drawer-stat-label">XP TOTAL</div>
+                </div>
+                <div class="drawer-stat-item">
+                    <div class="drawer-stat-value" id="currentLevel">1</div>
+                    <div class="drawer-stat-label">NÍVEL</div>
+                </div>
+            </div>
+            
+            <!-- Container das missões -->
+            <div class="mk-vertical-stack-drawer" id="mkVerticalStackDrawer"></div>
+        </div>
+    </div>
+
+    <!-- Overlay para quando a gaveta está aberta -->
+    <div class="drawer-overlay" id="drawerOverlay"></div>
+
+    <!-- BOTÃO DE LIBERAR WIDGETS -->
     <div class="settings-btn" style="top: 130px; left: 5px; z-index: calc(var(--z-modals) - 1);"
         onclick="UI.liberarTodasMissoes()">
         <i class="fas fa-key"></i>
@@ -4191,6 +4556,7 @@
             pendingDrag: null,
             dragData: null,
             dragListenersAttached: false,
+            dragListeners: {},
 
             init() {
                 this.setupRainEffect();
@@ -4230,8 +4596,65 @@
                 this.updateAllWidgets();
                 this.startBatSwarm();
                 this.setupPieceDrag();
+                this.setupDrawerShortcuts();
 
-                console.log('🦇 UI do Hub com sistema de prévias inicializado');
+                console.log('🦇 UI do Hub com sistema de gaveta de missões inicializado');
+
+                // Abre automaticamente se houver nova missão disponível
+                setTimeout(() => {
+                    if (this.core && this.core.Player) {
+                        const nextMission = this.core.Player.getNextMission();
+                        if (nextMission) {
+                            const drawerContent = document.getElementById('drawerContent');
+                            if (drawerContent && !drawerContent.classList.contains('open')) {
+                                this.toggleMissionsDrawer();
+                            }
+                        }
+                    }
+                }, 2000);
+            },
+
+            // ===== NOVAS FUNÇÕES PARA A GAVETA DE MISSÕES =====
+            toggleMissionsDrawer() {
+                const drawerContent = document.getElementById('drawerContent');
+                const drawerHeader = document.getElementById('drawerHeader');
+                const overlay = document.getElementById('drawerOverlay');
+                
+                drawerContent.classList.toggle('open');
+                drawerHeader.classList.toggle('open');
+                
+                if (drawerContent.classList.contains('open')) {
+                    overlay.classList.add('active');
+                    this.updateDrawerStats();
+                } else {
+                    overlay.classList.remove('active');
+                }
+                
+                if (this.core && this.core.playSound) {
+                    this.core.playSound('click');
+                }
+            },
+
+            updateDrawerStats() {
+                if (!this.core || !this.core.Player) return;
+                
+                const completed = this.core.Player.completedMissions?.length || 0;
+                const total = ARKHAM_MISSIONS?.length || 8;
+                
+                document.getElementById('completedCount').textContent = completed;
+                document.getElementById('missionCounter').textContent = `${completed}/${total}`;
+                document.getElementById('totalXP').textContent = this.core.Player.xp || 0;
+                document.getElementById('currentLevel').textContent = this.core.Player.level || 1;
+            },
+
+            setupDrawerShortcuts() {
+                document.addEventListener('keydown', (e) => {
+                    // Alt + M para abrir/fechar missões
+                    if (e.altKey && e.key === 'm') {
+                        e.preventDefault();
+                        this.toggleMissionsDrawer();
+                    }
+                });
             },
 
             setupEventListeners() {
@@ -5309,7 +5732,6 @@
                 const username = document.getElementById('loginUser').value.trim() || 'BATMAN';
                 const password = document.getElementById('loginPass').value.trim();
 
-                // Login FICTÍCIO - SEMPRE PERMITE ACESSO
                 localStorage.setItem('wayne_current_user', username);
                 if (this.core && this.core.Player) {
                     this.core.Player.setUsername(username);
@@ -5317,7 +5739,6 @@
                 this.showHUD();
                 if (this.core && this.core.playSound) this.core.playSound('success');
 
-                // Esconde mensagem de erro se estiver visível
                 document.getElementById('authError').style.display = 'none';
             },
 
@@ -5326,7 +5747,6 @@
                 const password = document.getElementById('regPass').value.trim();
                 const confirm = document.getElementById('regConfirm').value.trim();
 
-                // Registro FICTÍCIO - SEMPRE CRIA CONTA
                 this.users.push({ username, password });
                 localStorage.setItem('wayne_users', JSON.stringify(this.users));
                 localStorage.setItem('wayne_current_user', username);
@@ -5337,7 +5757,6 @@
                 this.showHUD();
                 if (this.core && this.core.playSound) this.core.playSound('success');
 
-                // Esconde mensagem de erro se estiver visível
                 document.getElementById('authError').style.display = 'none';
             },
 
@@ -5608,7 +6027,6 @@
                                 <div class="gato-olho"></div>
                                 <div class="gato-olho"></div>
                             </div>
-                            <!-- NOVO EFEITO: ANDARES ALTOS -->
                             <div style="position: absolute; bottom: 5px; left: 5px; background: rgba(0,0,0,0.7); border-radius: 10px; padding: 2px 6px; font-size: 9px; border: 1px solid #c0c0c0; z-index: 5; display: flex; gap: 4px;">
                                 <span style="color: #8A2BE2;">🏢 9 ANDARES</span>
                                 <span style="color: #00d9ff;">⬆️ 200px</span>
@@ -5660,7 +6078,6 @@
                 let startX, startY;
                 const dragThreshold = 5;
 
-                // Criar o listener de drag
                 const dragListener = (e) => {
                     if (e.target.classList.contains('jogar-btn') || e.target.closest('.widget-controles')) return;
                     isDragging = false;
@@ -5669,10 +6086,8 @@
                     this.pendingDrag = { element: widgetCard, event: e };
                 };
 
-                // Adicionar o listener
                 widgetCard.addEventListener('mousedown', dragListener);
 
-                // Armazenar o listener para remoção futura
                 if (!this.dragListeners) this.dragListeners = {};
                 this.dragListeners[mission.id] = dragListener;
 
@@ -5690,7 +6105,6 @@
                 widgetCard.addEventListener('mouseup', (e) => {
                     if (e.target.classList.contains('jogar-btn') || e.target.closest('.widget-controles')) return;
                     if (!isDragging && this.pendingDrag) {
-                        // Abrir prévia em vez do modal padrão
                         this.showProWidgetPreview(mission.id);
                     }
                     this.pendingDrag = null;
@@ -5726,7 +6140,7 @@
                 if (!this.core || !this.core.Player || !ARKHAM_MISSIONS) return;
 
                 const widgetsContainer = document.getElementById('widgetsHorizontal');
-                const verticalStack = document.getElementById('mkVerticalStack');
+                const verticalStack = document.getElementById('mkVerticalStackDrawer');
 
                 if (!widgetsContainer || !verticalStack) return;
 
@@ -5779,6 +6193,15 @@
                 });
 
                 this.startAlertUpdates();
+                this.updateDrawerStats();
+
+                const nextMission = this.core.Player.getNextMission();
+                const drawerHeader = document.getElementById('drawerHeader');
+                if (nextMission && drawerHeader) {
+                    drawerHeader.classList.add('drawer-highlight');
+                } else {
+                    drawerHeader?.classList.remove('drawer-highlight');
+                }
             },
 
             startAlertUpdates() {
@@ -5903,8 +6326,6 @@
                 element.style.top = Math.max(minY, Math.min(top, maxY)) + 'px';
             },
 
-            // Substitua o método stopDrag atual por este:
-
             stopDrag() {
                 if (!this.dragging || !this.dragData) return;
 
@@ -5988,14 +6409,11 @@
                     widget.removeAttribute('data-dragging');
                     widget.setAttribute('data-was-dragged', 'true');
 
-                    // CORREÇÃO CRÍTICA: Remover o listener antigo e adicionar um novo
                     widget.removeEventListener('mousedown', this.dragListeners[widgetId]);
 
-                    // Criar novo listener para este widget flutuante
                     const newDragListener = (e) => this.startDrag(e, widget);
                     widget.addEventListener('mousedown', newDragListener);
 
-                    // Armazenar o listener para poder removê-lo depois se necessário
                     if (!this.dragListeners) this.dragListeners = {};
                     this.dragListeners[widgetId] = newDragListener;
 
@@ -6112,6 +6530,8 @@
 
                 const progressDisplay = document.getElementById('progressDisplay');
                 if (progressDisplay) progressDisplay.textContent = points + ' pts';
+
+                this.updateDrawerStats();
             },
 
             updateLives(lives) {
@@ -6368,11 +6788,22 @@
                 if (!this.core || !this.core.Player) return;
 
                 const missoes = ['coringa', 'pinguim', 'duascaras', 'harley', 'espantalho', 'charada', 'bane', 'mulhergato'];
+                
+                // Libera todas as missões
                 missoes.forEach(id => {
-                    if (this.core.Player.missionProgress[id]) {
+                    // Cria progresso se não existir
+                    if (!this.core.Player.missionProgress[id]) {
+                        this.core.Player.missionProgress[id] = {
+                            phasesCompleted: 5,
+                            totalPhases: 5,
+                            widgetUnlocked: true
+                        };
+                    } else {
                         this.core.Player.missionProgress[id].widgetUnlocked = true;
                         this.core.Player.missionProgress[id].phasesCompleted = 5;
                     }
+                    
+                    // Adiciona aos arrays de conquistas
                     if (!this.core.Player.earnedWidgets.includes(id)) {
                         this.core.Player.earnedWidgets.push(id);
                     }
@@ -6380,11 +6811,49 @@
                         this.core.Player.completedMissions.push(id);
                     }
                 });
+                
+                // Atualiza contadores
                 this.core.Player.missions.completed = this.core.Player.completedMissions.length;
+                this.core.Player.xp = 3600; // XP total das 8 missões (soma de todas)
+                
+                // Salva no localStorage
                 this.core.Player.save();
+                
+                // Re-renderiza o layout
                 this.renderMKLayout();
                 this.updateAllWidgets();
+                
+                // Abre a gaveta automaticamente para mostrar as missões
+                const drawerContent = document.getElementById('drawerContent');
+                const drawerHeader = document.getElementById('drawerHeader');
+                if (drawerContent && !drawerContent.classList.contains('open')) {
+                    drawerContent.classList.add('open');
+                    drawerHeader.classList.add('open');
+                    document.getElementById('drawerOverlay')?.classList.add('active');
+                }
+                
+                // Animação de celebração
                 this.core.Utils.showToast('🎮 TODAS AS 8 MISSÕES LIBERADAS!', 'success');
+                
+                // Efeito visual de brilho nas missões
+                setTimeout(() => {
+                    document.querySelectorAll('.mk-card').forEach((card, index) => {
+                        setTimeout(() => {
+                            card.style.transform = 'scale(1.05)';
+                            card.style.boxShadow = '0 0 30px gold';
+                            setTimeout(() => {
+                                card.style.transform = '';
+                                card.style.boxShadow = '';
+                            }, 300);
+                        }, index * 100);
+                    });
+                }, 500);
+                
+                // Efeito sonoro
+                if (this.core && this.core.playSound) {
+                    this.core.playSound('levelUp');
+                    setTimeout(() => this.core.playSound('success'), 300);
+                }
             }
         };
 
